@@ -1,6 +1,6 @@
-CFLAGS = -std=c99 -Wall -Wextra -pedantic -g3 -fsanitize=address 
-LDFLAGS = -fsanitize=address
-LIBS = -lSDL2
+CFLAGS = -std=c99 -Wall -Wextra -pedantic -g3 
+LDFLAGS = 
+LIBS = -lSDL2 -lSDL2_image
 
 main: example.o
 	clang -o main $(LDFLAGS) example.o $(LIBS)

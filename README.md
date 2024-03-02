@@ -5,7 +5,7 @@ C'est petit example qui fonctionne qui permet d'afficher une image avec la libra
 # Prérequis
 
 ```bash
-sudo apt install libsdl2-dev clang
+sudo apt install libsdl2-dev clang libsdl2-image-dev
 ```
 
 # Comment lancer le programme ?
