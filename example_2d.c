@@ -22,20 +22,19 @@ int main(void)
 
     // Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
-    // Crée la ma
+    // Crée la map
     Map *map = create_map("map.txt");
-    print_map(map);
     camera camera;
-    create_camera(&camera, 0, 0, 13, 6);
+    create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
     int tile_height = SCREEN_HEIGHT / camera.height;
-    Character *character = create_character("character.png", 0, 0, tile_width, tile_height, 1, renderer, SDL_FALSE);
+    Character *character = create_character("character.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 0.9, tile_height * 0.9, 1, renderer, SDL_FALSE);
     // DEBUG MAP
-    // print_map(map);
-    move_character(character, SCREEN_WIDTH / 2 - character->width / 2, SCREEN_HEIGHT / 2 - character->height / 2);
+    print_map(map);
     // Boucle principale
     int running = 1;
-    SDL_Texture *list_images[10];
+    // Chargement des textures
+    SDL_Texture *list_images[100];
     list_images[0] = loadImage("Textures/texture.png", renderer);
     list_images[1] = loadImage("Textures/terre.png", renderer);
     list_images[2] = loadImage("Textures/texture_limite_gauche.png", renderer);
@@ -45,56 +44,23 @@ int main(void)
     list_images[6] = loadImage("Textures/nuage_droite.png", renderer);
     list_images[7] = loadImage("Textures/gate.png", renderer);
     list_images[8] = loadImage("Textures/gate_top.png", renderer);
-    // data *data = draw_thread(renderer, bleu, map, tile_width, tile_height, character);
+    // Affiche la première image
     draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
     printf("main\n");
-    // int lenght = 0;
-    // const Uint8 *key;
-    // struct data *data = malloc(sizeof(data));
-    // data->renderer = renderer;
-    // data->bleu = bleu;
-    // // Crée une texture à partir d'une image BMP
-    // data->list_images[0] = loadImage("tile1.bmp", renderer);
-    // data->map = map;
-    // data->tile_width = tile_width;
-    // data->tile_height = tile_height;
-    // data->character = character;
-    // int button_pressed = 0;
+    // Initialise la variable qui contient le dernier temps
+    int last_time = 0;
     while (running)
     {
+        // Boucle de gestion des événements
         if (SDL_PollEvent(&event))
         {
-            // key = SDL_GetKeyboardState(&lenght);
-            // if (key[SDL_SCANCODE_ESCAPE])
-            // {
-            //     running = 0;
-            // }
-            // if (key[SDL_SCANCODE_SPACE])
-            // {
-            //     move_character_up(character);
-            // }
-            // if (key[SDL_SCANCODE_S])
-            // {
-            //     move_character_down(character);
-            // }
-            // if (key[SDL_SCANCODE_A])
-            // {
-            //     move_character_left(character);
-            // }
-            // if (key[SDL_SCANCODE_D])
-            // {
-            //     move_character_right(character);
-            // }
-            // if (event.type == SDL_QUIT)
-            // {
-            //     running = 0;
-            // }
-
             switch (event.type)
             {
+            // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
             case SDL_QUIT:
                 running = 0;
                 break;
+            // Si l'événement est de type SDL_KEYDOWN (appui sur une touche) 
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
@@ -110,8 +76,20 @@ int main(void)
                 case SDLK_d:
                     character->right = SDL_TRUE;
                     break;
+                case SDLK_ESCAPE:
+                    running = 0;
+                    break;
+                case SDLK_p:
+                    character->speed += 0.5;
+                    break;
+                case SDLK_o:
+                    character->speed -= 0.5;
+                    break;
+                case SDLK_LSHIFT:
+                    character->dash = SDL_TRUE;
                 }
                 break;
+            // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
             case SDL_KEYUP:
                 switch (event.key.keysym.sym)
                 {
@@ -135,24 +113,17 @@ int main(void)
                 break;
             }
         }
-        // data->character = character;
-        //  Dessine les textures dans le rendu
-
-        // if (SDL_GetTicks() % 100 == 0)
-        // {
-        //     // printf("Timestamp: %d\n", SDL_GetTicks());
-        //     gravity(character);
-        // }
-        if (SDL_GetTicks() % 30 == 0)
+        // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
+        if (SDL_GetTicks() - last_time > 1000 / 60)
         {
-            // printf("Timestamp: %d\n", SDL_GetTicks());
+            last_time = SDL_GetTicks();
+            // Applique la gravité au personnage
             gravity(character);
-            mouvement(map, character);
+            // Applique le mouvement au personnage
+            mouvement(map, character, tile_width, tile_height);
+            // Affiche la map et le personnage
             draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
         }
-        // gravity(character);
-        // collision(character, map);
-        
     }
     printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
@@ -226,6 +197,7 @@ int setWindowColor(SDL_Renderer *renderer, SDL_Color color)
 
 Map *create_map(char *path)
 {
+    // Ouvre le fichier en mode lecture
     FILE *file = fopen(path, "r");
     char ch;
     int width = 0;
@@ -293,17 +265,22 @@ Map *create_map(char *path)
             width++;
         }
     } while (ch != EOF);
+    // Ferme le fichier
+    fclose(file);
+    // Quand on arrive à la fin du fichier on ajoute la dernière ligne
     max_width = max(max_width, width);
     width = 0;
     height++;
+    // On met à jour la largeur et la hauteur de la map
     map->width = max_width;
     map->height = height;
-    printf("width: %d, height: %d\n", map->width, map->height);
+    // On retourne la map
     return map;
 }
 
 void print_map(Map *map)
 {
+    // Affiche le tableau dans la console
     printf("width: %d, height: %d\n", map->width, map->height);
     for (int i = 0; i < map->height; i++)
     {
@@ -315,8 +292,9 @@ void print_map(Map *map)
     }
 }
 
-void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, camera *camera)
+void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, camera *camera)
 {
+    // Affiche la map dans la fenêtre
     for (int i = 0; i < map->height; i++)
     {
         for (int j = 0; j < map->width; j++)
@@ -409,6 +387,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
 
 Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer, SDL_bool on_ground)
 {
+    // Crée un personnage
     Character *character = malloc(sizeof(Character));
     character->x = x;
     character->y = y;
@@ -421,50 +400,101 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     return character;
 }
 
+
 void free_character(Character *character)
 {
+    // Libère la mémoire du personnage
     SDL_DestroyTexture(character->image);
     free(character);
 }
 
-void move_character(Character *character, int x, int y)
+void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height)
 {
-    character->x = x;
-    character->y = y;
+    // Déplace le personnage de x et y et gère les collisions avec la map
+    if (x > 0)
+    {
+        for (int i = 0; i < x; i++)
+        {
+            collision(character, map, tile_width, tile_height);
+            if (character->dx == 0)
+            {
+                break;
+            }
+            character->x += 1;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < -x; i++)
+        {
+            collision(character, map, tile_width, tile_height);
+            if (character->dx == 0)
+            {
+                break;
+            }
+            character->x -= 1;
+        }
+    }
+    if (y > 0)
+    {
+        for (int i = 0; i < y; i++)
+        {
+            collision(character, map, tile_width, tile_height);
+            if (character->dy == 0)
+            {
+                break;
+            }
+            character->y += 1;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < -y; i++)
+        {
+            collision(character, map, tile_width, tile_height);
+            if (character->dy == 0)
+            {
+                break;
+            }
+            character->y -= 1;
+        }
+    }
 }
 
-void move_character_up(Character *character)
+void move_character_up(Character *character, int tile_height)
 {
     if (character->on_ground == SDL_TRUE)
     {
-        character->dy = -(character->height / 5);
+        character->dy = -(tile_height / 5);
         character->on_ground = SDL_FALSE;
     }
 }
 
-void move_character_down(Character *character)
+void move_character_down(Character *character, int tile_height)
 {
-    character->dy = (character->height / 5);
+    character->dy = (tile_height / 5);
 }
 
-void move_character_left(Character *character)
+void move_character_left(Character *character, int tile_width)
 {
-    character->dx = -(character->width / 15) * character->speed;
+    character->dx = -(tile_width / 15) * character->speed;
 }
 
-void move_character_right(Character *character)
+void move_character_right(Character *character, int tile_width)
 {
-    character->dx = (character->width / 15) * character->speed;
+    character->dx = (tile_width / 15) * character->speed;
 }
 
 void draw_character(SDL_Renderer *renderer, Character *character, camera *camera)
 {
+    // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     SDL_RenderCopy(renderer, character->image, NULL, &dst);
 }
 
-void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
+void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
 {
+    // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
     move_camera(camera, character, map);
     draw_map(renderer, list_images, map, tile_width, tile_height, camera);
@@ -472,32 +502,43 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[10], 
     SDL_RenderPresent(renderer);
 }
 
-void mouvement(Map *map, Character *character)
+void mouvement(Map *map, Character *character, int tile_width, int tile_height)
 {
+    // Gère le mouvement du personnage
     if (character->right == SDL_TRUE)
     {
-        move_character_right(character);
+        move_character_right(character, tile_width);
     }
     if (character->left == SDL_TRUE)
     {
-        move_character_left(character);
+        move_character_left(character, tile_width);
     }
     if (character->up == SDL_TRUE)
     {
-        move_character_up(character);
+        move_character_up(character, tile_height);
     }
     if (character->down == SDL_TRUE)
     {
-        move_character_down(character);
+        move_character_down(character, tile_height);
     }
-    collision(character, map);
-    move_character(character, character->x + character->dx, character->y + character->dy);
-    // character->dx = 0;
-    // character->dy = 0;
+    if (character->dash == SDL_TRUE)
+    {
+        character->dx *= 20;
+        character->dy *= 20;
+    }
+    move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+    if (character->dash == SDL_TRUE)
+    {
+        character->dx /= 20;
+        character->dy /= 20;
+        character->dash = SDL_FALSE;
+    }
 }
 
 void gravity(Character *character)
 {
+    // Applique la gravité au personnage
+    // Si le personnage n'est pas sur le sol et que sa vitesse verticale est inférieure à 10
     if (character->on_ground == SDL_FALSE)
     {
         if (character->dy < 10)
@@ -507,25 +548,29 @@ void gravity(Character *character)
     }
 }
 
-void collision(Character *character, Map *map)
+void collision(Character *character, Map *map, int tile_width, int tile_height)
 {
+    // Gère les collisions entre le personnage et la map
     int x = character->x;
     int y = character->y;
     int width = character->width;
     int height = character->height;
     int feet = y + height;
     int center = y + height / 2;
-    int x_tile = x / width;
+    int x_tile = x / tile_width;
     // int y_tile = y / height;
-    int y_tile_feet = feet / height;
-    int y_tile_center = center / height;
-    int y_tile_head = (y - height / 15) / height;
-    int x_tile_width = (x + width) / width;
-    int x_tile_right = (x + width * 1.05) / width;
-    int x_tile_left = (x - width / 15) / width;
+    int y_tile_feet = feet / tile_height;
+    int y_tile_knee = (y + height * 0.95) / tile_height;
+    int y_tile_center = center / tile_height;
+    int y_tile_head = (y - height / 15) / tile_height;
+    int x_tile_width = (x + width) / tile_width;
+    int x_tile_right = (x + width * 1.05) / tile_width;
+    int x_tile_left = (x - width / 15) / tile_width;
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
+
+    // Si le personnage à les pieds sur le sol côté gauche et que sa vitesse verticale est positive
     if (map->tiles[y_tile_feet][x_tile] > 0)
     {
         if (character->dy > 0)
@@ -538,6 +583,7 @@ void collision(Character *character, Map *map)
     {
         on_ground_right = SDL_FALSE;
     }
+    // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
     if (map->tiles[y_tile_feet][x_tile_width] > 0)
     {
         if (character->dy > 0)
@@ -550,10 +596,12 @@ void collision(Character *character, Map *map)
     {
         on_ground_left = SDL_FALSE;
     }
+    // Si le personnage n'est pas sur le sol côté gauche et côté droit alors il n'est pas sur le sol
     if (on_ground_right == SDL_FALSE && on_ground_left == SDL_FALSE)
     {
         character->on_ground = SDL_FALSE;
     }
+    // Si le centre du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
     if (map->tiles[y_tile_center][x_tile_right] > 0)
     {
         if (character->dx > 0)
@@ -561,6 +609,15 @@ void collision(Character *character, Map *map)
             character->dx = 0;
         }
     }
+    // Si les genoux du personnage rentrent dans le mur de droite alors on annule sa vitesse horizontale
+    if (map->tiles[y_tile_knee][x_tile_right] > 0)
+    {
+        if (character->dx > 0)
+        {
+            character->dx = 0;
+        }
+    }
+    // Si le centre du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[y_tile_center][x_tile_left] > 0)
     {
         if (character->dx < 0)
@@ -568,6 +625,15 @@ void collision(Character *character, Map *map)
             character->dx = 0;
         }
     }
+    // Si les genoux du personnage rentrent dans le mur de gauche alors on annule sa vitesse horizontale
+    if (map->tiles[y_tile_knee][x_tile_left] > 0)
+    {
+        if (character->dx < 0)
+        {
+            character->dx = 0;
+        }
+    }
+    // Si la tête côté droit du personnage alors on annule sa vitesse verticale
     if (map->tiles[y_tile_head][x_tile] > 0)
     {
         if (character->dy < 0)
@@ -575,6 +641,7 @@ void collision(Character *character, Map *map)
             character->dy = 0;
         }
     }
+    // Si la tête côté gauche du personnage rentre dans le mur de gauche alors on annule sa vitesse verticale
     if (map->tiles[y_tile_head][x_tile_width] > 0)
     {
         if (character->dy < 0)
@@ -586,6 +653,7 @@ void collision(Character *character, Map *map)
 
 void create_camera(camera *camera, int x, int y, int width, int height)
 {
+    // Crée la camera
     camera->x = x;
     camera->y = y;
     camera->width = width;
@@ -594,49 +662,37 @@ void create_camera(camera *camera, int x, int y, int width, int height)
 
 void move_camera(camera *camera, Character *character, Map *map)
 {
+    // Déplace la camera par rapport au personnage
     int tile_width = SCREEN_WIDTH / camera->width;
+    // Si le personnage est à gauche de l'écran alors la camera est en x est à 0
     if (character->x < SCREEN_WIDTH / 2)
     {
         camera->x = 0;
     }
+    // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
     else if (character->x + SCREEN_WIDTH / 2 > map->width * tile_width)
     {
         camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
+    // Sinon la camera est centré en x par rapport au personnage
     else
     {
         camera->x = character->x - SCREEN_WIDTH / 2;
     }
     int tile_height = SCREEN_HEIGHT / camera->height;
+    // Si le personnage est en haut de l'écran alors la camera est en y est à 0
     if (character->y < SCREEN_HEIGHT / 2)
     {
-        // camera->y = 0;
         camera->y = 0;
     }
+    // Si le personnage est en bas de l'écran alors la camera est en bas de la map
     else if (character->y + SCREEN_HEIGHT / 2 > map->height * tile_height)
     {
         camera->y = map->height * tile_height - SCREEN_HEIGHT;
     }
+    // Sinon la camera est centré en y par rapport au personnage
     else
     {
         camera->y = character->y - SCREEN_HEIGHT / 2;
     }
-    // camera->x = character->x - SCREEN_WIDTH / 2;
-    // camera->y = character->y - SCREEN_HEIGHT / 2;
 }
-// data *draw_thread(SDL_Renderer *renderer, SDL_Color bleu, Map *map, int tile_width, int tile_height, Character *character)
-// {
-//     struct data *data = malloc(sizeof(data));
-//     data->renderer = renderer;gravity
-//     data->bleu = bleu;
-//     // Crée une texture à partir d'une image BMP
-//     data->list_images[0] = loadImage("tile1.bmp", renderer);
-//     data->map = map;
-//     data->tile_width = tile_width;
-//     data->tile_height = tile_height;
-//     data->character = character;
-//     data->running = 1;
-//     printf("draw_thread\n");
-//     // SDL_CreateThread(draw, "draw", data);
-//     return data;
-// }
