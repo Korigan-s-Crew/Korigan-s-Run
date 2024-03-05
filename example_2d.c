@@ -32,7 +32,15 @@ int main(void)
     // Boucle principale
     int running = 1;
     SDL_Texture *list_images[10];
-    list_images[0] = loadImage("tile1.bmp", renderer);
+    list_images[0] = loadImage("Textures/texture.png", renderer);
+    list_images[1] = loadImage("Textures/terre.png", renderer);
+    list_images[2] = loadImage("Textures/texture_limite_gauche.png", renderer);
+    list_images[3] = loadImage("Textures/texture_limite_droite.png", renderer);
+    list_images[4] = loadImage("Textures/nuage.png", renderer);
+    list_images[5] = loadImage("Textures/nuage_gauche.png", renderer);
+    list_images[6] = loadImage("Textures/nuage_droite.png", renderer);
+    list_images[7] = loadImage("Textures/gate.png", renderer);
+    list_images[8] = loadImage("Textures/gate_top.png", renderer);
     // data *data = draw_thread(renderer, bleu, map, tile_width, tile_height, character);
     draw(renderer, bleu, list_images, map, tile_width, tile_height, character);
     printf("main\n");
@@ -127,7 +135,7 @@ int main(void)
         // data->character = character;
         //  Dessine les textures dans le rendu
         action_every_20_ticks++;
-        if (action_every_20_ticks == 20)
+        if (action_every_20_ticks == 2)
         {
             action_every_20_ticks = 0;
             gravity(character);
@@ -230,9 +238,49 @@ Map *create_map(char *path)
             width = 0;
             height++;
         }
-        else
+        else if (ch == '#')
         {
             map->tiles[height][width] = 1;
+            width++;
+        }
+        else if (ch == '@')
+        {
+            map->tiles[height][width] = 2;
+            width++;
+        }
+        else if (ch == 'G')
+        {
+            map->tiles[height][width] = 3;
+            width++;
+        }
+        else if (ch == 'D')
+        {
+            map->tiles[height][width] = 4;
+            width++;
+        }
+        else if (ch == 'N')
+        {
+            map->tiles[height][width] = 5;
+            width++;
+        }
+        else if (ch == '[')
+        {
+            map->tiles[height][width] = 6;
+            width++;
+        }
+        else if (ch == ']')
+        {
+            map->tiles[height][width] = 7;
+            width++;
+        }
+        else if (ch == '!')
+        {
+            map->tiles[height][width] = 8;
+            width++;
+        }
+        else if (ch == 'T')
+        {
+            map->tiles[height][width] = 9;
             width++;
         }
     } while (ch != EOF);
@@ -265,6 +313,79 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
                 // printf("i: %d, j: %d\n", i, j);
                 SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[0], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 2)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[1], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+
+            else if (map->tiles[i][j] == 3)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[2], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 4)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[3], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 5)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[4], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 6)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[5], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 7)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[6], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 8)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[7], NULL, &dst) < 0)
+                {
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                }
+            }
+            else if (map->tiles[i][j] == 9)
+            {
+                // printf("i: %d, j: %d\n", i, j);
+                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                if (SDL_RenderCopy(renderer, list_images[8], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                 }
@@ -398,7 +519,7 @@ void collision(Character *character, Map *map)
     {
         on_ground_right = SDL_FALSE;
     }
-    if (map->tiles[y_tile_feet][x_tile_width] == 1)
+    if (map->tiles[y_tile_feet][x_tile_width] != 0)
     {
         if (character->dy > 0)
         {

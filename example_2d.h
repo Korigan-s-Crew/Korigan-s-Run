@@ -36,7 +36,7 @@ struct data
 {
     SDL_Renderer *renderer;
     SDL_Color bleu;
-    SDL_Texture *list_images[10];
+    SDL_Texture *list_images[100];
     Map *map;
     int tile_width;
     int tile_height;
@@ -48,7 +48,7 @@ SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
 int init(SDL_Window **window, SDL_Renderer **renderer, int w, int h);
 int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 Map *create_map(char *path);
-void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height);
+void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height);
 void print_map(Map *map);
 Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer, SDL_bool onground);
 void free_character(Character *character);
@@ -58,7 +58,7 @@ void move_character_up(Character *character);
 void move_character_down(Character *character);
 void move_character_left(Character *character);
 void move_character_right(Character *character);
-void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, Character *character);
+void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, Character *character);
 void mouvement(Map *map, Character *character);
 void gravity(Character *character);
 void collision(Character *character, Map *map);
