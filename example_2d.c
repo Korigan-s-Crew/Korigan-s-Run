@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "example_2d.h"
 #include <string.h>
+#include <time.h>
 
 int main(void)
 {
@@ -23,8 +24,11 @@ int main(void)
     setWindowColor(renderer, bleu);
     // Crée la ma
     Map *map = create_map("map.txt");
-    int tile_width = SCREEN_WIDTH / map->width;
-    int tile_height = SCREEN_HEIGHT / map->height;
+    print_map(map);
+    camera camera;
+    create_camera(&camera, 0, 0, 13, 6);
+    int tile_width = SCREEN_WIDTH / camera.width;
+    int tile_height = SCREEN_HEIGHT / camera.height;
     Character *character = create_character("character.png", 0, 0, tile_width, tile_height, 1, renderer, SDL_FALSE);
     // DEBUG MAP
     // print_map(map);
@@ -42,11 +46,10 @@ int main(void)
     list_images[7] = loadImage("Textures/gate.png", renderer);
     list_images[8] = loadImage("Textures/gate_top.png", renderer);
     // data *data = draw_thread(renderer, bleu, map, tile_width, tile_height, character);
-    draw(renderer, bleu, list_images, map, tile_width, tile_height, character);
+    draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
     printf("main\n");
     // int lenght = 0;
     // const Uint8 *key;
-    int action_every_20_ticks = 0;
     // struct data *data = malloc(sizeof(data));
     // data->renderer = renderer;
     // data->bleu = bleu;
@@ -134,16 +137,22 @@ int main(void)
         }
         // data->character = character;
         //  Dessine les textures dans le rendu
-        action_every_20_ticks++;
-        if (action_every_20_ticks == 2)
+
+        // if (SDL_GetTicks() % 100 == 0)
+        // {
+        //     // printf("Timestamp: %d\n", SDL_GetTicks());
+        //     gravity(character);
+        // }
+        if (SDL_GetTicks() % 30 == 0)
         {
-            action_every_20_ticks = 0;
+            // printf("Timestamp: %d\n", SDL_GetTicks());
             gravity(character);
             mouvement(map, character);
+            draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
         }
         // gravity(character);
-        collision(character, map);
-        draw(renderer, bleu, list_images, map, tile_width, tile_height, character);
+        // collision(character, map);
+        
     }
     printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
@@ -226,7 +235,7 @@ Map *create_map(char *path)
     do
     {
         ch = fgetc(file);
-        printf("%c", ch);
+        // printf("%c", ch);
         if (ch == ' ')
         {
             map->tiles[height][width] = 0;
@@ -284,8 +293,12 @@ Map *create_map(char *path)
             width++;
         }
     } while (ch != EOF);
+    max_width = max(max_width, width);
+    width = 0;
+    height++;
     map->width = max_width;
     map->height = height;
+    printf("width: %d, height: %d\n", map->width, map->height);
     return map;
 }
 
@@ -302,7 +315,7 @@ void print_map(Map *map)
     }
 }
 
-void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height)
+void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, camera *camera)
 {
     for (int i = 0; i < map->height; i++)
     {
@@ -311,7 +324,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             if (map->tiles[i][j] == 1)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[0], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -320,7 +333,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 2)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[1], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -330,7 +343,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 3)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[2], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -339,7 +352,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 4)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[3], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -348,7 +361,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 5)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[4], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -357,7 +370,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 6)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[5], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -366,7 +379,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 7)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[6], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -375,7 +388,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 8)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[7], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -384,7 +397,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[10], Map *map, in
             else if (map->tiles[i][j] == 9)
             {
                 // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width, i * tile_height, tile_width, tile_height};
+                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, list_images[8], NULL, &dst) < 0)
                 {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
@@ -444,17 +457,18 @@ void move_character_right(Character *character)
     character->dx = (character->width / 15) * character->speed;
 }
 
-void draw_character(SDL_Renderer *renderer, Character *character)
+void draw_character(SDL_Renderer *renderer, Character *character, camera *camera)
 {
-    SDL_Rect dst = {character->x, character->y, character->width, character->height};
+    SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     SDL_RenderCopy(renderer, character->image, NULL, &dst);
 }
 
-void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, Character *character)
+void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[10], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
 {
     setWindowColor(renderer, bleu);
-    draw_map(renderer, list_images, map, tile_width, tile_height);
-    draw_character(renderer, character);
+    move_camera(camera, character, map);
+    draw_map(renderer, list_images, map, tile_width, tile_height, camera);
+    draw_character(renderer, character, camera);
     SDL_RenderPresent(renderer);
 }
 
@@ -486,7 +500,10 @@ void gravity(Character *character)
 {
     if (character->on_ground == SDL_FALSE)
     {
-        character->dy += 1;
+        if (character->dy < 10)
+        {
+            character->dy += 1;
+        }
     }
 }
 
@@ -497,17 +514,19 @@ void collision(Character *character, Map *map)
     int width = character->width;
     int height = character->height;
     int feet = y + height;
+    int center = y + height / 2;
     int x_tile = x / width;
-    int y_tile = y / height;
+    // int y_tile = y / height;
     int y_tile_feet = feet / height;
+    int y_tile_center = center / height;
     int y_tile_head = (y - height / 15) / height;
     int x_tile_width = (x + width) / width;
-    int x_tile_right = (x + width *1.05) / width;
+    int x_tile_right = (x + width * 1.05) / width;
     int x_tile_left = (x - width / 15) / width;
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
-    if (map->tiles[y_tile_feet][x_tile] == 1)
+    if (map->tiles[y_tile_feet][x_tile] > 0)
     {
         if (character->dy > 0)
         {
@@ -519,7 +538,7 @@ void collision(Character *character, Map *map)
     {
         on_ground_right = SDL_FALSE;
     }
-    if (map->tiles[y_tile_feet][x_tile_width] != 0)
+    if (map->tiles[y_tile_feet][x_tile_width] > 0)
     {
         if (character->dy > 0)
         {
@@ -535,28 +554,28 @@ void collision(Character *character, Map *map)
     {
         character->on_ground = SDL_FALSE;
     }
-    if (map->tiles[y_tile][x_tile_right] == 1)
+    if (map->tiles[y_tile_center][x_tile_right] > 0)
     {
         if (character->dx > 0)
         {
             character->dx = 0;
         }
     }
-    if (map->tiles[y_tile][x_tile_left] == 1)
+    if (map->tiles[y_tile_center][x_tile_left] > 0)
     {
         if (character->dx < 0)
         {
             character->dx = 0;
         }
     }
-    if (map->tiles[y_tile_head][x_tile] == 1)
+    if (map->tiles[y_tile_head][x_tile] > 0)
     {
         if (character->dy < 0)
         {
             character->dy = 0;
         }
     }
-    if (map->tiles[y_tile_head][x_tile_width] == 1)
+    if (map->tiles[y_tile_head][x_tile_width] > 0)
     {
         if (character->dy < 0)
         {
@@ -565,6 +584,46 @@ void collision(Character *character, Map *map)
     }
 }
 
+void create_camera(camera *camera, int x, int y, int width, int height)
+{
+    camera->x = x;
+    camera->y = y;
+    camera->width = width;
+    camera->height = height;
+}
+
+void move_camera(camera *camera, Character *character, Map *map)
+{
+    int tile_width = SCREEN_WIDTH / camera->width;
+    if (character->x < SCREEN_WIDTH / 2)
+    {
+        camera->x = 0;
+    }
+    else if (character->x + SCREEN_WIDTH / 2 > map->width * tile_width)
+    {
+        camera->x = map->width * tile_width - SCREEN_WIDTH;
+    }
+    else
+    {
+        camera->x = character->x - SCREEN_WIDTH / 2;
+    }
+    int tile_height = SCREEN_HEIGHT / camera->height;
+    if (character->y < SCREEN_HEIGHT / 2)
+    {
+        // camera->y = 0;
+        camera->y = 0;
+    }
+    else if (character->y + SCREEN_HEIGHT / 2 > map->height * tile_height)
+    {
+        camera->y = map->height * tile_height - SCREEN_HEIGHT;
+    }
+    else
+    {
+        camera->y = character->y - SCREEN_HEIGHT / 2;
+    }
+    // camera->x = character->x - SCREEN_WIDTH / 2;
+    // camera->y = character->y - SCREEN_HEIGHT / 2;
+}
 // data *draw_thread(SDL_Renderer *renderer, SDL_Color bleu, Map *map, int tile_width, int tile_height, Character *character)
 // {
 //     struct data *data = malloc(sizeof(data));
