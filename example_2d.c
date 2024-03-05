@@ -60,7 +60,7 @@ int main(void)
             case SDL_QUIT:
                 running = 0;
                 break;
-            // Si l'événement est de type SDL_KEYDOWN (appui sur une touche) 
+            // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
@@ -394,17 +394,27 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->width = width;
     character->height = height;
     character->speed = speed;
-    character->image = loadImage(path, renderer);
+    character->images[0] = loadImage(path, renderer);
+    for (int i = 1; i < 10; i++)
+    {
+        character->images[i] = NULL;
+    }
     character->on_ground = on_ground;
     // SDL_QueryTexture(character->image, NULL, NULL, &character->width, &character->height);
     return character;
 }
 
-
 void free_character(Character *character)
 {
     // Libère la mémoire du personnage
-    SDL_DestroyTexture(character->image);
+    for (int i = 0; i < 10; i++)
+    {
+        if (character->images[i] != NULL)
+        {
+            SDL_DestroyTexture(character->images[i]);
+        }
+    }
+    // SDL_DestroyTexture(character->images[0]);
     free(character);
 }
 
@@ -489,7 +499,34 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
 {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
-    SDL_RenderCopy(renderer, character->image, NULL, &dst);
+    if (character->right == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else if (character->left == SDL_TRUE)
+    {
+        SDL_RenderCopyEx(renderer, character->images[0], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+    }
+    else if (character->up == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else if (character->down == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else if (character->dash == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else if (character->on_ground == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
 }
 
 void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera)

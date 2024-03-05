@@ -30,7 +30,7 @@ struct Character
     SDL_bool up;
     SDL_bool down;
     SDL_bool dash;
-    SDL_Texture *image;
+    SDL_Texture *images[10];
 };
 typedef struct data data;
 struct data
