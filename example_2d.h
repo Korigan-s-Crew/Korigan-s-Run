@@ -50,6 +50,7 @@ struct camera
     int y;
     int width;
     int height;
+    int fps;
 };
 typedef struct camera camera;
 
@@ -60,8 +61,11 @@ Map *create_map(char *path);
 void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, camera *camera);
 void print_map(Map *map);
 Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer, SDL_bool onground);
+char *addcat(char *result, char *path, char *name);
 void free_character(Character *character);
 void draw_character(SDL_Renderer *renderer, Character *character, camera *camera);
+void draw_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index);
+void draw_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle);
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);
@@ -71,7 +75,6 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100],
 void mouvement(Map *map, Character *character, int tile_width, int tile_height);
 void gravity(Character *character);
 void collision(Character *character, Map *map, int tile_width, int tile_height);
-void future_collision(Character *character, Map *map);
 void create_camera(camera *camera, int x, int y, int width, int height);
 void move_camera(camera *camera, Character *character, Map *map);
 // data *draw_thread(SDL_Renderer *renderer, SDL_Color bleu, Map *map, int tile_width, int tile_height, Character *character);

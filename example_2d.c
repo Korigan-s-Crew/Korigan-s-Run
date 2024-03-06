@@ -28,7 +28,7 @@ int main(void)
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
     int tile_height = SCREEN_HEIGHT / camera.height;
-    Character *character = create_character("character.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 0.9, tile_height * 0.9, 1, renderer, SDL_FALSE);
+    Character *character = create_character("Textures/Character/", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 0.9, tile_height * 0.9, 1, renderer, SDL_FALSE);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
@@ -49,6 +49,7 @@ int main(void)
     printf("main\n");
     // Initialise la variable qui contient le dernier temps
     int last_time = 0;
+    int last_time_sec = 0;
     while (running)
     {
         // Boucle de gestion des événements
@@ -113,6 +114,12 @@ int main(void)
                 break;
             }
         }
+        if (SDL_GetTicks() - last_time_sec > 1000)
+        {
+            last_time_sec = SDL_GetTicks();
+            printf("fps: %d\n", camera.fps);
+            camera.fps = 0;
+        }
         // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
         if (SDL_GetTicks() - last_time > 1000 / 60)
         {
@@ -121,8 +128,9 @@ int main(void)
             gravity(character);
             // Applique le mouvement au personnage
             mouvement(map, character, tile_width, tile_height);
-            // Affiche la map et le personnage
+            // Affiche la map et le personnage dans la fenêtre
             draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
+            camera.fps++;
         }
     }
     printf("x: %d, y: %d \n", character->x, character->y);
@@ -394,16 +402,31 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->width = width;
     character->height = height;
     character->speed = speed;
-    character->images[0] = loadImage(path, renderer);
-    for (int i = 1; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++)
         character->images[i] = NULL;
-    }
+    char result[100];
+    // strcpy(result, path);
+    // strcat(result, "/character.png");
+    character->images[0] = loadImage(addcat(result, path, "character.png"), renderer);
+    character->images[1] = loadImage(addcat(result, path, "character1.png"), renderer);
+    character->images[2] = loadImage(addcat(result, path, "character2.png"), renderer);
+    character->images[3] = loadImage(addcat(result, path, "character3.png"), renderer);
+    character->images[4] = loadImage(addcat(result, path, "character4.png"), renderer);
+    character->images[5] = loadImage(addcat(result, path, "character5.png"), renderer);
+    character->images[6] = loadImage(addcat(result, path, "character6.png"), renderer);
+    character->images[7] = loadImage(addcat(result, path, "character7.png"), renderer);
     character->on_ground = on_ground;
     // SDL_QueryTexture(character->image, NULL, NULL, &character->width, &character->height);
     return character;
 }
 
+char *addcat(char* result, char *path, char *name)
+{
+    strcpy(result, path);
+    strcat(result, "/");
+    strcat(result, name);
+    return result;
+}
 void free_character(Character *character)
 {
     // Libère la mémoire du personnage
@@ -501,11 +524,11 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     if (character->right == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        draw_animation(renderer, character, &dst, camera, 0);
     }
     else if (character->left == SDL_TRUE)
     {
-        SDL_RenderCopyEx(renderer, character->images[0], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+        draw_animationEx(renderer, character, &dst, camera, 0, SDL_FLIP_HORIZONTAL);
     }
     else if (character->up == SDL_TRUE)
     {
@@ -527,6 +550,46 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     {
         SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
     }
+}
+
+void draw_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index)
+{
+    if (camera->fps < 60 / 8)
+        SDL_RenderCopy(renderer, character->images[index], NULL, dst);
+    else if (camera->fps < (60 * 2) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 1], NULL, dst);
+    else if (camera->fps < (60 * 3) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 2], NULL, dst);
+    else if (camera->fps < (60 * 4) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 3], NULL, dst);
+    else if (camera->fps < (60 * 5) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 4], NULL, dst);
+    else if (camera->fps < (60 * 6) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 5], NULL, dst);
+    else if (camera->fps < (60 * 7) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 6], NULL, dst);
+    else if (camera->fps < (60 * 8) / 8)
+        SDL_RenderCopy(renderer, character->images[index + 7], NULL, dst);
+}
+
+void draw_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle)
+{
+    if (camera->fps < 60 / 8)
+        SDL_RenderCopyEx(renderer, character->images[index], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 2) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 1], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 3) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 2], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 4) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 3], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 5) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 4], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 6) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 5], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 7) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 6], NULL, dst, 0, NULL, SDL_angle);
+    else if (camera->fps < (60 * 8) / 8)
+        SDL_RenderCopyEx(renderer, character->images[index + 7], NULL, dst, 0, NULL, SDL_angle);
 }
 
 void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
@@ -695,6 +758,7 @@ void create_camera(camera *camera, int x, int y, int width, int height)
     camera->y = y;
     camera->width = width;
     camera->height = height;
+    camera->fps = 0;
 }
 
 void move_camera(camera *camera, Character *character, Map *map)
