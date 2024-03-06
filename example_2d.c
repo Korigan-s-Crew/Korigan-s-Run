@@ -23,7 +23,7 @@ int main(void)
     // Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
     // Crée la map
-    Map *map = create_map("map.txt");
+    Map *map = create_map("level.txt");
     camera camera;
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
@@ -420,7 +420,7 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     return character;
 }
 
-char *addcat(char* result, char *path, char *name)
+char *addcat(char *result, char *path, char *name)
 {
     strcpy(result, path);
     strcat(result, "/");
@@ -524,11 +524,11 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     if (character->right == SDL_TRUE)
     {
-        draw_animation(renderer, character, &dst, camera, 0);
+        draw_character_animation(renderer, character, &dst, camera, 0, character->speed);
     }
     else if (character->left == SDL_TRUE)
     {
-        draw_animationEx(renderer, character, &dst, camera, 0, SDL_FLIP_HORIZONTAL);
+        draw_character_animationEx(renderer, character, &dst, camera, 0, SDL_FLIP_HORIZONTAL, character->speed);
     }
     else if (character->up == SDL_TRUE)
     {
@@ -552,43 +552,43 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
 }
 
-void draw_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index)
+void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed)
 {
-    if (camera->fps < MAX_FPS / 8)
+    if (camera->fps % (int)(MAX_FPS / speed) < MAX_FPS / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 2) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 2) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 1], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 3) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 3) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 2], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 4) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 4) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 3], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 5) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 5) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 4], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 6) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 6) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 5], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 7) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 7) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 6], NULL, dst);
-    else if (camera->fps < (MAX_FPS * 8) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 8) / (8 * speed))
         SDL_RenderCopy(renderer, character->images[index + 7], NULL, dst);
 }
 
-void draw_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle)
+void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed)
 {
-    if (camera->fps < MAX_FPS / 8)
+    if (camera->fps % (int)(MAX_FPS / speed) < MAX_FPS / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 2) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 2) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 1], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 3) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 3) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 2], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 4) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 4) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 3], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 5) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 5) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 4], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 6) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 6) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 5], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 7) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 7) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 6], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (MAX_FPS * 8) / 8)
+    else if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * 8) / (8 * speed))
         SDL_RenderCopyEx(renderer, character->images[index + 7], NULL, dst, 0, NULL, SDL_angle);
 }
 
