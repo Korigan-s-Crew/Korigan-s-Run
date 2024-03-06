@@ -121,7 +121,7 @@ int main(void)
             camera.fps = 0;
         }
         // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
-        if (SDL_GetTicks() - last_time > 1000 / 60)
+        if (SDL_GetTicks() - last_time > 1000 / MAX_FPS)
         {
             last_time = SDL_GetTicks();
             // Applique la gravité au personnage
@@ -554,41 +554,41 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
 
 void draw_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index)
 {
-    if (camera->fps < 60 / 8)
+    if (camera->fps < MAX_FPS / 8)
         SDL_RenderCopy(renderer, character->images[index], NULL, dst);
-    else if (camera->fps < (60 * 2) / 8)
+    else if (camera->fps < (MAX_FPS * 2) / 8)
         SDL_RenderCopy(renderer, character->images[index + 1], NULL, dst);
-    else if (camera->fps < (60 * 3) / 8)
+    else if (camera->fps < (MAX_FPS * 3) / 8)
         SDL_RenderCopy(renderer, character->images[index + 2], NULL, dst);
-    else if (camera->fps < (60 * 4) / 8)
+    else if (camera->fps < (MAX_FPS * 4) / 8)
         SDL_RenderCopy(renderer, character->images[index + 3], NULL, dst);
-    else if (camera->fps < (60 * 5) / 8)
+    else if (camera->fps < (MAX_FPS * 5) / 8)
         SDL_RenderCopy(renderer, character->images[index + 4], NULL, dst);
-    else if (camera->fps < (60 * 6) / 8)
+    else if (camera->fps < (MAX_FPS * 6) / 8)
         SDL_RenderCopy(renderer, character->images[index + 5], NULL, dst);
-    else if (camera->fps < (60 * 7) / 8)
+    else if (camera->fps < (MAX_FPS * 7) / 8)
         SDL_RenderCopy(renderer, character->images[index + 6], NULL, dst);
-    else if (camera->fps < (60 * 8) / 8)
+    else if (camera->fps < (MAX_FPS * 8) / 8)
         SDL_RenderCopy(renderer, character->images[index + 7], NULL, dst);
 }
 
 void draw_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle)
 {
-    if (camera->fps < 60 / 8)
+    if (camera->fps < MAX_FPS / 8)
         SDL_RenderCopyEx(renderer, character->images[index], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 2) / 8)
+    else if (camera->fps < (MAX_FPS * 2) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 1], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 3) / 8)
+    else if (camera->fps < (MAX_FPS * 3) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 2], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 4) / 8)
+    else if (camera->fps < (MAX_FPS * 4) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 3], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 5) / 8)
+    else if (camera->fps < (MAX_FPS * 5) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 4], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 6) / 8)
+    else if (camera->fps < (MAX_FPS * 6) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 5], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 7) / 8)
+    else if (camera->fps < (MAX_FPS * 7) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 6], NULL, dst, 0, NULL, SDL_angle);
-    else if (camera->fps < (60 * 8) / 8)
+    else if (camera->fps < (MAX_FPS * 8) / 8)
         SDL_RenderCopyEx(renderer, character->images[index + 7], NULL, dst, 0, NULL, SDL_angle);
 }
 

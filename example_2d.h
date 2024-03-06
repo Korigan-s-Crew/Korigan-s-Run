@@ -5,6 +5,7 @@
 #define SCREEN_WIDTH 1300
 #define SCREEN_HEIGHT 720
 #define MAX_TILES 128
+#define MAX_FPS 60
 #define max(a, b) (a > b ? a : b)
 
 typedef struct Map Map;
