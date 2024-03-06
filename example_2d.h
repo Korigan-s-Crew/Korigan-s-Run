@@ -25,6 +25,7 @@ struct Character
     int width;
     int height;
     float speed;
+    SDL_bool alive;
     SDL_bool on_ground;
     SDL_bool right;
     SDL_bool left;
@@ -32,18 +33,6 @@ struct Character
     SDL_bool down;
     SDL_bool dash;
     SDL_Texture *images[10];
-};
-typedef struct data data;
-struct data
-{
-    SDL_Renderer *renderer;
-    SDL_Color bleu;
-    SDL_Texture *list_images[100];
-    Map *map;
-    int tile_width;
-    int tile_height;
-    Character *character;
-    int running;
 };
 struct camera
 {
@@ -78,5 +67,4 @@ void gravity(Character *character);
 void collision(Character *character, Map *map, int tile_width, int tile_height);
 void create_camera(camera *camera, int x, int y, int width, int height);
 void move_camera(camera *camera, Character *character, Map *map);
-// data *draw_thread(SDL_Renderer *renderer, SDL_Color bleu, Map *map, int tile_width, int tile_height, Character *character);
 #endif

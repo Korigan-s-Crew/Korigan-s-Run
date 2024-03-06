@@ -23,7 +23,7 @@ int main(void)
     // Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
     // Crée la map
-    Map *map = create_map("map.txt");
+    Map *map = create_map("level.txt");
     camera camera;
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
@@ -130,6 +130,8 @@ int main(void)
         if (SDL_GetTicks() - last_time > 1000 / MAX_FPS)
         {
             last_time = SDL_GetTicks();
+            if (character->alive == SDL_FALSE)
+                running = 0;
             // Applique la gravité au personnage
             gravity(character);
             // Applique le mouvement au personnage
@@ -653,6 +655,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     int y_tile_feet = feet / tile_height;
     int y_tile_knee = (y + height * 0.95) / tile_height;
     int y_tile_center = center / tile_height;
+    int y_tile_neck = (y + height / 15) / tile_height;
     int y_tile_head = (y - height / 15) / tile_height;
     int x_tile_width = (x + width) / tile_width;
     int x_tile_right = (x + width * 1.05) / tile_width;
@@ -708,6 +711,14 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
             character->dx = 0;
         }
     }
+    // Si le coup du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
+    if (map->tiles[y_tile_neck][x_tile_right] > 0)
+    {
+        if (character->dx > 0)
+        {
+            character->dx = 0;
+        }
+    }
     // Si le centre du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[y_tile_center][x_tile_left] > 0)
     {
@@ -718,6 +729,14 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     }
     // Si les genoux du personnage rentrent dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[y_tile_knee][x_tile_left] > 0)
+    {
+        if (character->dx < 0)
+        {
+            character->dx = 0;
+        }
+    }
+    // Si le coup du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
+    if (map->tiles[y_tile_neck][x_tile_left] > 0)
     {
         if (character->dx < 0)
         {
@@ -739,6 +758,21 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
         {
             character->dy = 0;
         }
+    }
+    if (character->y > map->height * tile_height)
+    {
+        character->alive = SDL_FALSE;
+        character->y = SCREEN_HEIGHT / 2;
+    }
+    if (character->x > map->width * tile_width)
+    {
+        character->alive = SDL_FALSE;
+        character->x = SCREEN_WIDTH / 2;
+    }
+    if (character->x < - character->width)
+    {
+        character->alive = SDL_FALSE;
+        character->x = SCREEN_WIDTH / 2;
     }
 }
 
