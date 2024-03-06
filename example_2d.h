@@ -65,8 +65,8 @@ Character *create_character(char *path, int x, int y, int width, int height, int
 char *addcat(char *result, char *path, char *name);
 void free_character(Character *character);
 void draw_character(SDL_Renderer *renderer, Character *character, camera *camera);
-void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed);
-void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed);
+void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed, int nb_frame);
+void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);
