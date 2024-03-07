@@ -28,7 +28,7 @@ int main(void)
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
     int tile_height = SCREEN_HEIGHT / camera.height;
-    Character *character = create_character("Textures/Character", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 0.9, tile_height * 0.9, 1, renderer, SDL_FALSE);
+    Character *character = create_character("Textures/korigan", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 1.5, tile_height * 1.5, 1, renderer, SDL_FALSE);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
@@ -533,11 +533,11 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     if (character->right == SDL_TRUE)
     {
-        draw_character_animation(renderer, character, &dst, camera, 0, character->speed, 8);
+        draw_character_animation(renderer, character, &dst, camera, 1, character->speed, 7);
     }
     else if (character->left == SDL_TRUE)
     {
-        draw_character_animationEx(renderer, character, &dst, camera, 0, SDL_FLIP_HORIZONTAL, character->speed, 8);
+        draw_character_animationEx(renderer, character, &dst, camera, 1, SDL_FLIP_HORIZONTAL, character->speed, 7);
     }
     else if (character->up == SDL_TRUE)
     {
@@ -563,7 +563,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
 
 void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed, int nb_frame)
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < nb_frame; i++)
     {
         if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed))
         {
@@ -575,7 +575,7 @@ void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_
 
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed, int nb_frame)
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < nb_frame; i++)
     {
         if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed))
         {
