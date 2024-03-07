@@ -1,5 +1,5 @@
 CFLAGS = -std=c99 -Wall -Wextra -pedantic -g3 
-LDFLAGS = 
+LDFLAGS = -fsanitize=address
 LIBS = -lSDL2 -lSDL2_image
 
 main: example.o
