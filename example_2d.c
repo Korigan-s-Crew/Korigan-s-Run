@@ -23,7 +23,7 @@ int main(void)
     // Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
     // Crée la map
-    Map *map = create_map("level.txt");
+    Map *map = create_map("map.txt");
     camera camera;
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
@@ -220,6 +220,13 @@ Map *create_map(char *path)
     int height = 0;
     int max_width = 0;
     Map *map = malloc(sizeof(Map));
+    for (int i = 0; i < MAX_TILES; i++)
+    {
+        for (int j = 0; j < MAX_TILES; j++)
+        {
+            map->tiles[i][j] = 0;
+        }
+    }
     do
     {
         ch = fgetc(file);
