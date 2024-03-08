@@ -201,61 +201,22 @@ Map *create_map(char *path)
     {
         ch = fgetc(file);
         // printf("%c", ch);
-        if (ch == ' ')
+        char tile_mapping[] = " #@GDN[]!T";
+
+        for (int i = 0; i < sizeof(tile_mapping) - 1; i++)
         {
-            map->tiles[height][width] = 0;
-            width++;
+            if (ch == tile_mapping[i])
+            {
+                map->tiles[height][width] = i;
+                width++;
+                break;
+            }
         }
-        else if (ch == '\n')
+        if (ch == '\n')
         {
             max_width = max(max_width, width);
             width = 0;
             height++;
-        }
-        else if (ch == '#')
-        {
-            map->tiles[height][width] = 1;
-            width++;
-        }
-        else if (ch == '@')
-        {
-            map->tiles[height][width] = 2;
-            width++;
-        }
-        else if (ch == 'G')
-        {
-            map->tiles[height][width] = 3;
-            width++;
-        }
-        else if (ch == 'D')
-        {
-            map->tiles[height][width] = 4;
-            width++;
-        }
-        else if (ch == 'N')
-        {
-            map->tiles[height][width] = 5;
-            width++;
-        }
-        else if (ch == '[')
-        {
-            map->tiles[height][width] = 6;
-            width++;
-        }
-        else if (ch == ']')
-        {
-            map->tiles[height][width] = 7;
-            width++;
-        }
-        else if (ch == '!')
-        {
-            map->tiles[height][width] = 8;
-            width++;
-        }
-        else if (ch == 'T')
-        {
-            map->tiles[height][width] = 9;
-            width++;
         }
     } while (ch != EOF);
     // Ferme le fichier
@@ -614,6 +575,64 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     int x_tile_left = (x - width / 15) / tile_width;
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
+
+    // Prevent heap-buffer-overflow
+    if (x_tile < 0)
+    {
+        x_tile = 0;
+    }
+    if (x_tile_width < 0)
+    {
+        x_tile_width = 0;
+    }
+    if (y_tile_feet < 0)
+    {
+        y_tile_feet = 0;
+    }
+    if (y_tile_knee < 0)
+    {
+        y_tile_knee = 0;
+    }
+    if (y_tile_center < 0)
+    {
+        y_tile_center = 0;
+    }
+    if (y_tile_neck < 0)
+    {
+        y_tile_neck = 0;
+    }
+    if (y_tile_head < 0)
+    {
+        y_tile_head = 0;
+    }
+    if (x_tile > map->width - 1)
+    {
+        x_tile = map->width - 1;
+    }
+    if (x_tile_width > map->width - 1)
+    {
+        x_tile_width = map->width - 1;
+    }
+    if (y_tile_feet > map->height - 1)
+    {
+        y_tile_feet = map->height - 1;
+    }
+    if (y_tile_knee > map->height - 1)
+    {
+        y_tile_knee = map->height - 1;
+    }
+    if (y_tile_center > map->height - 1)
+    {
+        y_tile_center = map->height - 1;
+    }
+    if (y_tile_neck > map->height - 1)
+    {
+        y_tile_neck = map->height - 1;
+    }
+    if (y_tile_head > map->height - 1)
+    {
+        y_tile_head = map->height - 1;
+    }
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
 
     // Si le personnage à les pieds sur le sol côté gauche et que sa vitesse verticale est positive
