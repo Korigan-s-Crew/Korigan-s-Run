@@ -1,4 +1,10 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
@@ -7,6 +13,7 @@
 #define MAX_TILES 128
 #define MAX_FPS 60
 #define max(a, b) (a > b ? a : b)
+#include "init.h"
 
 typedef struct Map Map;
 struct Map
@@ -45,7 +52,6 @@ struct camera
 typedef struct camera camera;
 
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
-int init(SDL_Window **window, SDL_Renderer **renderer, int w, int h);
 int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 Map *create_map(char *path);
 void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, camera *camera);

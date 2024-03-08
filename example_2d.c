@@ -1,10 +1,4 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "example_2d.h"
-#include <string.h>
-#include <time.h>
 
 int main(void)
 {
@@ -146,34 +140,13 @@ int main(void)
     free(map);
     free_character(character);
 Quit:
-    // free(data);
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
     if (NULL != window)
         SDL_DestroyWindow(window);
-    SDL_Quit();
+    IMG_Quit();
+    //SDL_Quit();
     return statut;
-}
-
-int init(SDL_Window **window, SDL_Renderer **renderer, int w, int h)
-{
-    if (0 != SDL_Init(SDL_INIT_VIDEO))
-    {
-        fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
-        return -1;
-    }
-    // Crée la fenêtre et le rendu
-    if (0 != SDL_CreateWindowAndRenderer(w, h, SDL_WINDOW_RESIZABLE, window, renderer))
-    {
-        fprintf(stderr, "Erreur SDL_CreateWindowAndRenderer : %s", SDL_GetError());
-        return -1;
-    }
-    return 0;
-    int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags))
-    {
-        fprintf(stderr, "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
-    }
 }
 
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer)
@@ -417,6 +390,14 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->width = width;
     character->height = height;
     character->speed = speed;
+    character->dx = 0;
+    character->dy = 0;
+    character->up = SDL_FALSE;
+    character->down = SDL_FALSE;
+    character->left = SDL_FALSE;
+    character->right = SDL_FALSE;
+    character->dash = SDL_FALSE;
+    character->alive = SDL_TRUE;
     for (int i = 0; i < 10; i++)
         character->images[i] = NULL;
     char result[100];

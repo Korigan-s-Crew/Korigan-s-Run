@@ -46,7 +46,7 @@ int setWindowColor(SDL_Renderer *renderer, SDL_Color color)
     return 0;  
 }
 
-int main(int argc, char *argv)
+int main(void)
 {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -56,7 +56,7 @@ int main(int argc, char *argv)
     if(0 != init(&window, &renderer, 640, 480))
         goto Quit;
 
-    image = loadImage("character.png", renderer);
+    image = loadImage("tile1.bmp", renderer);
     if(NULL == image)
         goto Quit;
 
@@ -73,6 +73,6 @@ int main(int argc, char *argv)
         SDL_DestroyRenderer(renderer);
     if(NULL != window)
         SDL_DestroyWindow(window);
-    SDL_Quit();
+    //SDL_Quit();
     return statut;
 }
