@@ -295,86 +295,16 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, i
     {
         for (int j = 0; j < map->width; j++)
         {
-            if (map->tiles[i][j] == 1)
+            for (int k = 1; k < 100; k++)
             {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[0], NULL, &dst) < 0)
+                if (map->tiles[i][j] == k)
                 {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 2)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[1], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-
-            else if (map->tiles[i][j] == 3)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[2], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 4)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[3], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 5)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[4], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 6)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[5], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 7)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[6], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 8)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[7], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
-            }
-            else if (map->tiles[i][j] == 9)
-            {
-                // printf("i: %d, j: %d\n", i, j);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                if (SDL_RenderCopy(renderer, list_images[8], NULL, &dst) < 0)
-                {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
+                    if (SDL_RenderCopy(renderer, list_images[k-1], NULL, &dst) < 0)
+                    {
+                        fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    }
+                    break;
                 }
             }
         }
