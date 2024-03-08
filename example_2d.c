@@ -540,23 +540,26 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
 {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
-    if (character->right == SDL_TRUE && character->up == SDL_TRUE)
-    {
-        SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
-    }
-    else if (character->left == SDL_TRUE && character->up == SDL_TRUE)
-    {
-        SDL_RenderCopyEx(renderer, character->images[9], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
-    }
-    else if (character->right == SDL_TRUE)
+    if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE)
     {
         draw_character_animation(renderer, character, &dst, camera, 1, character->speed, 7);
     }
-    else if (character->left == SDL_TRUE)
+    else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE)
     {
         draw_character_animationEx(renderer, character, &dst, camera, 1, SDL_FLIP_HORIZONTAL, character->speed, 7);
     }
-
+    else if (character->right == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
+    }
+    else if (character->left == SDL_TRUE)
+    {
+        SDL_RenderCopyEx(renderer, character->images[9], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+    }
+    else if (character->on_ground == SDL_FALSE)
+    {
+        SDL_RenderCopy(renderer, character->images[8], NULL, &dst);
+    }
     else if (character->down == SDL_TRUE)
     {
         SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
