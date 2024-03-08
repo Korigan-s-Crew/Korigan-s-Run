@@ -432,6 +432,7 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->images[7] = loadImage(addcat(result, path, "character7.png"), renderer);
     character->images[8] = loadImage(addcat(result, path, "jump.png"), renderer);
     character->images[9] = loadImage(addcat(result, path, "jump_right.png"), renderer);
+    character->images[10] = loadImage(addcat(result, path, "jump_right_fall.png"), renderer);
     character->on_ground = on_ground;
     // SDL_QueryTexture(character->image, NULL, NULL, &character->width, &character->height);
     return character;
@@ -550,7 +551,12 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->right == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
+        if (character->dy > 5){
+            SDL_RenderCopy(renderer, character->images[10], NULL, &dst);
+        }
+        else {
+            SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
+        }
     }
     else if (character->left == SDL_TRUE)
     {
@@ -655,7 +661,7 @@ void gravity(Character *character)
     // Si le personnage n'est pas sur le sol et que sa vitesse verticale est inférieure à 10
     if (character->on_ground == SDL_FALSE)
     {
-        if (character->dy < 10)
+        if (character->dy < 20)
         {
             character->dy += 1;
         }
