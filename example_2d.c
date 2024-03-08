@@ -27,17 +27,13 @@ int main(void)
     print_map(map);
     // Boucle principale
     int running = 1;
-    // Chargement des textures
+    // Chargement des textures   
     SDL_Texture *list_images[100];
-    list_images[0] = loadImage("Textures/texture.png", renderer);
-    list_images[1] = loadImage("Textures/terre.png", renderer);
-    list_images[2] = loadImage("Textures/texture_limite_gauche.png", renderer);
-    list_images[3] = loadImage("Textures/texture_limite_droite.png", renderer);
-    list_images[4] = loadImage("Textures/nuage.png", renderer);
-    list_images[5] = loadImage("Textures/nuage_gauche.png", renderer);
-    list_images[6] = loadImage("Textures/nuage_droite.png", renderer);
-    list_images[7] = loadImage("Textures/gate.png", renderer);
-    list_images[8] = loadImage("Textures/gate_top.png", renderer);
+    // Chargement des textures
+    char *list_strings[] = {"Textures/texture.png", "Textures/terre.png", "Textures/texture_limite_gauche.png", "Textures/texture_limite_droite.png", "Textures/nuage.png", "Textures/nuage_gauche.png", "Textures/nuage_droite.png", "Textures/gate.png", "Textures/gate_top.png"};
+    for (int i = 0; i < 9; i++) {
+        list_images[i] = loadImage(list_strings[i], renderer);
+    }
     // Affiche la première image
     draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
     printf("main\n");
