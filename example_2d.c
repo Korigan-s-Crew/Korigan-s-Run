@@ -525,13 +525,20 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
     {
         move_character_left(character, tile_width);
     }
-    if (character->up == SDL_TRUE)
+    if (character->down == SDL_TRUE && character->up == SDL_TRUE)
     {
         move_character_up(character, tile_height);
     }
-    if (character->down == SDL_TRUE)
+    else
     {
-        move_character_down(character, tile_height);
+        if (character->up == SDL_TRUE)
+        {
+            move_character_up(character, tile_height);
+        }
+        if (character->down == SDL_TRUE && character->height == character->original_height)
+        {
+            move_character_down(character, tile_height);
+        }
     }
     if (character->dash == SDL_TRUE)
     {
@@ -545,27 +552,35 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
     if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE)
     {
         character->height = (int)(character->original_height / 2);
+        character->width = (int)(character->original_width / 1.5);
     }
     if (character->down == SDL_FALSE && character->height < character->original_height)
     {
         int copy_dy = character->dy;
+        int copy_dx = character->dx;
         character->dy = -(int)(character->original_height / 2);
+        character->dx = (int)(character->original_width / 3);
         int copy_y = character->y;
-        move_character(character, 0, character->dy, map, tile_width, tile_height);
+        int copy_x = character->x;
+        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
         character->on_ground = SDL_TRUE;
         character->dy = copy_dy;
-        //printf("dy: %d\n", character->dy);
-        if (character->y == copy_y - (int)character->original_height / 2)
+        character->dx = copy_dx;
+        // printf("dy: %d\n", character->dy);
+        if (character->y == copy_y - (int)character->original_height / 2 && character->x == copy_x + (int)character->original_width / 3)
         {
             character->height = character->original_height;
+            character->width = character->original_width;
+            character->x = copy_x;
         }
         else
         {
             character->y = copy_y;
+            character->x = copy_x;
         }
     }
     if (character->dx != 0 || character->dy != 0)
-    move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
     if (character->dash == SDL_TRUE)
     {
         character->dx /= 20;
