@@ -560,7 +560,12 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->left == SDL_TRUE)
     {
-        SDL_RenderCopyEx(renderer, character->images[9], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+        if (character->dy > 5){
+            SDL_RenderCopyEx(renderer, character->images[10], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+        }
+        else {
+            SDL_RenderCopyEx(renderer, character->images[9], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+        }
     }
     else if (character->on_ground == SDL_FALSE)
     {
