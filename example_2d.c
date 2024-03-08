@@ -94,7 +94,7 @@ int main(void)
                     break;
                 case SDLK_s:
                     character->down = SDL_FALSE;
-                    if (character->dy > 0)
+                    if (character->dy < 0)
                     {
                         character->dy = 0;
                     }
@@ -434,7 +434,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->right == SDL_TRUE)
     {
-        if (character->dy > 5 && character->on_ground == SDL_FALSE)
+        if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
             SDL_RenderCopy(renderer, character->images[10], NULL, &dst);
         }
@@ -445,7 +445,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->left == SDL_TRUE)
     {
-        if (character->dy > 5 && character->on_ground == SDL_FALSE)
+        if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
             SDL_RenderCopyEx(renderer, character->images[10], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
