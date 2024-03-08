@@ -10,7 +10,7 @@
 #define EXAMPLE_2D_H
 #define SCREEN_WIDTH 1300
 #define SCREEN_HEIGHT 720
-#define MAX_TILES 128
+#define MAX_TILES 200
 #define MAX_FPS 60
 #define max(a, b) (a > b ? a : b)
 #include "init.h"
@@ -39,7 +39,7 @@ struct Character
     SDL_bool up;
     SDL_bool down;
     SDL_bool dash;
-    SDL_Texture *images[10];
+    SDL_Texture *images[100];
 };
 struct camera
 {

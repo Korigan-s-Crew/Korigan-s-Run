@@ -398,7 +398,7 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->right = SDL_FALSE;
     character->dash = SDL_FALSE;
     character->alive = SDL_TRUE;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 100; i++)
         character->images[i] = NULL;
     char result[100];
     // strcpy(result, path);
@@ -430,7 +430,7 @@ char *addcat(char *result, char *path, char *name)
 void free_character(Character *character)
 {
     // Libère la mémoire du personnage
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 100; i++)
     {
         if (character->images[i] != NULL)
         {
