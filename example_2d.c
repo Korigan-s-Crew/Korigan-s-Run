@@ -418,7 +418,11 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
 {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
-    if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE)
+    if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE)
+    {
+        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+    }
+    else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE)
     {
         draw_character_animation(renderer, character, &dst, camera, 1, character->speed, 7);
     }
@@ -428,7 +432,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->right == SDL_TRUE)
     {
-        if (character->dy > 5)
+        if (character->dy > 5 && character->on_ground == SDL_FALSE)
         {
             SDL_RenderCopy(renderer, character->images[10], NULL, &dst);
         }
@@ -439,7 +443,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->left == SDL_TRUE)
     {
-        if (character->dy > 5)
+        if (character->dy > 5 && character->on_ground == SDL_FALSE)
         {
             SDL_RenderCopyEx(renderer, character->images[10], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
@@ -532,6 +536,11 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
         character->dx *= 20;
         character->dy *= 20;
     }
+    if (character->right == SDL_TRUE && character->left == SDL_TRUE)
+    {
+        character->dx = 0;
+    }
+    if (character->dx != 0 || character->dy != 0)
     move_character(character, character->dx, character->dy, map, tile_width, tile_height);
     if (character->dash == SDL_TRUE)
     {
