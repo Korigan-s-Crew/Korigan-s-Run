@@ -56,7 +56,7 @@ int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 Map *create_map(char *path);
 void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, camera *camera);
 void print_map(Map *map);
-Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer, SDL_bool onground);
+Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
 char *addcat(char *result, char *path, char *name);
 void free_character(Character *character);
 void draw_character(SDL_Renderer *renderer, Character *character, camera *camera);

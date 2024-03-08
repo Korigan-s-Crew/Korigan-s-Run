@@ -22,16 +22,17 @@ int main(void)
     create_camera(&camera, 0, 0, 13, 7);
     int tile_width = SCREEN_WIDTH / camera.width;
     int tile_height = SCREEN_HEIGHT / camera.height;
-    Character *character = create_character("Textures/korigan", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 1.5, tile_height * 1.5, 1, renderer, SDL_FALSE);
+    Character *character = create_character("Textures/korigan", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 1.5, tile_height * 1.5, 1, renderer);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
     int running = 1;
-    // Chargement des textures   
+    // Chargement des textures
     SDL_Texture *list_images[100];
     // Chargement des textures
     char *list_strings[] = {"Textures/texture.png", "Textures/terre.png", "Textures/texture_limite_gauche.png", "Textures/texture_limite_droite.png", "Textures/nuage.png", "Textures/nuage_gauche.png", "Textures/nuage_droite.png", "Textures/gate.png", "Textures/gate_top.png"};
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 9; i++)
+    {
         list_images[i] = loadImage(list_strings[i], renderer);
     }
     // Affiche la première image
@@ -141,7 +142,7 @@ Quit:
     if (NULL != window)
         SDL_DestroyWindow(window);
     IMG_Quit();
-    //SDL_Quit();
+    // SDL_Quit();
     return statut;
 }
 
@@ -296,7 +297,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, i
                 if (map->tiles[i][j] == k)
                 {
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, list_images[k-1], NULL, &dst) < 0)
+                    if (SDL_RenderCopy(renderer, list_images[k - 1], NULL, &dst) < 0)
                     {
                         fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                     }
@@ -307,7 +308,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100], Map *map, i
     }
 }
 
-Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer, SDL_bool on_ground)
+Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer)
 {
     // Crée un personnage
     Character *character = malloc(sizeof(Character));
@@ -324,23 +325,31 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->right = SDL_FALSE;
     character->dash = SDL_FALSE;
     character->alive = SDL_TRUE;
+    character->on_ground = SDL_FALSE;
     for (int i = 0; i < 100; i++)
         character->images[i] = NULL;
-    char result[100];
     // strcpy(result, path);
     // strcat(result, "/character.png");
-    character->images[0] = loadImage(addcat(result, path, "character.png"), renderer);
-    character->images[1] = loadImage(addcat(result, path, "character1.png"), renderer);
-    character->images[2] = loadImage(addcat(result, path, "character2.png"), renderer);
-    character->images[3] = loadImage(addcat(result, path, "character3.png"), renderer);
-    character->images[4] = loadImage(addcat(result, path, "character4.png"), renderer);
-    character->images[5] = loadImage(addcat(result, path, "character5.png"), renderer);
-    character->images[6] = loadImage(addcat(result, path, "character6.png"), renderer);
-    character->images[7] = loadImage(addcat(result, path, "character7.png"), renderer);
-    character->images[8] = loadImage(addcat(result, path, "jump.png"), renderer);
-    character->images[9] = loadImage(addcat(result, path, "jump_right.png"), renderer);
-    character->images[10] = loadImage(addcat(result, path, "jump_right_fall.png"), renderer);
-    character->on_ground = on_ground;
+
+    char *imageNames[] = {
+        "character.png",
+        "character1.png",
+        "character2.png",
+        "character3.png",
+        "character4.png",
+        "character5.png",
+        "character6.png",
+        "character7.png",
+        "jump.png",
+        "jump_right.png",
+        "jump_right_fall.png"};
+
+    for (int i = 0; i < 11; i++)
+    {
+        char imagePath[100];
+        addcat(imagePath, path, imageNames[i]);
+        character->images[i] = loadImage(imagePath, renderer);
+    }
     // SDL_QueryTexture(character->image, NULL, NULL, &character->width, &character->height);
     return character;
 }
@@ -458,19 +467,23 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     }
     else if (character->right == SDL_TRUE)
     {
-        if (character->dy > 5){
+        if (character->dy > 5)
+        {
             SDL_RenderCopy(renderer, character->images[10], NULL, &dst);
         }
-        else {
+        else
+        {
             SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
         }
     }
     else if (character->left == SDL_TRUE)
     {
-        if (character->dy > 5){
+        if (character->dy > 5)
+        {
             SDL_RenderCopyEx(renderer, character->images[10], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
-        else {
+        else
+        {
             SDL_RenderCopyEx(renderer, character->images[9], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
     }
@@ -708,7 +721,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
         character->alive = SDL_FALSE;
         character->x = SCREEN_WIDTH / 2;
     }
-    if (character->x < - character->width)
+    if (character->x < -character->width)
     {
         character->alive = SDL_FALSE;
         character->x = SCREEN_WIDTH / 2;
