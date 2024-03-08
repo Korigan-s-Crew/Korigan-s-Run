@@ -277,6 +277,8 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->y = y;
     character->width = width;
     character->height = height;
+    character->original_width = width;
+    character->original_height = height;
     character->speed = speed;
     character->dx = 0;
     character->dy = 0;
@@ -539,6 +541,28 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
     if (character->right == SDL_TRUE && character->left == SDL_TRUE)
     {
         character->dx = 0;
+    }
+    if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE)
+    {
+        character->height = (int)(character->original_height / 2);
+    }
+    if (character->down == SDL_FALSE && character->height < character->original_height)
+    {
+        int copy_dy = character->dy;
+        character->dy = -(int)(character->original_height / 2);
+        int copy_y = character->y;
+        move_character(character, 0, character->dy, map, tile_width, tile_height);
+        character->on_ground = SDL_TRUE;
+        character->dy = copy_dy;
+        //printf("dy: %d\n", character->dy);
+        if (character->y == copy_y - (int)character->original_height / 2)
+        {
+            character->height = character->original_height;
+        }
+        else
+        {
+            character->y = copy_y;
+        }
     }
     if (character->dx != 0 || character->dy != 0)
     move_character(character, character->dx, character->dy, map, tile_width, tile_height);

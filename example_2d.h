@@ -31,6 +31,8 @@ struct Character
     int dy;
     int width;
     int height;
+    int original_width;
+    int original_height;
     float speed;
     SDL_bool alive;
     SDL_bool on_ground;
