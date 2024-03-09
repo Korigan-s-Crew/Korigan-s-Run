@@ -611,6 +611,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     int height = character->height;
     int feet = y + height;
     int center = y + height / 2;
+    int x_center = x + width / 2;
     int x_tile = x / tile_width;
     // int y_tile = y / height;
     int y_tile_feet = feet / tile_height;
@@ -621,8 +622,10 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     int x_tile_width = (x + width) / tile_width;
     int x_tile_right = (x + width * 1.05) / tile_width;
     int x_tile_left = (x - width / 15) / tile_width;
+    int x_tile_center = x_center / tile_width;
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
+    SDL_bool on_ground_center = SDL_TRUE;
 
     // Prevent heap-buffer-overflow
     if (x_tile < 0)
@@ -653,6 +656,10 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     {
         y_tile_head = 0;
     }
+    if (x_tile_center < 0)
+    {
+        x_tile_center = 0;
+    }
     if (x_tile > map->width - 1)
     {
         x_tile = map->width - 1;
@@ -681,6 +688,10 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     {
         y_tile_head = map->height - 1;
     }
+    if (x_tile_center > map->width - 1)
+    {
+        x_tile_center = map->width - 1;
+    }
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
 
     // Si le personnage à les pieds sur le sol côté gauche et que sa vitesse verticale est positive
@@ -697,6 +708,18 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
         on_ground_right = SDL_FALSE;
     }
     // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
+    if (map->tiles[y_tile_feet][x_tile_center] > 0)
+    {
+        if (character->dy > 0)
+        {
+            character->dy = 0;
+            character->on_ground = SDL_TRUE;
+        }
+    }
+    else
+    {
+        on_ground_center = SDL_FALSE;
+    }
     if (map->tiles[y_tile_feet][x_tile_width] > 0)
     {
         if (character->dy > 0)
@@ -710,7 +733,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
         on_ground_left = SDL_FALSE;
     }
     // Si le personnage n'est pas sur le sol côté gauche et côté droit alors il n'est pas sur le sol
-    if (on_ground_right == SDL_FALSE && on_ground_left == SDL_FALSE)
+    if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE &&on_ground_left == SDL_FALSE)
     {
         character->on_ground = SDL_FALSE;
     }
