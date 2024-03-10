@@ -1,5 +1,7 @@
 #include "example_2d.h"
-
+#include "init.h"
+int SCREEN_WIDTH = 1920;
+int SCREEN_HEIGHT = 1080;
 int main(void)
 {
     SDL_Window *window = NULL;
@@ -9,17 +11,27 @@ int main(void)
     // Crée la couleur blanche avec rgb et alpha
     // SDL_Color blanc = {255, 255, 255, 255};
     SDL_Color bleu = {0, 102, 204, 255};
-
+    SDL_Rect screen_size;
     // Initialise la fenêtre et le rendu
     if (0 != init(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT))
         goto Quit;
 
     // Remplit la fenêtre de blanc
+    if (0 != SDL_GetDisplayBounds(0, &screen_size))
+    {
+        fprintf(stderr, "Erreur SDL_GetDisplayBounds : %s", SDL_GetError());
+        goto Quit;
+    }
+    SCREEN_WIDTH = screen_size.w;
+    SCREEN_HEIGHT = screen_size.h;
+    printf("screen_size: %d, %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
     setWindowColor(renderer, bleu);
     // Crée la map
     Map *map = create_map("map.txt");
     camera camera;
-    create_camera(&camera, 0, 0, 13, 7);
+    int camera_width = (int)(SCREEN_WIDTH / 100);
+    int camera_height = (int)(SCREEN_HEIGHT / 100);
+    create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera.width;
     int tile_height = SCREEN_HEIGHT / camera.height;
     Character *character = create_character("Textures/korigan", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 1.5, tile_height * 1.5, 1, renderer);
@@ -190,6 +202,7 @@ Map *create_map(char *path)
     int height = 0;
     int max_width = 0;
     Map *map = malloc(sizeof(Map));
+    map->full = SDL_FALSE;
     for (int i = 0; i < MAX_TILES; i++)
     {
         for (int j = 0; j < MAX_TILES; j++)
@@ -424,15 +437,15 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
     {
         SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
     }
-    else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE)
+    else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0)
     {
         draw_character_animation(renderer, character, &dst, camera, 1, character->speed, 7);
     }
-    else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE)
+    else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0)
     {
         draw_character_animationEx(renderer, character, &dst, camera, 1, SDL_FLIP_HORIZONTAL, character->speed, 7);
     }
-    else if (character->right == SDL_TRUE)
+    else if (character->right == SDL_TRUE && character->dx != 0)
     {
         if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
@@ -443,7 +456,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, camera *camera
             SDL_RenderCopy(renderer, character->images[9], NULL, &dst);
         }
     }
-    else if (character->left == SDL_TRUE)
+    else if (character->left == SDL_TRUE && character->dx != 0)
     {
         if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
@@ -733,7 +746,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
         on_ground_left = SDL_FALSE;
     }
     // Si le personnage n'est pas sur le sol côté gauche et côté droit alors il n'est pas sur le sol
-    if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE &&on_ground_left == SDL_FALSE)
+    if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE && on_ground_left == SDL_FALSE)
     {
         character->on_ground = SDL_FALSE;
     }
@@ -803,18 +816,24 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     }
     if (character->y > map->height * tile_height)
     {
-        character->alive = SDL_FALSE;
-        character->y = SCREEN_HEIGHT / 2;
+        if (character->dy < 0)
+        {
+            character->dy = 0;
+        }
     }
     if (character->x > map->width * tile_width)
     {
-        character->alive = SDL_FALSE;
-        character->x = SCREEN_WIDTH / 2;
+        if (character->dx > 0)
+        {
+            character->dx = 0;
+        }
     }
-    if (character->x < -character->width)
+    if (character->x < 0)
     {
-        character->alive = SDL_FALSE;
-        character->x = SCREEN_WIDTH / 2;
+        if (character->dx < 0)
+        {
+            character->dx = 0;
+        }
     }
 }
 
@@ -840,7 +859,19 @@ void move_camera(camera *camera, Character *character, Map *map)
     // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
     else if (character->x + SCREEN_WIDTH / 2 > map->width * tile_width)
     {
-        camera->x = map->width * tile_width - SCREEN_WIDTH;
+        // On ajoute une map à droite
+        Map *pattern = create_map("pattern.txt");
+        if (map->full == SDL_FALSE)
+        {
+            add_right_pattern_to_map(pattern, map);
+            camera->x = character->x - SCREEN_WIDTH / 2;
+        }
+        else
+        {
+            camera->x = map->width * tile_width - SCREEN_WIDTH;
+            free(pattern);
+        }
+        // camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
     // Sinon la camera est centré en x par rapport au personnage
     else
@@ -862,5 +893,67 @@ void move_camera(camera *camera, Character *character, Map *map)
     else
     {
         camera->y = character->y - SCREEN_HEIGHT / 2;
+    }
+}
+
+void add_right_pattern_to_map(Map *pattern, Map *map)
+{
+    if (MAX_TILES < map->width + pattern->width)
+    {
+        map->full = SDL_TRUE;
+        printf("map is full\n");
+        free(pattern);
+        Map *last_pattern = create_map("last_pattern.txt");
+        if (MAX_TILES < map->width + last_pattern->width)
+        {
+            return;
+        }
+        else
+        {
+            if (map->height > last_pattern->height)
+            {
+                for (int i = last_pattern->height; i < map->height; i++)
+                {
+                    for (int j = 0; j < last_pattern->width; j++)
+                    {
+                        last_pattern->tiles[i][j] = 0;
+                    }
+                }
+                last_pattern->height = map->height;
+            }
+            for (int i = 0; i < map->height; i++)
+            {
+                for (int j = 0; j < last_pattern->width; j++)
+                {
+                    map->tiles[i][j + map->width] = last_pattern->tiles[i][j];
+                }
+            }
+            map->width += last_pattern->width;
+            print_map(map);
+            free(last_pattern);
+        }
+    }
+    else
+    {
+        if (map->height > pattern->height)
+        {
+            for (int i = pattern->height; i < map->height; i++)
+            {
+                for (int j = 0; j < pattern->width; j++)
+                {
+                    pattern->tiles[i][j] = 0;
+                }
+            }
+            pattern->height = map->height;
+        }
+        for (int i = 0; i < map->height; i++)
+        {
+            for (int j = 0; j < pattern->width; j++)
+            {
+                map->tiles[i][j + map->width] = pattern->tiles[i][j];
+            }
+        }
+        map->width += pattern->width;
+        free(pattern);
     }
 }

@@ -8,12 +8,11 @@
 
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
-#define SCREEN_WIDTH 1300
-#define SCREEN_HEIGHT 720
-#define MAX_TILES 128
+// #define SCREEN_WIDTH 1920
+// #define SCREEN_HEIGHT 1080
+#define MAX_TILES 150
 #define MAX_FPS 60
 #define max(a, b) (a > b ? a : b)
-#include "init.h"
 
 typedef struct Map Map;
 struct Map
@@ -21,6 +20,7 @@ struct Map
     int width;
     int height;
     int tiles[MAX_TILES][MAX_TILES];
+    SDL_bool full;
 };
 typedef struct Character Character;
 struct Character
@@ -75,4 +75,5 @@ void gravity(Character *character);
 void collision(Character *character, Map *map, int tile_width, int tile_height);
 void create_camera(camera *camera, int x, int y, int width, int height);
 void move_camera(camera *camera, Character *character, Map *map);
+void add_right_pattern_to_map(Map *pattern, Map *map);
 #endif
