@@ -1,5 +1,5 @@
 TARGET = main
-SRCS = example_2d.c init.c procedural_generation.c
+SRCS = main.c init.c procedural_generation.c
 OBJS = $(SRCS:.c=.o)
 
 # Compilation
@@ -16,6 +16,9 @@ CFLAGS += $(shell pkg-config --cflags sdl2)
 LDFLAGS += $(shell pkg-config --libs sdl2)
 CFLAGS += $(shell pkg-config --cflags SDL2_image)
 LDFLAGS += $(shell pkg-config --libs SDL2_image)
+CFLAGS += $(shell pkg-config --cflags SDL2_ttf)
+LDFLAGS += $(shell pkg-config --libs SDL2_ttf)
+
 
 all: $(TARGET)
 

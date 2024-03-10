@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +53,8 @@ struct camera
     int width;
     int height;
     int fps;
+    int avg_fps;
+    SDL_bool show_fps;
 };
 typedef struct camera camera;
 
@@ -66,6 +69,7 @@ void free_character(Character *character);
 void draw_character(SDL_Renderer *renderer, Character *character, camera *camera);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed, int nb_frame);
+void draw_fps(SDL_Renderer *renderer, camera *camera);
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);

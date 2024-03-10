@@ -19,4 +19,9 @@ int init(SDL_Window **window, SDL_Renderer **renderer, int w, int h)
     {
         fprintf(stderr, "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
     }
+    if (0 != TTF_Init())
+    {
+        fprintf(stderr, "Erreur TTF_Init : %s", TTF_GetError());
+        return -1;
+    }
 }

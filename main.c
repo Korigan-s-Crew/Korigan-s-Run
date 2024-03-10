@@ -1,4 +1,4 @@
-#include "example_2d.h"
+#include "main.h"
 #include "init.h"
 #include "procedural_generation.h"
 
@@ -16,6 +16,7 @@ int main(void)
     // Initialise la fenêtre et le rendu
     if (0 != init(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT))
         goto Quit;
+    TTF_Init();
     // Récupère la taille de l'écran
     SDL_Rect screen_size;
     if (0 != SDL_GetDisplayBounds(0, &screen_size))
@@ -145,6 +146,10 @@ int main(void)
                         SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
                         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
                     }
+                    break;
+                case SDLK_F3:
+                    camera.show_fps = !camera.show_fps;
+                    break;
                 }
                 break;
             // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
@@ -180,7 +185,8 @@ int main(void)
         if (SDL_GetTicks() - last_time_sec > 1000)
         {
             last_time_sec = SDL_GetTicks();
-            printf("fps: %d\n", camera.fps);
+            // printf("fps: %d\n", camera.fps);
+            camera.avg_fps = camera.fps + 1;
             camera.fps = 0;
         }
         // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
@@ -208,6 +214,7 @@ Quit:
     if (NULL != window)
         SDL_DestroyWindow(window);
     IMG_Quit();
+    TTF_Quit();
     // SDL_Quit();
     return statut;
 }
@@ -467,7 +474,7 @@ void move_character_up(Character *character, int tile_height)
     if (character->on_ground == SDL_TRUE)
     {
         character->dy = -(tile_height / 5);
-        printf("dy: %d\n", character->dy);
+        // printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
     }
 }
@@ -583,6 +590,29 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SD
     }
 }
 
+void draw_fps(SDL_Renderer *renderer, camera *camera)
+{
+    if (camera->show_fps == SDL_TRUE)
+    {
+        // Affiche le nombre d'images par seconde dans la fenêtre
+        char fps[100];
+        sprintf(fps, "fps: %d", camera->avg_fps);
+        TTF_Font *font = TTF_OpenFont("Fonts/arial.ttf", 28);
+        if (font == NULL)
+            fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
+        TTF_SetFontStyle(font, TTF_STYLE_ITALIC | TTF_STYLE_BOLD);
+        SDL_Color color = {255, 255, 255, 255};
+        SDL_Surface *surface = TTF_RenderText_Solid(font, fps, color);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect dst = {0, 0, 100, 100};
+        SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
+        SDL_RenderCopy(renderer, texture, NULL, &dst);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        TTF_CloseFont(font);
+    }
+}
+
 void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
 {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
@@ -590,6 +620,7 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100],
     move_camera(camera, character, map);
     draw_map(renderer, list_images, map, tile_width, tile_height, camera);
     draw_character(renderer, character, camera);
+    draw_fps(renderer, camera);
     SDL_RenderPresent(renderer);
 }
 
@@ -911,6 +942,7 @@ void create_camera(camera *camera, int x, int y, int width, int height)
     camera->width = width;
     camera->height = height;
     camera->fps = 0;
+    camera->show_fps = SDL_FALSE;
 }
 
 void move_camera(camera *camera, Character *character, Map *map)

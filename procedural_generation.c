@@ -1,5 +1,5 @@
 #include "procedural_generation.h"
-#include "example_2d.h"
+#include "main.h"
 
 Map* generated_pattern()
 {
