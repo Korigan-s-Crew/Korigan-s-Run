@@ -1,5 +1,7 @@
 #include "example_2d.h"
 #include "init.h"
+#include "procedural_generation.h"
+
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
 int main(void)
@@ -925,7 +927,8 @@ void move_camera(camera *camera, Character *character, Map *map)
     else if (character->x + pixel_width + (character->width / 2) > map->width * tile_width)
     {
         // On ajoute une map à droite
-        Map *pattern = create_map("pattern.txt");
+        // Map *pattern = create_map("pattern.txt");
+        Map *pattern = generated_pattern();
         if (map->full == SDL_FALSE)
         {
             add_right_pattern_to_map(pattern, map);
@@ -969,7 +972,7 @@ void add_right_pattern_to_map(Map *pattern, Map *map)
         map->full = SDL_TRUE;
         printf("map is full\n");
         free(pattern);
-        Map *last_pattern = create_map("last_pattern.txt");
+        Map *last_pattern = create_map("Patterns/last_pattern.txt");
         if (MAX_TILES < map->width + last_pattern->width)
         {
             return;

@@ -1,5 +1,5 @@
 TARGET = main
-SRCS = example_2d.c init.c
+SRCS = example_2d.c init.c procedural_generation.c
 OBJS = $(SRCS:.c=.o)
 
 # Compilation
