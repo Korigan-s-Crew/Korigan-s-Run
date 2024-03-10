@@ -1,7 +1,7 @@
 #include "example_2d.h"
 #include "init.h"
-int SCREEN_WIDTH = 1920;
-int SCREEN_HEIGHT = 1080;
+int SCREEN_WIDTH = 1300;
+int SCREEN_HEIGHT = 700;
 int main(void)
 {
     SDL_Window *window = NULL;
@@ -11,12 +11,11 @@ int main(void)
     // Crée la couleur blanche avec rgb et alpha
     // SDL_Color blanc = {255, 255, 255, 255};
     SDL_Color bleu = {0, 102, 204, 255};
-    SDL_Rect screen_size;
     // Initialise la fenêtre et le rendu
     if (0 != init(&window, &renderer, SCREEN_WIDTH, SCREEN_HEIGHT))
         goto Quit;
-
-    // Remplit la fenêtre de blanc
+    // Récupère la taille de l'écran
+    SDL_Rect screen_size;
     if (0 != SDL_GetDisplayBounds(0, &screen_size))
     {
         fprintf(stderr, "Erreur SDL_GetDisplayBounds : %s", SDL_GetError());
@@ -24,7 +23,10 @@ int main(void)
     }
     SCREEN_WIDTH = screen_size.w;
     SCREEN_HEIGHT = screen_size.h;
+    SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     printf("screen_size: %d, %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+    // Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
     // Crée la map
     Map *map = create_map("map.txt");
@@ -32,9 +34,11 @@ int main(void)
     int camera_width = (int)(SCREEN_WIDTH / 100);
     int camera_height = (int)(SCREEN_HEIGHT / 100);
     create_camera(&camera, 0, 0, camera_width, camera_height);
-    int tile_width = SCREEN_WIDTH / camera.width;
-    int tile_height = SCREEN_HEIGHT / camera.height;
-    Character *character = create_character("Textures/korigan", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, tile_width * 1.5, tile_height * 1.5, 1, renderer);
+    int tile_width = SCREEN_WIDTH / camera_width;
+    int tile_height = SCREEN_HEIGHT / camera_height;
+    printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
+    printf("%d\n", 1 / tile_height);
+    Character *character = create_character("Textures/korigan", tile_width, tile_height, tile_width * 1.5, tile_height * 1.5, 1, renderer);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
@@ -49,8 +53,8 @@ int main(void)
     }
     // Affiche la première image
     draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
-    printf("main\n");
-    // Initialise la variable qui contient le dernier temps
+    // printf("main\n");
+    //  Initialise la variable qui contient le dernier temps
     int last_time = 0;
     int last_time_sec = 0;
     while (running)
@@ -63,6 +67,41 @@ int main(void)
             // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
             case SDL_QUIT:
                 running = 0;
+                break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    SCREEN_WIDTH = event.window.data1;
+                    SCREEN_HEIGHT = event.window.data2;
+                    if (SCREEN_WIDTH < 100)
+                    {
+                        SCREEN_WIDTH = 100;
+                    }
+                    if (SCREEN_HEIGHT < 100)
+                    {
+                        SCREEN_HEIGHT = 100;
+                    }
+                    printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                    camera.width = (int)(SCREEN_WIDTH / 100);
+                    camera.height = (int)(SCREEN_HEIGHT / 100);
+                    int old_tile_width = tile_width;
+                    int old_tile_height = tile_height;
+                    tile_width = SCREEN_WIDTH / camera.width;
+                    tile_height = SCREEN_HEIGHT / camera.height;
+                    int tile_x = character->x / old_tile_width;
+                    int tile_y = character->y / old_tile_height;
+                    int sub_tile_x = character->x % old_tile_width;
+                    int sub_tile_y = character->y % old_tile_height;
+                    character->x = tile_x * tile_width + (int)(sub_tile_x * (float)tile_width / (float)old_tile_width);
+                    character->y = tile_y * tile_height + (int)(sub_tile_y * (float)tile_height / (float)old_tile_height);
+                    // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
+                    character->width = tile_width * 1.5;
+                    character->height = tile_height * 1.5;
+                    character->original_width = tile_width * 1.5;
+                    character->original_height = tile_height * 1.5;
+                    collision(character, map, tile_width, tile_height);
+                    draw(renderer, bleu, list_images, map, tile_width, tile_height, character, &camera);
+                }
                 break;
             // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
             case SDL_KEYDOWN:
@@ -91,6 +130,19 @@ int main(void)
                     break;
                 case SDLK_LSHIFT:
                     character->dash = SDL_TRUE;
+                    break;
+                case SDLK_F11:
+                    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)
+                    {
+                        SDL_SetWindowFullscreen(window, 0);
+                    }
+                    else
+                    {
+                        SCREEN_WIDTH = screen_size.w;
+                        SCREEN_HEIGHT = screen_size.h;
+                        SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                    }
                 }
                 break;
             // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
@@ -144,7 +196,7 @@ int main(void)
             camera.fps++;
         }
     }
-    printf("x: %d, y: %d \n", character->x, character->y);
+    // printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
     free(map);
     free_character(character);
@@ -410,6 +462,7 @@ void move_character_up(Character *character, int tile_height)
     if (character->on_ground == SDL_TRUE)
     {
         character->dy = -(tile_height / 5);
+        printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
     }
 }
@@ -852,23 +905,24 @@ void move_camera(camera *camera, Character *character, Map *map)
     // Déplace la camera par rapport au personnage
     int tile_width = SCREEN_WIDTH / camera->width;
     // Si le personnage est à gauche de l'écran alors la camera est en x est à 0
-    if (character->x < SCREEN_WIDTH / 2)
+    int pixel_width = ((camera->width * tile_width) / 2); //+ (character->width / 2);
+    if (character->x < pixel_width - (character->width / 2))
     {
         camera->x = 0;
     }
     // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
-    else if (character->x + SCREEN_WIDTH / 2 > map->width * tile_width)
+    else if (character->x + pixel_width + (character->width / 2) > map->width * tile_width)
     {
         // On ajoute une map à droite
         Map *pattern = create_map("pattern.txt");
         if (map->full == SDL_FALSE)
         {
             add_right_pattern_to_map(pattern, map);
-            camera->x = character->x - SCREEN_WIDTH / 2;
+            camera->x = character->x - pixel_width + (character->width / 2);
         }
         else
         {
-            camera->x = map->width * tile_width - SCREEN_WIDTH;
+            camera->x = map->width * tile_width - (camera->width * tile_width);
             free(pattern);
         }
         // camera->x = map->width * tile_width - SCREEN_WIDTH;
@@ -876,23 +930,24 @@ void move_camera(camera *camera, Character *character, Map *map)
     // Sinon la camera est centré en x par rapport au personnage
     else
     {
-        camera->x = character->x - SCREEN_WIDTH / 2;
+        camera->x = character->x - pixel_width + (character->width / 2);
     }
     int tile_height = SCREEN_HEIGHT / camera->height;
     // Si le personnage est en haut de l'écran alors la camera est en y est à 0
-    if (character->y < SCREEN_HEIGHT / 2)
+    int pixel_height = ((camera->height * tile_height) / 2); //+ (character->height / 2);
+    if (character->y < pixel_height - (character->height / 2))
     {
         camera->y = 0;
     }
     // Si le personnage est en bas de l'écran alors la camera est en bas de la map
-    else if (character->y + SCREEN_HEIGHT / 2 > map->height * tile_height)
+    else if (character->y + pixel_height + (character->height / 2) > map->height * tile_height)
     {
-        camera->y = map->height * tile_height - SCREEN_HEIGHT;
+        camera->y = map->height * tile_height - camera->height * tile_height;
     }
     // Sinon la camera est centré en y par rapport au personnage
     else
     {
-        camera->y = character->y - SCREEN_HEIGHT / 2;
+        camera->y = character->y - pixel_height + (character->height / 2);
     }
 }
 
