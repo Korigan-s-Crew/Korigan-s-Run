@@ -126,7 +126,8 @@ int main(void)
                     running = 0;
                     break;
                 case SDLK_p:
-                    character->speed += 0.5;
+                    if (character->speed < 50)
+                        character->speed += 0.5;
                     break;
                 case SDLK_o:
                     character->speed -= 0.5;
@@ -596,7 +597,7 @@ void draw_fps(SDL_Renderer *renderer, camera *camera)
     {
         // Affiche le nombre d'images par seconde dans la fenêtre
         char fps[100];
-        sprintf(fps, "fps: %d", camera->avg_fps);
+        sprintf(fps, "FPS: %d", camera->avg_fps);
         TTF_Font *font = TTF_OpenFont("Fonts/arial.ttf", 28);
         if (font == NULL)
             fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
