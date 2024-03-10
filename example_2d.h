@@ -21,6 +21,8 @@ struct Map
     int height;
     int tiles[MAX_TILES][MAX_TILES];
     SDL_bool full;
+    int tile_start_x;
+    int tile_start_y;
 };
 typedef struct Character Character;
 struct Character

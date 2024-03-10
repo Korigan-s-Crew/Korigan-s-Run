@@ -38,7 +38,7 @@ int main(void)
     int tile_height = SCREEN_HEIGHT / camera_height;
     printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     printf("%d\n", 1 / tile_height);
-    Character *character = create_character("Textures/korigan", tile_width, tile_height, tile_width * 1.5, tile_height * 1.5, 1, renderer);
+    Character *character = create_character("Textures/korigan", map->tile_start_x * tile_width, map->tile_start_y * tile_height, tile_width * 1.5, tile_height * 1.5, 1, renderer);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
@@ -255,6 +255,8 @@ Map *create_map(char *path)
     int max_width = 0;
     Map *map = malloc(sizeof(Map));
     map->full = SDL_FALSE;
+    map->tile_start_x = 1;
+    map->tile_start_y = 1;
     for (int i = 0; i < MAX_TILES; i++)
     {
         for (int j = 0; j < MAX_TILES; j++)
@@ -276,6 +278,13 @@ Map *create_map(char *path)
                 width++;
                 break;
             }
+        }
+        if (ch == '0')
+        {
+            map->tiles[height][width] = -1;
+            map->tile_start_x = width;
+            map->tile_start_y = height;
+            width++;
         }
         if (ch == '\n')
         {

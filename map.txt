@@ -3,7 +3,7 @@ NNNNNNNNNN]
 
                  [NNNNNNNNNNNNNNNNN]
 T          [N]
-!                     [N]          T
+!    0                [N]          T
 !        [NNNNNN]                  !
 !   [N]                            !
 !       []   G######D              !
