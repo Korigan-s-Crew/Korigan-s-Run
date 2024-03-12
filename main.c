@@ -40,7 +40,6 @@ int main(void)
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
     printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
-    printf("%d\n", 1 / tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height, tile_width * 0.9, tile_height * 1.5, 1, renderer);
     // DEBUG MAP
     print_map(map);
@@ -335,6 +334,10 @@ Map *create_map(char *path)
             if (ch == tile_mapping[i])
             {
                 map->tiles[height][width] = i;
+                if (i == 1 && height > 0 && map->tiles[height - 1][width] == 0)
+                {
+                    map->tiles[height - 1][width] = -2;
+                }
                 width++;
                 break;
             }
@@ -356,16 +359,16 @@ Map *create_map(char *path)
     // Ferme le fichier
     fclose(file);
     // place des textures transparents (temporaire)
-    for (int i = 0; i < MAX_TILES; i++)
-    {
-        for (int j = 0; j < MAX_TILES; j++)
-        {
-            if (map->tiles[i][j] == 0 && map->tiles[i + 1][j] == 1)
-            {
-                map->tiles[i][j] = -2;
-            }
-        }
-    }
+    // for (int i = 0; i < MAX_TILES; i++)
+    // {
+    //     for (int j = 0; j < MAX_TILES; j++)
+    //     {
+    //         if (map->tiles[i][j] == 0 && map->tiles[i + 1][j] == 1)
+    //         {
+    //             map->tiles[i][j] = -2;
+    //         }
+    //     }
+    // }
     // Quand on arrive à la fin du fichier on ajoute la dernière ligne
     max_width = max(max_width, width);
     width = 0;
@@ -692,8 +695,11 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
     }
     if (character->dash == SDL_TRUE)
     {
+        if (character->dy <= 0)
+        {
+            character->dy *= 20;
+        }
         character->dx *= 20;
-        character->dy *= 20;
     }
     if (character->right == SDL_TRUE && character->left == SDL_TRUE)
     {
@@ -733,8 +739,11 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height)
         move_character(character, character->dx, character->dy, map, tile_width, tile_height);
     if (character->dash == SDL_TRUE)
     {
+        if (character->dy <= 0)
+        {
+            character->dy /= 20;
+        }
         character->dx /= 20;
-        character->dy /= 20;
         character->dash = SDL_FALSE;
     }
 }
