@@ -63,6 +63,7 @@ struct Texture
     SDL_Texture *collision[100];
     SDL_Texture *transparent[100];
     SDL_Texture *main_character[100];
+    TTF_Font *font;
 };
 typedef struct Texture Texture;
 
@@ -78,7 +79,7 @@ char *addcat(char *result, char *path, char *name);
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
-void draw_fps(SDL_Renderer *renderer, Camera *camera);
+void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);

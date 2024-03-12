@@ -248,6 +248,10 @@ Texture *create_texture(SDL_Renderer *renderer) {
         addcat(imagePath, "Textures/korigan", imageNames[i]);
         texture->main_character[i] = loadImage(imagePath, renderer);
     }
+    // crée une police de caractère avec le fichier arial.ttf de taille 28
+    texture->font = TTF_OpenFont("Fonts/arial.ttf", 28);
+    if (texture->font == NULL)
+        fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
     return texture;
 }
 
@@ -260,6 +264,7 @@ void free_texture(Texture *texture) {
         if (NULL != texture->main_character[i])
             SDL_DestroyTexture(texture->main_character[i]);
     }
+    TTF_CloseFont(texture->font);
     free(texture);
 }
 
@@ -549,24 +554,26 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     }
 }
 
-void draw_fps(SDL_Renderer *renderer, Camera *camera) {
+void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
     if (camera->show_fps == SDL_TRUE) {
         // Affiche le nombre d'images par seconde dans la fenêtre
         char fps[100];
         sprintf(fps, "FPS: %d", camera->avg_fps);
-        TTF_Font *font = TTF_OpenFont("Fonts/arial.ttf", 28);
-        if (font == NULL)
-            fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
-        TTF_SetFontStyle(font, TTF_STYLE_ITALIC | TTF_STYLE_BOLD);
+        // Met le texte en gras et en italique
+        TTF_SetFontStyle(texture->font, TTF_STYLE_ITALIC | TTF_STYLE_BOLD);
+        // Met le texte en blanc
         SDL_Color color = {255, 255, 255, 255};
-        SDL_Surface *surface = TTF_RenderText_Solid(font, fps, color);
+        // Crée une surface à partir du texte
+        SDL_Surface *surface = TTF_RenderText_Solid(texture->font, fps, color);
+        // Crée une texture à partir de la surface
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        // Positionne le texte dans la fenêtre les valeurs 100 et 100 ne servent à rien car modifier juste après
         SDL_Rect dst = {0, 0, 100, 100};
+        // Récurpére la taille du texte et modifier la taille de la zone d'affichage
         SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h);
         SDL_RenderCopy(renderer, texture, NULL, &dst);
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
-        TTF_CloseFont(font);
     }
 }
 
@@ -577,7 +584,7 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, in
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
     draw_character(renderer, character, texture, camera);
-    draw_fps(renderer, camera);
+    draw_fps(renderer, camera, texture);
     SDL_RenderPresent(renderer);
 }
 
@@ -599,19 +606,23 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
             move_character_down(character, tile_height);
         }
     }
+    // Si le personnage vient de faire un dash on multiplie sa vitesse par 20 lorsqu'il n'est pas en train de tomber
     if (character->dash == SDL_TRUE) {
         if (character->dy <= 0) {
             character->dy *= 20;
         }
         character->dx *= 20;
     }
+    // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
     if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
         character->dx = 0;
     }
+    // Si le personnage est au sol et qu'il appuie sur control_down il se baisse (réduit sa taille)
     if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE) {
         character->height = (int)(character->original_height / 2);
         character->width = (int)(character->original_width / 1.5);
     }
+    // Si n'appuie plus sur control_down et qu'il est petit on le remet à sa taille d'origine
     if (character->down == SDL_FALSE && character->height < character->original_height) {
         int copy_dy = character->dy;
         int copy_dx = character->dx;
@@ -624,18 +635,24 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
         character->dy = copy_dy;
         character->dx = copy_dx;
         // printf("dy: %d\n", character->dy);
+        // Si le personnage n'a pas la place pour se redresser on le remet à sa position précédente et on ne change pas sa taille
+        // Si il a la place on remet sa taille d'origine
+        
         if (character->y == copy_y - (int)character->original_height / 2 &&
             character->x == copy_x + (int)character->original_width / 3) {
             character->height = character->original_height;
             character->width = character->original_width;
+            // On vérifie qu'il a la place avec move_character puis on le remet à sa position précédente
             character->x = copy_x;
         } else {
             character->y = copy_y;
             character->x = copy_x;
         }
     }
+    // Si le personnage ne bouge pas on n'effectue pas de déplacement ET DE COLLISION !!!
     if (character->dx != 0 || character->dy != 0)
         move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+    // Si le personnage vient de faire un dash on divise sa vitesse par 20
     if (character->dash == SDL_TRUE) {
         if (character->dy <= 0) {
             character->dy /= 20;
@@ -739,7 +756,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height) 
     } else {
         on_ground_right = SDL_FALSE;
     }
-    // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
+    // Si le personnage à les pieds sur le sol au centre et que sa vitesse verticale est positive
     if (map->tiles[y_tile_feet][x_tile_center] > 0) {
         if (character->dy > 0) {
             character->dy = 0;
@@ -748,6 +765,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height) 
     } else {
         on_ground_center = SDL_FALSE;
     }
+    // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
     if (map->tiles[y_tile_feet][x_tile_width] > 0) {
         if (character->dy > 0) {
             character->dy = 0;
@@ -808,21 +826,25 @@ void collision(Character *character, Map *map, int tile_width, int tile_height) 
             character->dy = 0;
         }
     }
+    // Si le personnage est en dehors de la map en sortant par le bas (c'est à dire tombé dans un trou) alors on annule sa vitesse vertical
     if (character->y > map->height * tile_height) {
         if (character->dy < 0) {
             character->dy = 0;
         }
     }
+    // Si le personnage est en dehors de la map par la droite alors on annule sa vitesse horizontal
     if (character->x > map->width * tile_width) {
         if (character->dx > 0) {
             character->dx = 0;
         }
     }
+    // Si le personnage est en dehors de la map par la gauche alors on annule sa vitesse horizontal
     if (character->x < 0) {
         if (character->dx < 0) {
             character->dx = 0;
         }
     }
+    // Le personnage peut sortir par le haut de la map car la gravité va le ramener vers le bas
 }
 
 void create_camera(Camera *camera, int x, int y, int width, int height) {
@@ -832,6 +854,7 @@ void create_camera(Camera *camera, int x, int y, int width, int height) {
     camera->width = width;
     camera->height = height;
     camera->fps = 0;
+    // Utilisation de show_camera comme un debug mode comme sur minecraft pour les trucs que t'as besoin de print tous les tours de boucle
     camera->show_fps = SDL_FALSE;
 }
 
@@ -847,11 +870,14 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     else if (character->x + pixel_width + (character->width / 2) > map->width * tile_width) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
+        // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
         Map *pattern = generated_pattern();
+        // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
         if (map->full == SDL_FALSE) {
             add_right_pattern_to_map(pattern, map);
             camera->x = character->x - pixel_width + (character->width / 2);
         } else {
+            // Sinon on force la camera à être à la fin de la map
             camera->x = map->width * tile_width - (camera->width * tile_width);
             free(pattern);
         }
@@ -878,14 +904,18 @@ void move_camera(Camera *camera, Character *character, Map *map) {
 }
 
 void add_right_pattern_to_map(Map *pattern, Map *map) {
+    // Si la map est pleine alors on ajoute une autre map à droite qui est la dernière
     if (MAX_TILES < map->width + pattern->width) {
         map->full = SDL_TRUE;
         printf("map is full\n");
         free(pattern);
         Map *last_pattern = create_map("Patterns/last_pattern.txt");
+        // Si la map est complétement pleine alors on ne fait rien (cas si le dernier pattern est exactement la taille de la map)
         if (MAX_TILES < map->width + last_pattern->width) {
             return;
         } else {
+            // Sinon on ajoute le dernier pattern à droite de la map
+            // Si la hauteur du dernier pattern est plis petite que la hauteur de la map alors on complète le dernier pattern avec des 0
             if (map->height > last_pattern->height) {
                 for (int i = last_pattern->height; i < map->height; i++) {
                     for (int j = 0; j < last_pattern->width; j++) {
@@ -894,16 +924,20 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
                 }
                 last_pattern->height = map->height;
             }
+            // On ajoute le dernier pattern à droite de la map
             for (int i = 0; i < map->height; i++) {
                 for (int j = 0; j < last_pattern->width; j++) {
                     map->tiles[i][j + map->width] = last_pattern->tiles[i][j];
                 }
             }
             map->width += last_pattern->width;
+            // On affiche la map dans la console quand la map est pleine
             print_map(map);
             free(last_pattern);
         }
+    // Sinon on ajoute le pattern à droite de la map
     } else {
+        // Si la hauteur du pattern est plis petite que la hauteur de la map alors on complète le pattern avec des 0
         if (map->height > pattern->height) {
             for (int i = pattern->height; i < map->height; i++) {
                 for (int j = 0; j < pattern->width; j++) {
@@ -912,6 +946,7 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
             }
             pattern->height = map->height;
         }
+        // On ajoute le pattern à droite de la map
         for (int i = 0; i < map->height; i++) {
             for (int j = 0; j < pattern->width; j++) {
                 map->tiles[i][j + map->width] = pattern->tiles[i][j];
