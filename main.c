@@ -33,7 +33,7 @@ int main(void)
     setWindowColor(renderer, bleu);
     // Crée la map
     Map *map = create_map("map.txt");
-    camera camera;
+    Camera camera;
     int camera_width = (int)(SCREEN_WIDTH / 100);
     int camera_height = (int)(SCREEN_HEIGHT / 100);
     create_camera(&camera, 0, 0, camera_width, camera_height);
@@ -41,28 +41,15 @@ int main(void)
     int tile_height = SCREEN_HEIGHT / camera_height;
     printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     printf("%d\n", 1 / tile_height);
-    Character *character = create_character("Textures/korigan", map->tile_start_x * tile_width, map->tile_start_y * tile_height, tile_width * 1.5, tile_height * 1.5, 1, renderer);
+    Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height, tile_width * 0.9, tile_height * 1.5, 1, renderer);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
     int running = 1;
     // Chargement des textures
-    SDL_Texture *list_images[100];
-    // Chargement des textures
-    char *list_strings[] = {"Textures/Terrain/texture.png", "Textures/Terrain/terre.png", "Textures/Terrain/texture_limite_gauche.png", "Textures/Terrain/texture_limite_droite.png", "Textures/Terrain/nuage.png", "Textures/Terrain/nuage_gauche.png", "Textures/Terrain/nuage_droite.png", "Textures/Terrain/gate.png", "Textures/Terrain/gate_top.png"};
-    for (int i = 0; i < 9; i++)
-    {
-        list_images[i] = loadImage(list_strings[i], renderer);
-    }
-    SDL_Texture *list_transparents[100];
-    // Chargement des textures transparentes
-    char *list_strings_bis[] = {"Texture/transparents/herbe.png"};
-    for (int i = 0; i < 9; i++)
-    {
-        list_transparents[i] = loadImage(list_strings_bis[i], renderer);
-    }
+    Texture *texture = create_texture(renderer);
     // Affiche la première image
-    draw(renderer, bleu, list_images,list_transparents, map, tile_width, tile_height, character, &camera);
+    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
     int last_time = 0;
@@ -105,12 +92,12 @@ int main(void)
                     character->x = tile_x * tile_width + (int)(sub_tile_x * (float)tile_width / (float)old_tile_width);
                     character->y = tile_y * tile_height + (int)(sub_tile_y * (float)tile_height / (float)old_tile_height);
                     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
-                    character->width = tile_width *0.9;
+                    character->width = tile_width * 0.9;
                     character->height = tile_height * 1.5;
                     character->original_width = tile_width * 0.9;
                     character->original_height = tile_height * 1.5;
                     collision(character, map, tile_width, tile_height);
-                    draw(renderer, bleu, list_images,list_transparents, map, tile_width, tile_height, character, &camera);
+                    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                 }
                 break;
             // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
@@ -208,14 +195,15 @@ int main(void)
             // Applique le mouvement au personnage
             mouvement(map, character, tile_width, tile_height);
             // Affiche la map et le personnage dans la fenêtre
-            draw(renderer, bleu, list_images,list_transparents, map, tile_width, tile_height, character, &camera);
+            draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
             camera.fps++;
         }
     }
     // printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
     free(map);
-    free_character(character);
+    free(character);
+    free_texture(texture);
 Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
@@ -225,6 +213,61 @@ Quit:
     TTF_Quit();
     // SDL_Quit();
     return statut;
+}
+
+Texture *create_texture(SDL_Renderer *renderer)
+{
+    Texture *texture = malloc(sizeof(Texture));
+    for (int i = 0; i < 100; i++)
+    {
+        texture->collision[i] = NULL;
+        texture->transparent[i] = NULL;
+        texture->main_character[i] = NULL;
+    }
+    char *list_strings[] = {"Textures/Terrain/texture.png", "Textures/Terrain/terre.png", "Textures/Terrain/texture_limite_gauche.png", "Textures/Terrain/texture_limite_droite.png", "Textures/Terrain/nuage.png", "Textures/Terrain/nuage_gauche.png", "Textures/Terrain/nuage_droite.png", "Textures/Terrain/gate.png", "Textures/Terrain/gate_top.png"};
+    for (int i = 0; i < 9; i++)
+    {
+        texture->collision[i] = loadImage(list_strings[i], renderer);
+    }
+    // Chargement des textures transparentes
+    char *list_strings_bis[] = {"Textures/transparents/herbe.png"};
+    for (int i = 0; i < 1; i++)
+    {
+        texture->transparent[i] = loadImage(list_strings_bis[i], renderer);
+    }
+    for (int i = 0; i < 100; i++)
+        texture->main_character[i] = NULL;
+    // strcpy(result, path);
+    // strcat(result, "/character.png");
+
+    char *imageNames[] = {
+        "character.png",
+        "character_run.png",
+        "jump.png",
+        "jump_right.png",
+        "jump_right_fall.png"};
+
+    for (int i = 0; i < 5; i++)
+    {
+        char imagePath[100];
+        addcat(imagePath, "Textures/korigan", imageNames[i]);
+        texture->main_character[i] = loadImage(imagePath, renderer);
+    }
+    return texture;
+}
+
+void free_texture(Texture *texture)
+{
+    for (int i = 0; i < 100; i++)
+    {
+        if (NULL != texture->collision[i])
+            SDL_DestroyTexture(texture->collision[i]);
+        if (NULL != texture->transparent[i])
+            SDL_DestroyTexture(texture->transparent[i]);
+        if (NULL != texture->main_character[i])
+            SDL_DestroyTexture(texture->main_character[i]);
+    }
+    free(texture);
 }
 
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer)
@@ -312,13 +355,14 @@ Map *create_map(char *path)
     } while (ch != EOF);
     // Ferme le fichier
     fclose(file);
-    //place des textures transparents (temporaire)
+    // place des textures transparents (temporaire)
     for (int i = 0; i < MAX_TILES; i++)
     {
         for (int j = 0; j < MAX_TILES; j++)
         {
-            if (map->tiles[i][j] == 0 && map->tiles[i+1][j]==1){
-                map->tiles[i][j]=-2;
+            if (map->tiles[i][j] == 0 && map->tiles[i + 1][j] == 1)
+            {
+                map->tiles[i][j] = -2;
             }
         }
     }
@@ -341,13 +385,15 @@ void print_map(Map *map)
     {
         for (int j = 0; j < map->width; j++)
         {
+            if (map->tiles[i][j] >= 0)
+                printf(" ");
             printf("%d", map->tiles[i][j]);
         }
         printf("\n");
     }
 }
 
-void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100],SDL_Texture *list_transparents[100], Map *map, int tile_width, int tile_height, camera *camera)
+void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera)
 {
     // Affiche la map dans la fenêtre
     for (int i = 0; i < map->height; i++)
@@ -359,18 +405,19 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100],SDL_Texture 
                 if (map->tiles[i][j] == k)
                 {
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, list_images[k - 1], NULL, &dst) < 0)
+                    if (SDL_RenderCopy(renderer, texture->collision[k - 1], NULL, &dst) < 0)
                     {
                         fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                     }
                     break;
                 }
-                else if (map->tiles[i][j] == -k && k != 1){
+                else if (map->tiles[i][j] == -k && k != 1)
+                {
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    //if (SDL_RenderCopy(renderer, list_transparents[k - 2], NULL, &dst) < 0)
-                    //{
-                    //    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                    //}
+                    if (SDL_RenderCopy(renderer, texture->transparent[k - 2], NULL, &dst) < 0)
+                    {
+                        fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    }
                     break;
                 }
             }
@@ -378,7 +425,7 @@ void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100],SDL_Texture 
     }
 }
 
-Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer)
+Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer)
 {
     // Crée un personnage
     Character *character = malloc(sizeof(Character));
@@ -398,25 +445,6 @@ Character *create_character(char *path, int x, int y, int width, int height, int
     character->dash = SDL_FALSE;
     character->alive = SDL_TRUE;
     character->on_ground = SDL_FALSE;
-    for (int i = 0; i < 100; i++)
-        character->images[i] = NULL;
-    // strcpy(result, path);
-    // strcat(result, "/character.png");
-
-    char *imageNames[] = {
-        "character.png",
-        "character_run.png",
-        "jump.png",
-        "jump_right.png",
-        "jump_right_fall.png"};
-
-    for (int i = 0; i < 5; i++)
-    {
-        char imagePath[100];
-        addcat(imagePath, path, imageNames[i]);
-        character->images[i] = loadImage(imagePath, renderer);
-    }
-    // SDL_QueryTexture(character->image, NULL, NULL, &character->width, &character->height);
     return character;
 }
 
@@ -426,20 +454,6 @@ char *addcat(char *result, char *path, char *name)
     strcat(result, "/");
     strcat(result, name);
     return result;
-}
-
-void free_character(Character *character)
-{
-    // Libère la mémoire du personnage
-    for (int i = 0; i < 100; i++)
-    {
-        if (character->images[i] != NULL)
-        {
-            SDL_DestroyTexture(character->images[i]);
-        }
-    }
-    // SDL_DestroyTexture(character->images[0]);
-    free(character);
 }
 
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height)
@@ -520,103 +534,103 @@ void move_character_right(Character *character, int tile_width)
     character->dx = (tile_width / 15) * character->speed;
 }
 
-void draw_character(SDL_Renderer *renderer, Character *character, camera *camera)
+void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera)
 {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     }
     else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0)
     {
-        draw_character_animation(renderer, character, &dst, camera, 1, character->speed, 7);
+        draw_character_animation(renderer, character, texture, &dst, camera, 1, character->speed, 7);
     }
     else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0)
     {
-        draw_character_animationEx(renderer, character, &dst, camera, 1, SDL_FLIP_HORIZONTAL, character->speed, 7);
+        draw_character_animationEx(renderer, character, texture, &dst, camera, 1, SDL_FLIP_HORIZONTAL, character->speed, 7);
     }
     else if (character->right == SDL_TRUE && character->dx != 0)
     {
         if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
-            SDL_RenderCopy(renderer, character->images[4], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->main_character[4], NULL, &dst);
         }
         else
         {
-            SDL_RenderCopy(renderer, character->images[3], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->main_character[3], NULL, &dst);
         }
     }
     else if (character->left == SDL_TRUE && character->dx != 0)
     {
         if (character->dy > 0 && character->on_ground == SDL_FALSE)
         {
-            SDL_RenderCopyEx(renderer, character->images[4], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+            SDL_RenderCopyEx(renderer, texture->main_character[4], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
         else
         {
-            SDL_RenderCopyEx(renderer, character->images[3], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+            SDL_RenderCopyEx(renderer, texture->main_character[3], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
     }
     else if (character->on_ground == SDL_FALSE)
     {
-        SDL_RenderCopy(renderer, character->images[2], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[2], NULL, &dst);
     }
     else if (character->down == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     }
     else if (character->dash == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     }
     else if (character->on_ground == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     }
     else if (character->up == SDL_TRUE)
     {
-        SDL_RenderCopy(renderer, character->images[2], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[2], NULL, &dst);
     }
     else
     {
-        SDL_RenderCopy(renderer, character->images[0], NULL, &dst);
+        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     }
 }
 
-void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed, int nb_frame)
+void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame)
 {
     SDL_Rect src = {0, 0, 0, 0};
-    SDL_QueryTexture(character->images[index], NULL, NULL, &src.w, &src.h);
+    SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++)
     {
         if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed))
         {
             src.x = i * src.w;
-            SDL_RenderCopy(renderer, character->images[index], &src, dst);
+            SDL_RenderCopy(renderer, texture->main_character[index], &src, dst);
             break;
         }
     }
 }
 
-void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed, int nb_frame)
+void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame)
 {
     SDL_Rect src = {0, 0, 0, 0};
-    SDL_QueryTexture(character->images[index], NULL, NULL, &src.w, &src.h);
+    SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++)
     {
         if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed))
         {
             src.x = i * src.w;
-            SDL_RenderCopyEx(renderer, character->images[index], &src, dst, 0, NULL, SDL_angle);
+            SDL_RenderCopyEx(renderer, texture->main_character[index], &src, dst, 0, NULL, SDL_angle);
             break;
         }
     }
 }
 
-void draw_fps(SDL_Renderer *renderer, camera *camera)
+void draw_fps(SDL_Renderer *renderer, Camera *camera)
 {
     if (camera->show_fps == SDL_TRUE)
     {
@@ -639,13 +653,13 @@ void draw_fps(SDL_Renderer *renderer, camera *camera)
     }
 }
 
-void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100], SDL_Texture *list_transparents[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera)
+void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera)
 {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
     move_camera(camera, character, map);
-    draw_map(renderer, list_images,list_transparents, map, tile_width, tile_height, camera);
-    draw_character(renderer, character, camera);
+    draw_map(renderer, texture, map, tile_width, tile_height, camera);
+    draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera);
     SDL_RenderPresent(renderer);
 }
@@ -960,7 +974,7 @@ void collision(Character *character, Map *map, int tile_width, int tile_height)
     }
 }
 
-void create_camera(camera *camera, int x, int y, int width, int height)
+void create_camera(Camera *camera, int x, int y, int width, int height)
 {
     // Crée la camera
     camera->x = x;
@@ -971,7 +985,7 @@ void create_camera(camera *camera, int x, int y, int width, int height)
     camera->show_fps = SDL_FALSE;
 }
 
-void move_camera(camera *camera, Character *character, Map *map)
+void move_camera(Camera *camera, Character *character, Map *map)
 {
     // Déplace la camera par rapport au personnage
     int tile_width = SCREEN_WIDTH / camera->width;

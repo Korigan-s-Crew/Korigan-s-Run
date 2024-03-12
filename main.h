@@ -47,7 +47,7 @@ struct Character
     SDL_bool dash;
     SDL_Texture *images[100];
 };
-struct camera
+struct Camera
 {
     int x;
     int y;
@@ -57,30 +57,38 @@ struct camera
     int avg_fps;
     SDL_bool show_fps;
 };
-typedef struct camera camera;
+typedef struct Camera Camera;
+struct Texture
+{
+    SDL_Texture *collision[100];
+    SDL_Texture *transparent[100];
+    SDL_Texture *main_character[100];
+};
+typedef struct Texture Texture;
 
+Texture *create_texture(SDL_Renderer *renderer);
+void free_texture(Texture *texture);
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
 int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 Map *create_map(char *path);
-void draw_map(SDL_Renderer *renderer, SDL_Texture *list_images[100],SDL_Texture *list_transparents[100], Map *map, int tile_width, int tile_height, camera *camera);
+void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera);
 void print_map(Map *map);
-Character *create_character(char *path, int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
+Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
 char *addcat(char *result, char *path, char *name);
-void free_character(Character *character);
-void draw_character(SDL_Renderer *renderer, Character *character, camera *camera);
-void draw_character_animation(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, float speed, int nb_frame);
-void draw_character_animationEx(SDL_Renderer *renderer, Character *character, SDL_Rect *dst, camera *camera, int index, int SDL_angle, float speed, int nb_frame);
-void draw_fps(SDL_Renderer *renderer, camera *camera);
+void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera);
+void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
+void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
+void draw_fps(SDL_Renderer *renderer, Camera *camera);
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);
 void move_character_left(Character *character, int tile_width);
 void move_character_right(Character *character, int tile_width);
-void draw(SDL_Renderer *renderer, SDL_Color bleu, SDL_Texture *list_images[100],SDL_Texture *list_transparents[100], Map *map, int tile_width, int tile_height, Character *character, camera *camera);
+void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void mouvement(Map *map, Character *character, int tile_width, int tile_height);
 void gravity(Character *character);
 void collision(Character *character, Map *map, int tile_width, int tile_height);
-void create_camera(camera *camera, int x, int y, int width, int height);
-void move_camera(camera *camera, Character *character, Map *map);
+void create_camera(Camera *camera, int x, int y, int width, int height);
+void move_camera(Camera *camera, Character *character, Map *map);
 void add_right_pattern_to_map(Map *pattern, Map *map);
 #endif
