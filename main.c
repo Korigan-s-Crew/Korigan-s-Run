@@ -194,6 +194,7 @@ int main(void) {
     }
     // printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
+    free(controls);
     free(map);
     free(character);
     free_texture(texture);
