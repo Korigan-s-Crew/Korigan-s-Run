@@ -1,27 +1,21 @@
 #include "controls.h"
 
-int switchLayout(Controls *controls)
-{
-    if (strcmp(controls->layout, "azerty") == 0)
-    {
+int switchLayout(Controls *controls) {
+    if (strcmp(controls->layout, "azerty") == 0) {
         controls->layout = "qwerty";
         controls->left = SDLK_a;
         controls->right = SDLK_d;
         controls->up = SDLK_w;
         controls->down = SDLK_s;
         return 0;
-    }
-    else if (strcmp(controls->layout, "qwerty") == 0)
-    {
+    } else if (strcmp(controls->layout, "qwerty") == 0) {
         controls->layout = "azerty";
         controls->left = SDLK_q;
         controls->right = SDLK_d;
         controls->up = SDLK_z;
         controls->down = SDLK_s;
         return 0;
-    }
-    else
-    {
+    } else {
         return -1;
     }
 }

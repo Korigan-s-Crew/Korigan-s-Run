@@ -22,4 +22,4 @@ typedef struct Controls Controls;
 int switchLayout(Controls *controls);
 Controls *init_controls(void);
 
-#endif //CGAME_CONTROLS_H
+#endif  // CGAME_CONTROLS_H
