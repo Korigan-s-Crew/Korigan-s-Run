@@ -5,9 +5,7 @@
 #ifndef CGAME_CONTROLS_H
 #define CGAME_CONTROLS_H
 
-#include "SDL.h"
-
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
