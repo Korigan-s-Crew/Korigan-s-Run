@@ -54,6 +54,9 @@ int main(void) {
     //  Initialise la variable qui contient le dernier temps
     int last_time = 0;
     int last_time_sec = 0;
+
+    Controls *controls = init_controls();
+
     while (running) {
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
@@ -98,11 +101,11 @@ int main(void) {
                     break;
                     // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                 case SDL_KEYDOWN:
-                    if (event.key.keysym.sym == control_Down) {
+                    if (event.key.keysym.sym == controls->down) {
                         character->down = SDL_TRUE;
-                    } else if (event.key.keysym.sym == control_Left) {
+                    } else if (event.key.keysym.sym == controls->left) {
                         character->left = SDL_TRUE;
-                    } else if (event.key.keysym.sym == control_Right) {
+                    } else if (event.key.keysym.sym == controls->right) {
                         character->right = SDL_TRUE;
                     } else {
 
@@ -137,25 +140,23 @@ int main(void) {
                             camera.show_fps = !camera.show_fps;
                             break;
                         case SDLK_TAB:
-                            control_Left = SDLK_a;
-                            control_Right = SDLK_d;
-                            control_Down = SDLK_s;
+                            switchLayout(controls);
                             break;
                     }}
                     break;
                     // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
                 case SDL_KEYUP:
-                    if (event.key.keysym.sym == control_Down) {
+                    if (event.key.keysym.sym == controls->down) {
                         character->down = SDL_FALSE;
                         if (character->dy < 0) {
                             character->dy = 0;
                         }
                         break;
-                    } else if (event.key.keysym.sym == control_Left) {
+                    } else if (event.key.keysym.sym == controls->left) {
                         character->left = SDL_FALSE;
                         character->dx = 0;
                         break;
-                    } else if (event.key.keysym.sym == control_Right) {
+                    } else if (event.key.keysym.sym == controls->right) {
                         character->right = SDL_FALSE;
                         character->dx = 0;
                         break;
