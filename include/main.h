@@ -74,14 +74,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
-void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
-void move_character_up(Character *character, int tile_height);
-void move_character_down(Character *character, int tile_height);
-void move_character_left(Character *character, int tile_width);
-void move_character_right(Character *character, int tile_width);
 void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
-void mouvement(Map *map, Character *character, int tile_width, int tile_height);
-void gravity(Character *character);
 void collision(Character *character, Map *map, int tile_width, int tile_height);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
