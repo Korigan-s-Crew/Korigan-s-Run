@@ -1,6 +1,7 @@
 TARGET = main
 SRCS = main.c init.c controls.c procedural_generation.c
-OBJS = $(SRCS:.c=.o)
+OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
+BINARY = bin/$(TARGET)
 
 # Compilation
 CC = clang
@@ -19,19 +20,21 @@ LDFLAGS += $(shell pkg-config --libs SDL2_image)
 CFLAGS += $(shell pkg-config --cflags SDL2_ttf)
 LDFLAGS += $(shell pkg-config --libs SDL2_ttf)
 
+# Source directories
+VPATH = src:.
 
-all: $(TARGET)
+all: $(BINARY)
 
-$(TARGET): $(OBJS)
+$(BINARY): $(OBJS)
 	$(CC) $^ $(LDFLAGS) -o $@
 
-%.o: %.c
+obj/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(BINARY)
 
 .PHONY: all clean
 
-run: $(TARGET)
-	./$(TARGET)
+run: $(BINARY)
+	./$(BINARY)

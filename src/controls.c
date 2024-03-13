@@ -1,4 +1,4 @@
-#include "controls.h"
+#include "../include/controls.h"
 
 int switchLayout(Controls *controls) {
     if (strcmp(controls->layout, "azerty") == 0) {

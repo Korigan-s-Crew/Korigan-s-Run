@@ -1,7 +1,7 @@
-#include "main.h"
-#include "controls.h"
-#include "init.h"
-#include "procedural_generation.h"
+#include "../include/main.h"
+#include "../include/controls.h"
+#include "../include/init.h"
+#include "../include/procedural_generation.h"
 #include <time.h>
 
 int SCREEN_WIDTH = 1300;

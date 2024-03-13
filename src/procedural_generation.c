@@ -1,8 +1,8 @@
-#include "procedural_generation.h"
+#include "../include/procedural_generation.h"
 
 #include <stdlib.h>
 
-#include "main.h"
+#include "../include/main.h"
 
 Map *generated_pattern(Camera *camera, Character *character, Map *map) {
     int last_pattern_index = 0;

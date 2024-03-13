@@ -1,4 +1,4 @@
-#include "init.h"
+#include "../include/init.h"
 
 int init(SDL_Window **window, SDL_Renderer **renderer, int w, int h) {
     if (0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
