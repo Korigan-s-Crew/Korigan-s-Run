@@ -44,7 +44,7 @@ struct Character
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
-    SDL_bool dash;
+    int dash;
     SDL_Texture *images[100];
 };
 struct Camera

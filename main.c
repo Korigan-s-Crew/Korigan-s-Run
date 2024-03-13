@@ -51,7 +51,7 @@ int main(void) {
     int tile_height = SCREEN_HEIGHT / camera_height;
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
-                                            tile_width * 0.9, tile_height * 1.5, 1, renderer);
+                                            tile_width * 0.9, tile_height * 1.5, 2, renderer);
     // DEBUG MAP
     print_map(map);
     // Boucle principale
@@ -146,7 +146,7 @@ int main(void) {
                         character->speed -= 0.5;
                         break;
                     case SDLK_LSHIFT:
-                        character->dash = SDL_TRUE;
+                        character->dash = 5;
                         break;
                     case SDLK_F11:
                         // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
@@ -460,7 +460,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->down = SDL_FALSE;
     character->left = SDL_FALSE;
     character->right = SDL_FALSE;
-    character->dash = SDL_FALSE;
+    character->dash = 0;
     character->alive = SDL_TRUE;
     character->on_ground = SDL_FALSE;
     return character;
@@ -556,8 +556,8 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
         SDL_RenderCopy(renderer, texture->main_character[2], NULL, &dst);
     } else if (character->down == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
-    } else if (character->dash == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
+    } else if (character->dash > 0) {
+        SDL_RenderCopy(renderer, texture->main_character[4], NULL, &dst);
     } else if (character->on_ground == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[0], NULL, &dst);
     } else if (character->up == SDL_TRUE) {
@@ -650,11 +650,15 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
         }
     }
     // Si le personnage vient de faire un dash on multiplie sa vitesse par 20 lorsqu'il n'est pas en train de tomber
-    if (character->dash == SDL_TRUE) {
-        if (character->dy <= 0) {
-            character->dy *= 20;
+    if (character->dash > 0) {
+//        if (character->dy <= 0) {
+//            character->dy += 30*(character->dy)/(abs(character->dy));
+//        }
+        if (character->dx >0){
+            character->dx = (tile_width / 3) * character->speed;
+        }else if (character->dx <0){
+            character->dx = -(tile_width / 3) * character->speed;
         }
-        character->dx *= 20;
     }
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
     if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
@@ -677,7 +681,7 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
         character->on_ground = SDL_TRUE;
         character->dy = copy_dy;
         character->dx = copy_dx;
-        // printf("dy: %d\n", character->dy);
+
         // Si le personnage n'a pas la place pour se redresser on le remet à sa position précédente et on ne change pas sa taille
         // Si il a la place on remet sa taille d'origine
 
@@ -696,12 +700,14 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
     if (character->dx != 0 || character->dy != 0)
         move_character(character, character->dx, character->dy, map, tile_width, tile_height);
     // Si le personnage vient de faire un dash on divise sa vitesse par 20
-    if (character->dash == SDL_TRUE) {
-        if (character->dy <= 0) {
-            character->dy /= 20;
+    if (character->dash >0) {
+//        if (character->dy <= 0) {
+//            character->dy -= 30*(character->dy)/(abs(character->dy));
+//        }
+        character->dash -= 1;
+        if (character->dash == 0) {
+            character->dx = 0;
         }
-        character->dx /= 20;
-        character->dash = SDL_FALSE;
     }
 }
 
