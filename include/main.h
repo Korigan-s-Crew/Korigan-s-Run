@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/time.h>
 
+
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_TILES 150
@@ -22,6 +23,7 @@ struct Map {
     int tile_start_x;
     int tile_start_y;
 };
+typedef struct Dash Dash;
 typedef struct Character Character;
 struct Character {
     int x;
@@ -39,7 +41,7 @@ struct Character {
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
-    int dash;
+    Dash *dash;
     SDL_Texture *images[100];
 };
 struct Camera {
