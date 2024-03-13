@@ -1,23 +1,19 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
-// #define SCREEN_WIDTH 1920
-// #define SCREEN_HEIGHT 1080
 #define MAX_TILES 150
-#define MAX_FPS 60
+#define MAX_FPS 120
 #define max(a, b) (a > b ? a : b)
 
 typedef struct Map Map;
-struct Map
-{
+struct Map {
     int width;
     int height;
     int tiles[MAX_TILES][MAX_TILES];
@@ -27,8 +23,7 @@ struct Map
     int tile_start_y;
 };
 typedef struct Character Character;
-struct Character
-{
+struct Character {
     int x;
     int y;
     int dx;
@@ -47,8 +42,7 @@ struct Character
     SDL_bool dash;
     SDL_Texture *images[100];
 };
-struct Camera
-{
+struct Camera {
     int x;
     int y;
     int width;
@@ -56,17 +50,17 @@ struct Camera
     int fps;
     int avg_fps;
     SDL_bool show_fps;
+    int pattern_generated_history[100];
 };
 typedef struct Camera Camera;
-struct Texture
-{
+struct Texture {
     SDL_Texture *collision[100];
     SDL_Texture *transparent[100];
     SDL_Texture *main_character[100];
     TTF_Font *font;
 };
 typedef struct Texture Texture;
-
+long long getCurrentTimeInMicroseconds();
 Texture *create_texture(SDL_Renderer *renderer);
 void free_texture(Texture *texture);
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
