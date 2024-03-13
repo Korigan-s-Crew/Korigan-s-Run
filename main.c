@@ -1,8 +1,8 @@
 #include "main.h"
-
 #include "controls.h"
 #include "init.h"
 #include "procedural_generation.h"
+#include <time.h>
 
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
@@ -54,6 +54,8 @@ int main(void) {
                                             tile_width * 0.9, tile_height * 1.5, 2, renderer);
     // DEBUG MAP
     print_map(map);
+    // Initialise la seed pour le random
+    srand(time(NULL));
     // Boucle principale
     int running = 1;
     // Chargement des textures
@@ -62,9 +64,9 @@ int main(void) {
     draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
-    int last_time = 0;
-    int last_time_fps = 0;
-    int last_time_sec = 0;
+    long long last_time = 0;
+    long long last_time_fps = 0;
+    long long last_time_sec = 0;
     // Initialise la variable qui contient les contrôles
     Controls *controls = init_controls();
 
@@ -202,16 +204,16 @@ int main(void) {
                 break;
             }
         }
-        if (SDL_GetTicks() - last_time_sec > 1000) {
-            last_time_sec = SDL_GetTicks();
+        if (getCurrentTimeInMicroseconds() - last_time_sec >= 1000000) {
+            last_time_sec = getCurrentTimeInMicroseconds();
             // printf("fps: %d\n", camera.fps);
-            camera.avg_fps = camera.fps + 1;
+            camera.avg_fps = camera.fps;
             camera.fps = 0;
         }
         // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
         // C'est la condition qui donne le game tick (60 fois par seconde) cad 16 ms par tick
-        if (SDL_GetTicks() - last_time > 1000 / 60) {
-            last_time = SDL_GetTicks();
+        if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
+            last_time = getCurrentTimeInMicroseconds();
             if (character->alive == SDL_FALSE)
                 running = 0;
             // Applique la gravité au personnage
@@ -223,8 +225,8 @@ int main(void) {
             // camera.fps++;
         }
         // C'est la condition qui donne le FPS
-        if (SDL_GetTicks() - last_time_fps > 1000 / MAX_FPS) {
-            last_time_fps = SDL_GetTicks();
+        if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
+            last_time_fps = getCurrentTimeInMicroseconds();
             draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
             camera.fps++;
         }
@@ -244,6 +246,12 @@ Quit:
     TTF_Quit();
     SDL_Quit();
     return statut;
+}
+
+long long getCurrentTimeInMicroseconds() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (long long)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 Texture *create_texture(SDL_Renderer *renderer) {
@@ -903,8 +911,13 @@ void create_camera(Camera *camera, int x, int y, int width, int height) {
     camera->width = width;
     camera->height = height;
     camera->fps = 0;
+    camera->avg_fps = 0;
     // Utilisation de show_camera comme un debug mode comme sur minecraft pour les trucs que t'as besoin de print tous les tours de boucle
     camera->show_fps = SDL_FALSE;
+    camera->pattern_generated_history[0] = -1;
+    for (int i = 1; i < 100; i++) {
+        camera->pattern_generated_history[i] = -1;
+    }
 }
 
 void move_camera(Camera *camera, Character *character, Map *map) {
@@ -920,7 +933,7 @@ void move_camera(Camera *camera, Character *character, Map *map) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
         // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
-        Map *pattern = generated_pattern();
+        Map *pattern = generated_pattern(camera, character, map);
         // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
         if (map->full == SDL_FALSE) {
             add_right_pattern_to_map(pattern, map);
