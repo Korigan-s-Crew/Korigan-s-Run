@@ -26,9 +26,11 @@ VPATH = src:.
 all: $(BINARY)
 
 $(BINARY): $(OBJS)
+	@mkdir -p $(dir $@)
 	$(CC) $^ $(LDFLAGS) -o $@
 
 obj/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
