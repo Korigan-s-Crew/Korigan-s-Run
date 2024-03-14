@@ -233,6 +233,10 @@ int main(void) {
                 map = change_map(map, "map2.txt", character, &camera, tile_width, tile_height);
                 nb_map++;
             }
+            if (character->next_map == SDL_TRUE && nb_map == 2) {
+                map = change_map(map, "map.txt", character, &camera, tile_width, tile_height);
+                nb_map--;
+            }
 
             gravity(character);
             // Applique le mouvement au personnage
