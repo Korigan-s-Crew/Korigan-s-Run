@@ -22,6 +22,7 @@ struct Map {
     SDL_bool full;
     int tile_start_x;
     int tile_start_y;
+    int nb_map;
 };
 typedef struct Dash Dash;
 typedef struct Character Character;
@@ -43,6 +44,7 @@ struct Character {
     SDL_bool down;
     Dash *dash;
     SDL_Texture *images[100];
+    SDL_bool next_map;
 };
 struct Camera {
     int x;
@@ -81,4 +83,5 @@ void collision(Character *character, Map *map, int tile_width, int tile_height);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
 void add_right_pattern_to_map(Map *pattern, Map *map);
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height);
 #endif

@@ -1,9 +1,11 @@
 #include "../include/main.h"
+
+#include <time.h>
+
 #include "../include/controls.h"
 #include "../include/init.h"
 #include "../include/movement.h"
 #include "../include/procedural_generation.h"
-#include <time.h>
 
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
@@ -42,10 +44,11 @@ int main(void) {
     setWindowColor(renderer, bleu);
     // Crée la map
     Map *map = create_map("map.txt");
+    int nb_map = 1;
     Camera camera;
     // Crée la caméra en fonction de la taille de la fenêtre
-    int camera_width = (int) (SCREEN_WIDTH / 100);
-    int camera_height = (int) (SCREEN_HEIGHT / 100);
+    int camera_width = (int)(SCREEN_WIDTH / 100);
+    int camera_height = (int)(SCREEN_HEIGHT / 100);
     // Crée la caméra en position 0, 0 et de taille camera_width, camera_height
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
@@ -75,142 +78,142 @@ int main(void) {
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
-                // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
-                case SDL_QUIT:
-                    running = 0;
-                    break;
-                case SDL_WINDOWEVENT:
-                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                        // Si la fenêtre est redimensionnée on met à jour la taille de la fenêtre
-                        // et la taille des tuiles et la taille de la caméra et la taille du personnage
-                        // On récupère la nouvelle taille de la fenêtre
-                        SCREEN_WIDTH = event.window.data1;
-                        SCREEN_HEIGHT = event.window.data2;
-                        // On limite la taille de la fenêtre à 100x100 pour éviter les crashs (valeur testé empiriquement)
-                        if (SCREEN_WIDTH < 100) {
-                            SCREEN_WIDTH = 100;
+            // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
+            case SDL_QUIT:
+                running = 0;
+                break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    // Si la fenêtre est redimensionnée on met à jour la taille de la fenêtre
+                    // et la taille des tuiles et la taille de la caméra et la taille du personnage
+                    // On récupère la nouvelle taille de la fenêtre
+                    SCREEN_WIDTH = event.window.data1;
+                    SCREEN_HEIGHT = event.window.data2;
+                    // On limite la taille de la fenêtre à 100x100 pour éviter les crashs (valeur testé empiriquement)
+                    if (SCREEN_WIDTH < 100) {
+                        SCREEN_WIDTH = 100;
+                    }
+                    if (SCREEN_HEIGHT < 100) {
+                        SCREEN_HEIGHT = 100;
+                    }
+                    printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                    // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
+                    // Car ça permet d'avoir une physique constante
+                    // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
+                    camera.width = (int)(SCREEN_WIDTH / 100);
+                    camera.height = (int)(SCREEN_HEIGHT / 100);
+                    int old_tile_width = tile_width;
+                    int old_tile_height = tile_height;
+                    // On met à jour la taille des tuiles
+                    tile_width = SCREEN_WIDTH / camera.width;
+                    tile_height = SCREEN_HEIGHT / camera.height;
+                    // Permet de garder la position du personnage dans la même case
+                    int tile_x = character->x / old_tile_width;
+                    int tile_y = character->y / old_tile_height;
+                    // Permet de garder la position du personnage dans à la même position dans la case
+                    int sub_tile_x = character->x % old_tile_width;
+                    int sub_tile_y = character->y % old_tile_height;
+                    // On met à jour la position du personnage en x
+                    character->x =
+                        tile_x * tile_width + (int)(sub_tile_x * (float)tile_width / (float)old_tile_width);
+                    // On met à jour la position du personnage en y
+                    character->y = tile_y * tile_height +
+                                   (int)(sub_tile_y * (float)tile_height / (float)old_tile_height);
+                    // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
+                    // On met à jour la taille du personnage et sa taille d'origine
+                    character->width = tile_width * 0.9;
+                    character->height = tile_height * 1.5;
+                    character->original_width = tile_width * 0.9;
+                    character->original_height = tile_height * 1.5;
+                    // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
+                    collision(character, map, tile_width, tile_height);
+                    // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
+                    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+                }
+                break;
+                // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == controls->down) {
+                    character->down = SDL_TRUE;
+                } else if (event.key.keysym.sym == controls->left) {
+                    character->left = SDL_TRUE;
+                } else if (event.key.keysym.sym == controls->right) {
+                    character->right = SDL_TRUE;
+                } else {
+                    switch (event.key.keysym.sym) {
+                    case SDLK_SPACE:
+                        character->up = SDL_TRUE;
+                        break;
+                    case SDLK_ESCAPE:
+                        running = 0;
+                        break;
+                    case SDLK_p:
+                        character->speed += 0.5;
+                        break;
+                    case SDLK_o:
+                        character->speed -= 0.5;
+                        break;
+                    case SDLK_LSHIFT:
+                        action_dash(character, controls);
+                        break;
+                    case SDLK_KP_5:
+                        character->dash->on_air = SDL_TRUE;
+                        break;
+                    case SDLK_KP_8:
+                        character->dash->go_up = SDL_TRUE;
+                        break;
+                    case SDLK_F11:
+                        // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
+                        if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
+                            SDL_SetWindowFullscreen(window, 0);
+                        } else {
+                            // Récupère la taille de l'écran
+                            SCREEN_WIDTH = screen_size.w;
+                            SCREEN_HEIGHT = screen_size.h;
+                            // Met à jour la taille de la fenêtre
+                            SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+                            // Met la fenêtre en plein écran
+                            // On fait ça parce que le fullscreen ne met pas à jour la taille de la fenêtre
+                            // mais trigger l'event SDL_WINDOWEVENT_RESIZED
+                            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
                         }
-                        if (SCREEN_HEIGHT < 100) {
-                            SCREEN_HEIGHT = 100;
-                        }
-                        printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
-                        // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
-                        // Car ça permet d'avoir une physique constante
-                        // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
-                        camera.width = (int) (SCREEN_WIDTH / 100);
-                        camera.height = (int) (SCREEN_HEIGHT / 100);
-                        int old_tile_width = tile_width;
-                        int old_tile_height = tile_height;
-                        // On met à jour la taille des tuiles
-                        tile_width = SCREEN_WIDTH / camera.width;
-                        tile_height = SCREEN_HEIGHT / camera.height;
-                        // Permet de garder la position du personnage dans la même case
-                        int tile_x = character->x / old_tile_width;
-                        int tile_y = character->y / old_tile_height;
-                        // Permet de garder la position du personnage dans à la même position dans la case
-                        int sub_tile_x = character->x % old_tile_width;
-                        int sub_tile_y = character->y % old_tile_height;
-                        // On met à jour la position du personnage en x
-                        character->x =
-                                tile_x * tile_width + (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
-                        // On met à jour la position du personnage en y
-                        character->y = tile_y * tile_height +
-                                       (int) (sub_tile_y * (float) tile_height / (float) old_tile_height);
-                        // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
-                        // On met à jour la taille du personnage et sa taille d'origine
-                        character->width = tile_width * 0.9;
-                        character->height = tile_height * 1.5;
-                        character->original_width = tile_width * 0.9;
-                        character->original_height = tile_height * 1.5;
-                        // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
-                        collision(character, map, tile_width, tile_height);
-                        // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
-                        draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+                        break;
+                    case SDLK_F3:
+                        camera.show_fps = !camera.show_fps;
+                        break;
+                    case SDLK_TAB:
+                        switchLayout(controls);
+                        break;
+                    }
+                }
+                break;
+                // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
+            case SDL_KEYUP:
+                if (event.key.keysym.sym == controls->down) {
+                    character->down = SDL_FALSE;
+                    if (character->dy < 0) {
+                        character->dy = 0;
                     }
                     break;
-                    // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
-                case SDL_KEYDOWN:
-                    if (event.key.keysym.sym == controls->down) {
-                        character->down = SDL_TRUE;
-                    } else if (event.key.keysym.sym == controls->left) {
-                        character->left = SDL_TRUE;
-                    } else if (event.key.keysym.sym == controls->right) {
-                        character->right = SDL_TRUE;
-                    } else {
-                        switch (event.key.keysym.sym) {
-                            case SDLK_SPACE:
-                                character->up = SDL_TRUE;
-                                break;
-                            case SDLK_ESCAPE:
-                                running = 0;
-                                break;
-                            case SDLK_p:
-                                character->speed += 0.5;
-                                break;
-                            case SDLK_o:
-                                character->speed -= 0.5;
-                                break;
-                            case SDLK_LSHIFT:
-                                action_dash(character,controls);
-                                break;
-                            case SDLK_KP_5:
-                                character->dash->on_air = SDL_TRUE;
-                                break;
-                            case SDLK_KP_8:
-                                character->dash->go_up = SDL_TRUE;
-                                break;
-                            case SDLK_F11:
-                                // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
-                                if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
-                                    SDL_SetWindowFullscreen(window, 0);
-                                } else {
-                                    // Récupère la taille de l'écran
-                                    SCREEN_WIDTH = screen_size.w;
-                                    SCREEN_HEIGHT = screen_size.h;
-                                    // Met à jour la taille de la fenêtre
-                                    SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
-                                    // Met la fenêtre en plein écran
-                                    // On fait ça parce que le fullscreen ne met pas à jour la taille de la fenêtre
-                                    // mais trigger l'event SDL_WINDOWEVENT_RESIZED
-                                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-                                }
-                                break;
-                            case SDLK_F3:
-                                camera.show_fps = !camera.show_fps;
-                                break;
-                            case SDLK_TAB:
-                                switchLayout(controls);
-                                break;
-                        }
-                    }
+                } else if (event.key.keysym.sym == controls->left) {
+                    character->left = SDL_FALSE;
+                    character->dx = 0;
                     break;
-                    // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
-                case SDL_KEYUP:
-                    if (event.key.keysym.sym == controls->down) {
-                        character->down = SDL_FALSE;
+                } else if (event.key.keysym.sym == controls->right) {
+                    character->right = SDL_FALSE;
+                    character->dx = 0;
+                    break;
+                } else {
+                    switch (event.key.keysym.sym) {
+                    case SDLK_SPACE:
+                        character->up = SDL_FALSE;
                         if (character->dy < 0) {
                             character->dy = 0;
                         }
                         break;
-                    } else if (event.key.keysym.sym == controls->left) {
-                        character->left = SDL_FALSE;
-                        character->dx = 0;
-                        break;
-                    } else if (event.key.keysym.sym == controls->right) {
-                        character->right = SDL_FALSE;
-                        character->dx = 0;
-                        break;
-                    } else {
-                        switch (event.key.keysym.sym) {
-                            case SDLK_SPACE:
-                                character->up = SDL_FALSE;
-                                if (character->dy < 0) {
-                                    character->dy = 0;
-                                }
-                                break;
-                        }
                     }
-                    break;
+                }
+                break;
             }
         }
         if (getCurrentTimeInMicroseconds() - last_time_sec >= 1000000) {
@@ -226,6 +229,11 @@ int main(void) {
             if (character->alive == SDL_FALSE)
                 running = 0;
             // Applique la gravité au personnage
+            if (character->next_map == SDL_TRUE && nb_map == 1) {
+                map = change_map(map, "map2.txt", character, &camera, tile_width, tile_height);
+                nb_map++;
+            }
+
             gravity(character);
             // Applique le mouvement au personnage
             mouvement(map, character, tile_width, tile_height);
@@ -247,7 +255,7 @@ int main(void) {
     free(character->dash);
     free(character);
     free_texture(texture);
-    Quit:
+Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
     if (NULL != window)
@@ -261,7 +269,7 @@ int main(void) {
 long long getCurrentTimeInMicroseconds() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (long long) tv.tv_sec * 1000000 + tv.tv_usec;
+    return (long long)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 Texture *create_texture(SDL_Renderer *renderer) {
@@ -283,9 +291,9 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->collision[i] = loadImage(list_strings[i], renderer);
     }
     // Liste des noms des images de la map (transparentes)
-    char *list_strings_bis[] = {"Textures/transparents/herbe.png"};
+    char *list_strings_bis[] = {"Textures/transparents/herbe.png", "Textures/transparents/end_portal.png"};
     // Charge les textures des images de la map (transparentes)
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
         texture->transparent[i] = loadImage(list_strings_bis[i], renderer);
     }
     // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
@@ -293,11 +301,11 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->main_character[i] = NULL;
     // Liste des noms des images du personnage
     char *imageNames[] = {
-            "character.png",
-            "character_run.png",
-            "jump.png",
-            "jump_right.png",
-            "jump_right_fall.png"};
+        "character.png",
+        "character_run.png",
+        "jump.png",
+        "jump_right.png",
+        "jump_right_fall.png"};
     // Chargement des textures du personnage
     for (int i = 0; i < 5; i++) {
         char imagePath[100];
@@ -403,6 +411,10 @@ Map *create_map(char *path) {
             map->tile_start_y = height;
             width++;
         }
+        if (ch == 'S') {
+            map->tiles[height][width] = -3;
+            width++;
+        }
         // Si c'est un retour à la ligne on met à jour la largeur et la hauteur de la map
         if (ch == '\n') {
             max_width = max(max_width, width);
@@ -480,6 +492,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->right = SDL_FALSE;
     character->alive = SDL_TRUE;
     character->on_ground = SDL_FALSE;
+    character->next_map = SDL_FALSE;
     init_dash(character);
     return character;
 }
@@ -528,15 +541,14 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
     }
 }
 
-void
-draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
-                         int index, float speed, int nb_frame) {
+void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
+                              int index, float speed, int nb_frame) {
     // Affiche une animation du personnage dans la fenêtre (déplacement vers la droite)
     SDL_Rect src = {0, 0, 0, 0};
     SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++) {
-        if (camera->fps % (int) (MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
+        if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
             src.x = i * src.w;
             SDL_RenderCopy(renderer, texture->main_character[index], &src, dst);
             break;
@@ -551,7 +563,7 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++) {
-        if (camera->fps % (int) (MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
+        if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
             src.x = i * src.w;
             SDL_RenderCopyEx(renderer, texture->main_character[index], &src, dst, 0, NULL, SDL_angle);
             break;
@@ -592,7 +604,6 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, in
     draw_fps(renderer, camera, texture);
     SDL_RenderPresent(renderer);
 }
-
 
 void collision(Character *character, Map *map, int tile_width, int tile_height) {
     // Gère les collisions entre le personnage et la map
@@ -766,6 +777,16 @@ void collision(Character *character, Map *map, int tile_width, int tile_height) 
             character->dx = 0;
         }
     }
+    if (map->tiles[y_tile_feet][x_tile] == -3) {
+        character->next_map = SDL_TRUE;
+    } else if (map->tiles[y_tile_head][x_tile] == -3) {
+        character->next_map = SDL_TRUE;
+    }
+    if (map->tiles[y_tile_feet][x_tile_width] == -3) {
+        character->next_map = SDL_TRUE;
+    } else if (map->tiles[y_tile_head][x_tile_width] == -3) {
+        character->next_map = SDL_TRUE;
+    }
     // Le personnage peut sortir par le haut de la map car la gravité va le ramener vers le bas
 }
 
@@ -793,24 +814,23 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     if (character->x < pixel_width - (character->width / 2)) {
         camera->x = 0;
     }
-        // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
+    // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
     else if (character->x + pixel_width + (character->width / 2) > map->width * tile_width) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
         // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
-        Map *pattern = generated_pattern(camera, character, map);
         // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
         if (map->full == SDL_FALSE) {
+            Map *pattern = generated_pattern(camera, character, map);
             add_right_pattern_to_map(pattern, map);
             camera->x = character->x - pixel_width + (character->width / 2);
         } else {
             // Sinon on force la camera à être à la fin de la map
             camera->x = map->width * tile_width - (camera->width * tile_width);
-            free(pattern);
         }
         // camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
-        // Sinon la camera est centré en x par rapport au personnage
+    // Sinon la camera est centré en x par rapport au personnage
     else {
         camera->x = character->x - pixel_width + (character->width / 2);
     }
@@ -820,11 +840,11 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     if (character->y < pixel_height - (character->height / 2)) {
         camera->y = 0;
     }
-        // Si le personnage est en bas de l'écran alors la camera est en bas de la map
+    // Si le personnage est en bas de l'écran alors la camera est en bas de la map
     else if (character->y + pixel_height + (character->height / 2) > map->height * tile_height) {
         camera->y = map->height * tile_height - camera->height * tile_height;
     }
-        // Sinon la camera est centré en y par rapport au personnage
+    // Sinon la camera est centré en y par rapport au personnage
     else {
         camera->y = character->y - pixel_height + (character->height / 2);
     }
@@ -859,7 +879,7 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
             }
             map->width += last_pattern->width;
             // On affiche la map dans la console quand la map est pleine
-            print_map(map);
+            // print_map(map);
             free(last_pattern);
         }
         // Sinon on ajoute le pattern à droite de la map
@@ -882,4 +902,16 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         map->width += pattern->width;
         free(pattern);
     }
+}
+
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height) {
+    // Change la map et remet le personnage à la position de départ de la nouvelle map et déplace la camera
+    free(map);
+    map = create_map(map_name);
+    character->x = map->tile_start_x * tile_width;
+    character->y = map->tile_start_y * tile_height;
+    move_camera(camera, character, map);
+    collision(character, map, tile_width, tile_height);
+    character->next_map = SDL_FALSE;
+    return map;
 }
