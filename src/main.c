@@ -255,6 +255,44 @@ long long getCurrentTimeInMicroseconds() {
     return (long long)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
+RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer){
+    //initialisation de rdmtexture
+    RdmTexture *Rdmtexture = malloc(sizeof(RdmTexture));
+    for (int i=0; i<10; i++){
+        Rdmtexture->Data[i]=NULL;
+    }
+    Rdmtexture->size=0;
+    //Cas ou le path pointe sur un png
+    if (strstr(dir_path, ".png") != NULL && strstr(dir_path, ".png") == dir_path + strlen(dir_path) - 4) {
+        Rdmtexture->Data[0]= loadImage(strdup(dir_path), renderer);
+        Rdmtexture->size=1;
+    }
+    //Cas dossier
+    else {
+        DIR *dir;
+        struct dirent *entry;
+        dir = opendir(dir_path);
+        if (!dir) {
+            printf("empty");
+            return Rdmtexture;
+        }
+        int i = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            if (entry->d_type == DT_REG) {
+                char path[50];
+                snprintf(path, sizeof(path), "%s/%s", dir_path, entry->d_name);
+                //printf("%s\n",str);
+                Rdmtexture->Data[i] = loadImage(strdup(path), renderer);
+                Rdmtexture->size = i + 1;
+                i++;
+                if (i >= 10) break; // to prevent buffer overflow
+            }
+        }
+        closedir(dir);
+    }
+    return Rdmtexture;
+}
+
 Texture *create_texture(SDL_Renderer *renderer) {
     Texture *texture = malloc(sizeof(Texture));
     // Initialisation du tableau de textures à NULL pour éviter les problèmes de mémoire
@@ -263,22 +301,33 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->transparent[i] = NULL;
         texture->main_character[i] = NULL;
     }
-    // Liste des noms des images de la map (collisables)
-    char *list_strings[] = {"Textures/Terrain/texture.png", "Textures/Terrain/terre.png",
-                            "Textures/Terrain/texture_limite_gauche.png", "Textures/Terrain/texture_limite_droite.png",
-                            "Textures/Terrain/nuage.png", "Textures/Terrain/nuage_gauche.png",
-                            "Textures/Terrain/nuage_droite.png", "Textures/Terrain/gate.png",
-                            "Textures/Terrain/gate_top.png"};
+    // Liste des noms des images de la map (collisables) avec "END" A la fin
+    char *list_strings[] = {"Textures/Terrain/sol",
+                            "Textures/Terrain/ss1",
+                            "Textures/Terrain/ss2",
+                            "Textures/Terrain/marron_cave.png",
+                            "Textures/Terrain/sol_gauche.png",
+                            "Textures/Terrain/ss1_gauche.png",
+                            "Textures/Terrain/ss2_gauche.png",
+                            "Textures/Terrain/ss3_gauche.png",
+                            "Textures/Terrain/sol_droite.png",
+                            "Textures/Terrain/ss1_droite.png",
+                            "Textures/Terrain/ss2_droite.png",
+                            "Textures/Terrain/ss3_droite.png",
+                            "END"};
     // Charge les textures des images de la map (collisables)
-    for (int i = 0; i < 9; i++) {
-        texture->collision[i] = loadImage(list_strings[i], renderer);
+    for (int i = 0; list_strings[i]!= "END"; i++) {
+        texture->collision[i] = load_from_dir(list_strings[i], renderer);
     }
     // Liste des noms des images de la map (transparentes)
-    char *list_strings_bis[] = {"Textures/transparents/herbe.png"};
+    /*char *list_strings_bis[] = {"Textures/Terrain/nuage","Textures/Terrain/herbe",
+                                "Textures/Terrain/herbe_gauche.png",
+                                "Textures/Terrain/herbe_droite.png",
+                                "END"};
     // Charge les textures des images de la map (transparentes)
-    for (int i = 0; i < 1; i++) {
-        texture->transparent[i] = loadImage(list_strings_bis[i], renderer);
-    }
+    for (int i = 0; list_strings[i]!= "END"; i++) {
+        texture->transparent[i] = load_from_dir(list_strings_bis[i], renderer);
+    }*/
     // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
     for (int i = 0; i < 100; i++)
         texture->main_character[i] = NULL;
@@ -305,10 +354,20 @@ Texture *create_texture(SDL_Renderer *renderer) {
 void free_texture(Texture *texture) {
     // Libère la mémoire allouée pour les textures
     for (int i = 0; i < 100; i++) {
-        if (NULL != texture->collision[i])
-            SDL_DestroyTexture(texture->collision[i]);
-        if (NULL != texture->transparent[i])
-            SDL_DestroyTexture(texture->transparent[i]);
+        if (NULL != texture->collision[i]) {
+            for (int j = 0; j < 10; j++) {
+                if (NULL != texture->collision[i]->Data[j]){
+                    SDL_DestroyTexture(texture->collision[i]->Data[j]);
+                }
+            }
+        }
+        if (NULL != texture->transparent[i]) {
+            for (int j = 0; j < 10; j++) {
+                if (NULL != texture->transparent[i]->Data[j]){
+                    SDL_DestroyTexture(texture->transparent[i]->Data[j]);
+                }
+            }
+        }
         if (NULL != texture->main_character[i])
             SDL_DestroyTexture(texture->main_character[i]);
     }
@@ -375,13 +434,18 @@ Map *create_map(char *path) {
         ch = fgetc(file);
         // printf("%c", ch);
         // Remplit le tableau avec les valeurs correspondantes aux caractères du fichier texte (voir map.txt pour plus d'infos)
-        char tile_mapping[] = " #@GDN[]!T";
+        char tile_mapping[] = " #cC@G[{(D]})";
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
             if (ch == tile_mapping[i]) {
-                map->tiles[height][width] = i;
+                int random_texture=rand() % 10;
+                srand(rand());
+                map->tiles[height][width] = i*10+random_texture;
+                //exemple d'herbe/texture transparente relative
                 if (i == 1 && height > 0 && map->tiles[height - 1][width] == 0) {
-                    map->tiles[height - 1][width] = -2;
+                    random_texture =rand() % 10;
+                    srand(rand());
+                    map->tiles[height - 1][width] = -20-random_texture;
                 }
                 width++;
                 break;
@@ -403,6 +467,13 @@ Map *create_map(char *path) {
     } while (ch != EOF);
     // Ferme le fichier
     fclose(file);
+    for (int i = 0; i < MAX_TILES; i++) {
+        for (int j = 0; j < MAX_TILES; j++) {
+            if (j>0 && (map->tiles[j][i])/10 > 0 && (map->tiles[j-1][i])/10 > 0){
+                map->tiles[j][i] = map->tiles[j][i]+10;
+            }
+        }
+    }
     // Quand on arrive à la fin du fichier on ajoute la dernière ligne
     max_width = max(max_width, width);
     width = 0;
@@ -428,26 +499,34 @@ void print_map(Map *map) {
     }
 }
 
+
+
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera) {
     // Affiche la map dans la fenêtre
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
-            for (int k = 1; k < 100; k++) {
-                if (map->tiles[i][j] == k) {
-                    // Si la case contient un nombre positif on affiche la texture correspondante (collisable)
+            for (int k = 1; k < 1000; k++) {
+                if (map->tiles[i][j] == k && k>=10) {
+                    // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
+                    int num_texture = k / 10;
+                    int num_image = (k % 10)%(texture->collision[num_texture-1]->size);
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, texture->collision[k - 1], NULL, &dst) < 0) {
-                        fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                    }
-                    break;
-                } else if (map->tiles[i][j] == -k && k != 1) {
-                    // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
-                    SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, texture->transparent[k - 2], NULL, &dst) < 0) {
+                    if (SDL_RenderCopy(renderer, texture->collision[num_texture-1]->Data[num_image], NULL,
+                                       &dst) < 0) {
                         fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                     }
                     break;
                 }
+                /*else if (map->tiles[i][j] == -k && k != 1) {
+                    // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
+                    int num_image = k % 10;
+                    int num_texture = k / 10;
+                    SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
+                    if (SDL_RenderCopy(renderer, texture->transparent[num_texture - 1]->Data[num_image % (texture->transparent[num_texture - 1]->size)], NULL, &dst) < 0) {
+                        fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    }
+                    break;
+                }*/
             }
         }
     }
