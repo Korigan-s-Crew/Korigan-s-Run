@@ -26,7 +26,6 @@ typedef struct Dash Dash;
 void init_dash(Character *character);
 void action_dash(Character *character, Controls *controls);
 void handle_dash(Character *character, int tile_width, int tile_height, Map *map);
-
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
 void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);

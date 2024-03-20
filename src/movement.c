@@ -1,7 +1,9 @@
 #include "../include/movement.h"
 #include "../include/main.h"
+#include "../include/map.h"
 
 void mouvement(Map *map, Character *character, int tile_width, int tile_height) {
+//    printf("character x: %d y: %d\n", character->x, character->y);
     // Gère le mouvement du personnage
     if (character->right == SDL_TRUE) {
         move_character_right(character, tile_width);
@@ -142,10 +144,11 @@ void gravity(Character *character) {
 }
 
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height) {
+//    printf("move of dx: %d dy: %d\n", x, y);
     // Déplace le personnage de x et y et gère les collisions avec la map
     if (x > 0) {
         for (int i = 0; i < x; i++) {
-            collision(character, map, tile_width, tile_height);
+            collision(character, map);
             if (character->dx == 0) {
                 break;
             }
@@ -153,7 +156,7 @@ void move_character(Character *character, int x, int y, Map *map, int tile_width
         }
     } else {
         for (int i = 0; i < -x; i++) {
-            collision(character, map, tile_width, tile_height);
+            collision(character, map);
             if (character->dx == 0) {
                 break;
             }
@@ -162,7 +165,7 @@ void move_character(Character *character, int x, int y, Map *map, int tile_width
     }
     if (y > 0) {
         for (int i = 0; i < y; i++) {
-            collision(character, map, tile_width, tile_height);
+            collision(character, map);
             if (character->dy == 0) {
                 break;
             }
@@ -170,7 +173,7 @@ void move_character(Character *character, int x, int y, Map *map, int tile_width
         }
     } else {
         for (int i = 0; i < -y; i++) {
-            collision(character, map, tile_width, tile_height);
+            collision(character, map);
             if (character->dy == 0) {
                 break;
             }
