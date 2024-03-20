@@ -151,7 +151,7 @@ int main(void) {
                                 character->speed -= 0.5;
                                 break;
                             case SDLK_LSHIFT:
-                                action_dash(character,controls);
+                                action_dash(character, controls);
                                 break;
                             case SDLK_KP_5:
                                 character->dash->on_air = SDL_TRUE;
@@ -528,8 +528,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
     }
 }
 
-void
-draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
+void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
                          int index, float speed, int nb_frame) {
     // Affiche une animation du personnage dans la fenêtre (déplacement vers la droite)
     SDL_Rect src = {0, 0, 0, 0};

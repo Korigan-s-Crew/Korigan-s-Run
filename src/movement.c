@@ -19,7 +19,7 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
             move_character_down(character, tile_height);
         }
     }
-    // Si le personnage vient de faire un dash
+    // handle being in dash
     handle_dash(character, tile_width, tile_height, map);
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
     if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
@@ -29,6 +29,7 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
     if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE) {
         character->height = (int) (character->original_height / 2);
         character->width = (int) (character->original_width / 1.5);
+//        move_character_down(character, tile_height);
     }
     // Si n'appuie plus sur control_down et qu'il est petit on le remet à sa taille d'origine
     if (character->down == SDL_FALSE && character->height < character->original_height) {
