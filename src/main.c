@@ -302,19 +302,28 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->main_character[i] = NULL;
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
-    char *list_strings[] = {"Textures/Terrain/sol",//19
-                            "Textures/Terrain/ss1",//29
-                            "Textures/Terrain/ss2",//39
-                            "Textures/Terrain/marron_cave.png",//49
-                            "Textures/Terrain/sol_gauche.png",//59
-                            "Textures/Terrain/ss1_gauche.png",
-                            "Textures/Terrain/ss2_gauche.png",
-                            "Textures/Terrain/ss3_gauche.png",
-                            "Textures/Terrain/sol_droite.png",
-                            "Textures/Terrain/ss1_droite.png",
-                            "Textures/Terrain/ss2_droite.png",
-                            "Textures/Terrain/ss3_droite.png",
-                            "END"};
+    char *list_strings[] = {
+            "Textures/Terrain/sol",//19
+            "Textures/Terrain/ss1",//29
+            "Textures/Terrain/ss2",//39
+            "Textures/Terrain/marron_cave.png",
+            "Textures/Terrain/sol_gauche.png",
+            "Textures/Terrain/ss1_gauche.png",
+            "Textures/Terrain/ss2_gauche.png",
+            "Textures/Terrain/ss3_gauche.png",//80-89
+            "Textures/Terrain/sol_droite.png",
+            "Textures/Terrain/ss1_droite.png",
+            "Textures/Terrain/ss2_droite.png",
+            "Textures/Terrain/ss3_droite.png",//120-129
+            "Textures/Terrain/sol_gauche_p.png",
+            "Textures/Terrain/ss1_gauche_p.png",
+            "Textures/Terrain/ss2_gauche_p.png",
+            "Textures/Terrain/ss3_gauche_p.png",//160-169
+            "Textures/Terrain/sol_droite_p.png",
+            "Textures/Terrain/ss1_droite_p.png",
+            "Textures/Terrain/ss2_droite_p.png",
+            "Textures/Terrain/ss3_droite_p.png",//200-209
+            "END"};
     // Charge les textures des images de la map (collisables)
     for (int i = 0; list_strings[i]!= "END"; i++) {
         texture->collision[i] = load_from_dir(list_strings[i], renderer);
@@ -440,7 +449,7 @@ Map *create_map(char *path) {
             if (ch == tile_mapping[i]) {
                 int random_texture=rand() % 10;
                 srand(rand());
-                map->tiles[height][width] = i*10+random_texture;
+                map->tiles[height][width] = (i>0) ? i*10+random_texture : 0;
                 //exemple d'herbe/texture transparente relative
                 if (i == 1 && height > 0 && map->tiles[height - 1][width] == 0) {
                     random_texture =rand() % 10;
@@ -469,21 +478,40 @@ Map *create_map(char *path) {
     fclose(file);
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
-            if (i>0 && (map->tiles[j][i])>= 10 && (map->tiles[j][i])<20 && (map->tiles[j][i-1])<10){
-                map->tiles[j][i]=50;
+            //initialisation des bord
+            if (i > 0 && j > 0 && (map->tiles[j][i]) >= 10 && (map->tiles[j][i]) < 20) {
+                if (map->tiles[j - 1][i] < 10) {
+                    if ((map->tiles[j][i - 1]) < 10) {
+                        map->tiles[j][i] = 50;
+                    } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1] < 10) {
+                        map->tiles[j][i] = 90;
+                    }
+                } else if (map->tiles[j - 1][i - 1] < 10) {
+                    map->tiles[j][i] = 170;
+                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1]<10) {
+                    map->tiles[j][i] = 130;
+                }
             }
-            else if (i>0 && (map->tiles[j][i])>= 10 && (map->tiles[j][i])<20 && (map->tiles[j][i+1])<10){
-                map->tiles[j][i]=90;
-            }
-            if (j>0 && (map->tiles[j][i])>= 10 && (map->tiles[j-1][i])>=10){
+        }
+    }
+    for (int i = 0; i < MAX_TILES; i++) {
+        for (int j = 0; j < MAX_TILES; j++) {
+            //textures descendantes
+            if (j>0 && (map->tiles[j][i])>= 10 && map->tiles[j][i]<20 && (map->tiles[j-1][i])>=10){
                 if ((map->tiles[j-1][i])>9 && map->tiles[j-1][i] <=29) {
                     map->tiles[j][i] = map->tiles[j-1][i]+10;
                 }
-                else if ((map->tiles[j-1][i])>=50 && map->tiles[j-1][i] <= 79) {
+                else if ((map->tiles[j-1][i])>=50 && map->tiles[j-1][i] <= 79 ) {
                     map->tiles[j][i] = map->tiles[j-1][i]+10;
                 }
-                else if ((map->tiles[j-1][i])>=90 && map->tiles[j-1][i] <= 119) {
+                else if ((map->tiles[j-1][i])>=90 && map->tiles[j-1][i] <= 119 ) {
                     map->tiles[j][i] = map->tiles[j-1][i]+10;
+                }
+                else if ((map->tiles[j-1][i])>=130 && map->tiles[j-1][i] <= 159 ) {
+                    map->tiles[j][i] = map->tiles[j - 1][i] + 10;
+                }
+                else if ((map->tiles[j-1][i])>=170 && map->tiles[j-1][i] <= 199 ) {
+                    map->tiles[j][i] = map->tiles[j - 1][i] + 10;
                 }
                 else {map->tiles[j][i]=40;}
             }
