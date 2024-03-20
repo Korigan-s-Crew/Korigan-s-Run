@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <dirent.h>
 
 
 #ifndef EXAMPLE_2D_H
@@ -55,14 +56,22 @@ struct Camera {
     int pattern_generated_history[100];
 };
 typedef struct Camera Camera;
+
+struct RdmTexture {
+    SDL_Texture *Data[10];
+    int size;
+};
+typedef struct RdmTexture RdmTexture;
+
 struct Texture {
-    SDL_Texture *collision[100];
-    SDL_Texture *transparent[100];
+    RdmTexture *collision[100];
+    RdmTexture *transparent[100];
     SDL_Texture *main_character[100];
     TTF_Font *font;
 };
 typedef struct Texture Texture;
 long long getCurrentTimeInMicroseconds();
+RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer);
 Texture *create_texture(SDL_Renderer *renderer);
 void free_texture(Texture *texture);
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
