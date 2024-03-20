@@ -56,7 +56,7 @@ int main(void) {
     // DEBUG MAP
     print_map(map);
     // Initialise la seed pour le random
-    srand(time(NULL));
+    srand(8675612346585);
     // Boucle principale
     int running = 1;
     // Chargement des textures
@@ -303,6 +303,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
+            "Textures/Terrain/nuage",
             "Textures/Terrain/sol",//19
             "Textures/Terrain/ss1",//29
             "Textures/Terrain/ss2",//39
@@ -315,11 +316,11 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/ss1_droite.png",
             "Textures/Terrain/ss2_droite.png",
             "Textures/Terrain/ss3_droite.png",//120-129
-            "Textures/Terrain/sol_gauche_p.png",
+            "Textures/Terrain/sol_gauche_p_ss1",
             "Textures/Terrain/ss1_gauche_p.png",
             "Textures/Terrain/ss2_gauche_p.png",
             "Textures/Terrain/ss3_gauche_p.png",//160-169
-            "Textures/Terrain/sol_droite_p.png",
+            "Textures/Terrain/sol_droite_p_ss1",
             "Textures/Terrain/ss1_droite_p.png",
             "Textures/Terrain/ss2_droite_p.png",
             "Textures/Terrain/ss3_droite_p.png",//200-209
@@ -328,15 +329,19 @@ Texture *create_texture(SDL_Renderer *renderer) {
     for (int i = 0; list_strings[i]!= "END"; i++) {
         texture->collision[i] = load_from_dir(list_strings[i], renderer);
     }
+
     // Liste des noms des images de la map (transparentes)
-    /*char *list_strings_bis[] = {"Textures/Terrain/nuage","Textures/Terrain/herbe",
-                                "Textures/Terrain/herbe_gauche.png",
-                                "Textures/Terrain/herbe_droite.png",
-                                "END"};
+    char *list_strings_bis[] = {
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/herbe",
+            "Textures/Terrain/herbe_gauche.png",
+            "Textures/Terrain/herbe_droite.png",
+            "END"};
     // Charge les textures des images de la map (transparentes)
-    for (int i = 0; list_strings[i]!= "END"; i++) {
+    for (int i = 0; list_strings_bis[i]!= "END"; i++) {
         texture->transparent[i] = load_from_dir(list_strings_bis[i], renderer);
-    }*/
+    }
     // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
     for (int i = 0; i < 100; i++)
         texture->main_character[i] = NULL;
@@ -450,12 +455,6 @@ Map *create_map(char *path) {
                 int random_texture=rand() % 10;
                 srand(rand());
                 map->tiles[height][width] = (i>0) ? i*10+random_texture : 0;
-                //exemple d'herbe/texture transparente relative
-                if (i == 1 && height > 0 && map->tiles[height - 1][width] == 0) {
-                    random_texture =rand() % 10;
-                    srand(rand());
-                    map->tiles[height - 1][width] = -20-random_texture;
-                }
                 width++;
                 break;
             }
@@ -481,19 +480,27 @@ Map *create_map(char *path) {
             //initialisation des bord
             if (i > 0 && j > 0 && (map->tiles[j][i]) >= 10 && (map->tiles[j][i]) < 20) {
                 if (map->tiles[j - 1][i] < 10) {
-                    if ((map->tiles[j][i - 1]) < 10) {
+                    if ((map->tiles[j][i - 1]) < 10) {//coin ext gauche
                         map->tiles[j][i] = 50;
-                    } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1] < 10) {
+                        map->tiles[j-1][i]=-30;
+                    } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1] < 10) {//coin ext droit
                         map->tiles[j][i] = 90;
+                        map->tiles[j-1][i]=-40;
+                    } else {map->tiles[j-1][i]=-20;}
+                } else if (map->tiles[j - 1][i - 1] < 10 && map->tiles[j][i - 1] >= 10) {//coin interieur gauche
+                    if (j>1 && map->tiles[j - 2][i - 1]<10){
+                        map->tiles[j][i]+=160;
                     }
-                } else if (map->tiles[j - 1][i - 1] < 10) {
-                    map->tiles[j][i] = 170;
-                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1]<10) {
-                    map->tiles[j][i] = 130;
+                    else {
+
+                    }
+                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1]<10 && map->tiles[j][i + 1] >= 10) {//coin interieur droit
+                    map->tiles[j][i]+=120;
                 }
             }
         }
     }
+    //Textures interieures
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
             //textures descendantes
@@ -552,24 +559,25 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                 if (map->tiles[i][j] == k && k>=10) {
                     // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
                     int num_texture = k / 10;
-                    int num_image = (k % 10)%(texture->collision[num_texture-1]->size);
+                    int num_image = (k % 10)%(texture->collision[num_texture]->size);
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, texture->collision[num_texture-1]->Data[num_image], NULL,
+                    if (SDL_RenderCopy(renderer, texture->collision[num_texture]->Data[num_image], NULL,
                                        &dst) < 0) {
                         fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                     }
                     break;
                 }
-                /*else if (map->tiles[i][j] == -k && k != 1) {
+                else if (map->tiles[i][j] == -k && k >= 20) {
                     // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
-                    int num_image = k % 10;
                     int num_texture = k / 10;
+                    int num_image = (k % 10)%(texture->transparent[num_texture]->size);
                     SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
-                    if (SDL_RenderCopy(renderer, texture->transparent[num_texture - 1]->Data[num_image % (texture->transparent[num_texture - 1]->size)], NULL, &dst) < 0) {
+                    if (SDL_RenderCopy(renderer, texture->transparent[num_texture]->Data[num_image], NULL,
+                                       &dst) < 0) {
                         fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
                     }
                     break;
-                }*/
+                }
             }
         }
     }
