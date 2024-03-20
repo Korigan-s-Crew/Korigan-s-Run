@@ -302,11 +302,11 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->main_character[i] = NULL;
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
-    char *list_strings[] = {"Textures/Terrain/sol",
-                            "Textures/Terrain/ss1",
-                            "Textures/Terrain/ss2",
-                            "Textures/Terrain/marron_cave.png",
-                            "Textures/Terrain/sol_gauche.png",
+    char *list_strings[] = {"Textures/Terrain/sol",//19
+                            "Textures/Terrain/ss1",//29
+                            "Textures/Terrain/ss2",//39
+                            "Textures/Terrain/marron_cave.png",//49
+                            "Textures/Terrain/sol_gauche.png",//59
                             "Textures/Terrain/ss1_gauche.png",
                             "Textures/Terrain/ss2_gauche.png",
                             "Textures/Terrain/ss3_gauche.png",
@@ -469,8 +469,23 @@ Map *create_map(char *path) {
     fclose(file);
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
-            if (j>0 && (map->tiles[j][i])/10 > 0 && (map->tiles[j-1][i])/10 > 0){
-                map->tiles[j][i] = map->tiles[j][i]+10;
+            if (i>0 && (map->tiles[j][i])>= 10 && (map->tiles[j][i])<20 && (map->tiles[j][i-1])<10){
+                map->tiles[j][i]=50;
+            }
+            else if (i>0 && (map->tiles[j][i])>= 10 && (map->tiles[j][i])<20 && (map->tiles[j][i+1])<10){
+                map->tiles[j][i]=90;
+            }
+            if (j>0 && (map->tiles[j][i])>= 10 && (map->tiles[j-1][i])>=10){
+                if ((map->tiles[j-1][i])>9 && map->tiles[j-1][i] <=29) {
+                    map->tiles[j][i] = map->tiles[j-1][i]+10;
+                }
+                else if ((map->tiles[j-1][i])>=50 && map->tiles[j-1][i] <= 79) {
+                    map->tiles[j][i] = map->tiles[j-1][i]+10;
+                }
+                else if ((map->tiles[j-1][i])>=90 && map->tiles[j-1][i] <= 119) {
+                    map->tiles[j][i] = map->tiles[j-1][i]+10;
+                }
+                else {map->tiles[j][i]=40;}
             }
         }
     }
