@@ -3,7 +3,7 @@
 #include "../include/map.h"
 
 void mouvement(Map *map, Character *character, int tile_width, int tile_height) {
-//    printf("character x: %d y: %d\n", character->x, character->y);
+    printf("character x: %d y: %d\n", character->x, character->y);
     // Gère le mouvement du personnage
     if (character->right == SDL_TRUE) {
         move_character_right(character, tile_width);
@@ -144,7 +144,7 @@ void gravity(Character *character) {
 }
 
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height) {
-//    printf("move of dx: %d dy: %d\n", x, y);
+    printf("move of dx: %d dy: %d\n", x, y);
     // Déplace le personnage de x et y et gère les collisions avec la map
     if (x > 0) {
         for (int i = 0; i < x; i++) {

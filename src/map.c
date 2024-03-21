@@ -207,14 +207,6 @@ void collision(Character *character, Map *map) {
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
 
     // Si le personnage à les pieds sur le sol côté gauche et que sa vitesse verticale est positive
-//    if (map->tiles[feet][true_left].type >0){
-//        if (character->dy >0){
-//            character->dy = 0;
-//        }
-//        character->on_ground = SDL_TRUE;
-//    }else{
-//        on_ground_left = SDL_FALSE;
-//    }
     if (map->tiles[feet][true_left].collision.up) {
         if (map->tiles[feet][true_left].collision.traversableUp) {
             if (character->down) {
@@ -235,14 +227,6 @@ void collision(Character *character, Map *map) {
         on_ground_left = SDL_FALSE;
     }
     // Si le personnage à les pieds sur le sol au centre et que sa vitesse verticale est positive
-//    if (map->tiles[feet][center].type >0){
-//        if (character->dy >0){
-//            character->dy = 0;
-//        }
-//        character->on_ground = SDL_TRUE;
-//    }else{
-//        on_ground_center = SDL_FALSE;
-//    }
     if (map->tiles[feet][center].collision.up) {
         if (map->tiles[feet][center].collision.traversableUp) {
             if (character->down) {
@@ -263,88 +247,174 @@ void collision(Character *character, Map *map) {
         on_ground_center = SDL_FALSE;
     }
     // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
-//    if (map->tiles[feet][true_right].type >0){
-//        if (character->dy >0){
-//            character->dy = 0;
-//        }
-//        character->on_ground = SDL_TRUE;
-//    }else{
-//        on_ground_right = SDL_FALSE;
-//    }
-    if (map->tiles[feet][true_right].collision.up) {
-        if (map->tiles[feet][true_right].collision.traversableUp) {
-            if (character->down) {
-                on_ground_right = SDL_FALSE;
-            }else{
-                if (character->dy >0){
-                    character->dy = 0;
-                }
-                character->on_ground = SDL_TRUE;
-            }
-        } else {
-            if (character->dy >0){
-                character->dy = 0;
-            }
-            character->on_ground = SDL_TRUE;
-        }
-    } else {
-        on_ground_right = SDL_FALSE;
-    }
+
     // Si le personnage n'est pas sur le sol côté gauche et côté droit alors il n'est pas sur le sol
     if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE && on_ground_left == SDL_FALSE) {
         character->on_ground = SDL_FALSE;
     }
     // Si le centre du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
-    if (map->tiles[body][right].type > 0) {
-        if (character->dx > 0) {
-            character->dx = 0;
+    if (map->tiles[body][right].collision.left) {
+        if (map->tiles[body][right].collision.traversableLeft) {
+            if (character->right) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx >0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx >0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si les genoux du personnage rentrent dans le mur de droite alors on annule sa vitesse horizontale
-    if (map->tiles[knee][right].type > 0) {
-        if (character->dx > 0) {
-            character->dx = 0;
+    if (map->tiles[knee][right].collision.left) {
+        if (map->tiles[knee][right].collision.traversableLeft) {
+            if (character->right) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx >0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx >0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si le coup du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
-    if (map->tiles[neck][right].type > 0) {
-        if (character->dx > 0) {
-            character->dx = 0;
+    if (map->tiles[neck][right].collision.left) {
+        if (map->tiles[neck][right].collision.traversableLeft) {
+            if (character->right) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx >0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx >0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si le centre du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
-    if (map->tiles[body][left].type > 0) {
-        if (character->dx < 0) {
-            character->dx = 0;
+    if (map->tiles[body][left].collision.right) {
+        if (map->tiles[body][left].collision.traversableRight) {
+            if (character->left) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx < 0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx < 0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si les genoux du personnage rentrent dans le mur de gauche alors on annule sa vitesse horizontale
-    if (map->tiles[knee][left].type > 0) {
-        if (character->dx < 0) {
-            character->dx = 0;
+    if (map->tiles[knee][left].collision.right) {
+        if (map->tiles[knee][left].collision.traversableRight) {
+            if (character->left) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx < 0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx < 0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si le coup du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
-    if (map->tiles[neck][left].type > 0) {
-        if (character->dx < 0) {
-            character->dx = 0;
+    if (map->tiles[neck][left].collision.right) {
+        if (map->tiles[neck][left].collision.traversableRight) {
+            if (character->left) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dx < 0){
+                    character->dx = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dx < 0){
+                character->dx = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si la tête côté droit du personnage alors on annule sa vitesse verticale
-    if (map->tiles[head][true_right].type > 0) {
-        if (character->dy < 0) {
-            character->dy = 0;
+    if (map->tiles[head][true_right].collision.down) {
+        if (map->tiles[head][true_right].collision.traversableDown) {
+            if (character->up) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dy < 0){
+                    character->dy = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dy < 0){
+                character->dy = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si la tête côté gauche du personnage rentre dans le mur de gauche alors on annule sa vitesse verticale
-    if (map->tiles[head][true_left].type > 0) {
-        if (character->dy < 0) {
-            character->dy = 0;
+    if (map->tiles[head][true_left].collision.down) {
+        if (map->tiles[head][true_left].collision.traversableDown) {
+            if (character->up) { // if user is pressing right he can go through
+                //may be usefull for wallslide
+            }else{
+                if (character->dy < 0){
+                    character->dy = 0;
+                }
+                //todo wallslide
+            }
+        } else {
+            if (character->dy < 0){
+                character->dy = 0;
+            }
+            // wallslide
         }
+    } else {
+        //wallslide
     }
     // Si le personnage est en dehors de la map en sortant par le bas (c'est à dire tombé dans un trou) alors on annule sa vitesse vertical
     if (character->y > map->height * tile_height) {
-        if (character->dy < 0) {
+        if (character->dy > 0) {
             character->dy = 0;
         }
     }
