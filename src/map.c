@@ -189,6 +189,7 @@ void collision(Character *character, Map *map) {
     // int y_tile = y / height;
 //    printf("x: %d, y: %d, width: %d, height: %d\n", x, y, width, height);
     // all of the different heights of the character
+    int ankle = check_out_of_bounds((y + height - 1) / tile_height, map->height - 1);
     int feet = check_out_of_bounds((y + height) / tile_height, map->height - 1); // bottom of the character
     int knee = check_out_of_bounds((int) (y + height * 0.95) / tile_height, map->height - 1); // knees of the character
     int body = check_out_of_bounds((y + height / 2) / tile_height, map->height - 1);
@@ -212,17 +213,17 @@ void collision(Character *character, Map *map) {
     // Si le personnage à les pieds sur le sol côté gauche et que sa vitesse verticale est positive
     if (map->tiles[feet][true_left].collision.up) {
         if (map->tiles[feet][true_left].collision.traversableUp) {
-            if (character->down) {
+            if (character->down || map->tiles[ankle][true_left].collision.traversableUp) {
                 printf("character go through down left dy : %d\n", character->dy);
                 on_ground_left = SDL_FALSE;
-            }else{
-                if (character->dy >0){
+            } else {
+                if (character->dy > 0) {
                     character->dy = 0;
                 }
                 character->on_ground = SDL_TRUE;
             }
         } else {
-            if (character->dy >0){
+            if (character->dy > 0) {
                 character->dy = 0;
             }
             character->on_ground = SDL_TRUE;
@@ -233,17 +234,17 @@ void collision(Character *character, Map *map) {
     // Si le personnage à les pieds sur le sol au centre et que sa vitesse verticale est positive
     if (map->tiles[feet][center].collision.up) {
         if (map->tiles[feet][center].collision.traversableUp) {
-            if (character->down) {
+            if (character->down || map->tiles[ankle][center].collision.traversableUp) {
                 printf("character go through down center dy : %d\n", character->dy);
                 on_ground_center = SDL_FALSE;
-            }else{
-                if (character->dy >0){
+            } else {
+                if (character->dy > 0) {
                     character->dy = 0;
                 }
                 character->on_ground = SDL_TRUE;
             }
         } else {
-            if (character->dy >0){
+            if (character->dy > 0) {
                 character->dy = 0;
             }
             character->on_ground = SDL_TRUE;
@@ -254,17 +255,17 @@ void collision(Character *character, Map *map) {
     // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
     if (map->tiles[feet][true_right].collision.up) {
         if (map->tiles[feet][true_right].collision.traversableUp) {
-            if (character->down) {
+            if (character->down || map->tiles[ankle][true_right].collision.traversableUp) {
                 printf("character go through down right dy : %d\n", character->dy);
                 on_ground_right = SDL_FALSE;
-            }else{
-                if (character->dy >0){
+            } else {
+                if (character->dy > 0) {
                     character->dy = 0;
                 }
                 character->on_ground = SDL_TRUE;
             }
         } else {
-            if (character->dy >0){
+            if (character->dy > 0) {
                 character->dy = 0;
             }
             character->on_ground = SDL_TRUE;
@@ -281,14 +282,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[body][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx >0){
+            } else {
+                if (character->dx > 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx >0){
+            if (character->dx > 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -301,14 +302,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[knee][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx >0){
+            } else {
+                if (character->dx > 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx >0){
+            if (character->dx > 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -321,14 +322,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[neck][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx >0){
+            } else {
+                if (character->dx > 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx >0){
+            if (character->dx > 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -341,14 +342,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[body][left].collision.traversableRight) {
             if (character->left) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx < 0){
+            } else {
+                if (character->dx < 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx < 0){
+            if (character->dx < 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -361,14 +362,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[knee][left].collision.traversableRight) {
             if (character->left) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx < 0){
+            } else {
+                if (character->dx < 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx < 0){
+            if (character->dx < 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -381,14 +382,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[neck][left].collision.traversableRight) {
             if (character->left) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dx < 0){
+            } else {
+                if (character->dx < 0) {
                     character->dx = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dx < 0){
+            if (character->dx < 0) {
                 character->dx = 0;
             }
             // wallslide
@@ -401,14 +402,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[head][true_right].collision.traversableDown) {
             if (character->up) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dy < 0){
+            } else {
+                if (character->dy < 0) {
                     character->dy = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dy < 0){
+            if (character->dy < 0) {
                 character->dy = 0;
             }
             // wallslide
@@ -421,14 +422,14 @@ void collision(Character *character, Map *map) {
         if (map->tiles[head][true_left].collision.traversableDown) {
             if (character->up) { // if user is pressing right he can go through
                 //may be usefull for wallslide
-            }else{
-                if (character->dy < 0){
+            } else {
+                if (character->dy < 0) {
                     character->dy = 0;
                 }
                 //todo wallslide
             }
         } else {
-            if (character->dy < 0){
+            if (character->dy < 0) {
                 character->dy = 0;
             }
             // wallslide
@@ -463,7 +464,7 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         map->full = SDL_TRUE;
         printf("map is full\n");
         free(pattern);
-        Map *last_pattern = create_map("Patterns/last_pattern.txt",map->tile_width,map->tile_height);
+        Map *last_pattern = create_map("Patterns/last_pattern.txt", map->tile_width, map->tile_height);
         // Si la map est complétement pleine alors on ne fait rien (cas si le dernier pattern est exactement la taille de la map)
         if (MAX_TILES < map->width + last_pattern->width) {
             return;
