@@ -13,11 +13,14 @@ Collision gen_tile_collision(int type) {
     collision.traversableRight = SDL_FALSE;
     switch (type / 10) {
         case 1:
-            printf("collision type: %d\n", type);
             collision.up = SDL_TRUE;
             collision.down = SDL_TRUE;
             collision.left = SDL_TRUE;
             collision.right = SDL_TRUE;
+            break;
+        case 4:
+            collision.up = SDL_TRUE;
+            collision.traversableUp = SDL_TRUE;
             break;
     }
     return collision;
