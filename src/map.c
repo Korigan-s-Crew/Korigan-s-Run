@@ -210,6 +210,7 @@ void collision(Character *character, Map *map) {
     if (map->tiles[feet][true_left].collision.up) {
         if (map->tiles[feet][true_left].collision.traversableUp) {
             if (character->down) {
+                printf("character go through down left dy : %d\n", character->dy);
                 on_ground_left = SDL_FALSE;
             }else{
                 if (character->dy >0){
@@ -230,6 +231,7 @@ void collision(Character *character, Map *map) {
     if (map->tiles[feet][center].collision.up) {
         if (map->tiles[feet][center].collision.traversableUp) {
             if (character->down) {
+                printf("character go through down center dy : %d\n", character->dy);
                 on_ground_center = SDL_FALSE;
             }else{
                 if (character->dy >0){
@@ -247,7 +249,26 @@ void collision(Character *character, Map *map) {
         on_ground_center = SDL_FALSE;
     }
     // Si le personnage à les pieds sur le sol côté droite et que sa vitesse verticale est positive
-
+    if (map->tiles[feet][true_right].collision.up) {
+        if (map->tiles[feet][true_right].collision.traversableUp) {
+            if (character->down) {
+                printf("character go through down right dy : %d\n", character->dy);
+                on_ground_right = SDL_FALSE;
+            }else{
+                if (character->dy >0){
+                    character->dy = 0;
+                }
+                character->on_ground = SDL_TRUE;
+            }
+        } else {
+            if (character->dy >0){
+                character->dy = 0;
+            }
+            character->on_ground = SDL_TRUE;
+        }
+    } else {
+        on_ground_right = SDL_FALSE;
+    }
     // Si le personnage n'est pas sur le sol côté gauche et côté droit alors il n'est pas sur le sol
     if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE && on_ground_left == SDL_FALSE) {
         character->on_ground = SDL_FALSE;

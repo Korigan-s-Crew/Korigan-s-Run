@@ -3,7 +3,7 @@
 #include "../include/map.h"
 
 void mouvement(Map *map, Character *character, int tile_width, int tile_height) {
-    printf("character x: %d y: %d\n", character->x, character->y);
+//    printf("character x: %d y: %d\n", character->x, character->y);
     // Gère le mouvement du personnage
     if (character->right == SDL_TRUE) {
         move_character_right(character, tile_width);
@@ -28,38 +28,38 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
         character->dx = 0;
     }
     // Si le personnage est au sol et qu'il appuie sur control_down il se baisse (réduit sa taille)
-    if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE) {
-        character->height = (int) (character->original_height / 2);
-        character->width = (int) (character->original_width / 1.5);
-//        move_character_down(character, tile_height);
-    }
-    // Si n'appuie plus sur control_down et qu'il est petit on le remet à sa taille d'origine
-    if (character->down == SDL_FALSE && character->height < character->original_height) {
-        int copy_dy = character->dy;
-        int copy_dx = character->dx;
-        character->dy = -(int) (character->original_height / 2);
-        character->dx = (int) (character->original_width / 3);
-        int copy_y = character->y;
-        int copy_x = character->x;
-        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
-        character->on_ground = SDL_TRUE;
-        character->dy = copy_dy;
-        character->dx = copy_dx;
-
-        // Si le personnage n'a pas la place pour se redresser on le remet à sa position précédente et on ne change pas sa taille
-        // Si il a la place on remet sa taille d'origine
-
-        if (character->y == copy_y - (int) character->original_height / 2 &&
-            character->x == copy_x + (int) character->original_width / 3) {
-            character->height = character->original_height;
-            character->width = character->original_width;
-            // On vérifie qu'il a la place avec move_character puis on le remet à sa position précédente
-            character->x = copy_x;
-        } else {
-            character->y = copy_y;
-            character->x = copy_x;
-        }
-    }
+//    if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE) {
+//        character->height = (int) (character->original_height / 2);
+//        character->width = (int) (character->original_width / 1.5);
+////        move_character_down(character, tile_height);
+//    }
+//    // Si n'appuie plus sur control_down et qu'il est petit on le remet à sa taille d'origine
+//    if (character->down == SDL_FALSE && character->height < character->original_height) {
+//        int copy_dy = character->dy;
+//        int copy_dx = character->dx;
+//        character->dy = -(int) (character->original_height / 2);
+//        character->dx = (int) (character->original_width / 3);
+//        int copy_y = character->y;
+//        int copy_x = character->x;
+//        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+//        character->on_ground = SDL_TRUE;
+//        character->dy = copy_dy;
+//        character->dx = copy_dx;
+//
+//        // Si le personnage n'a pas la place pour se redresser on le remet à sa position précédente et on ne change pas sa taille
+//        // Si il a la place on remet sa taille d'origine
+//
+//        if (character->y == copy_y - (int) character->original_height / 2 &&
+//            character->x == copy_x + (int) character->original_width / 3) {
+//            character->height = character->original_height;
+//            character->width = character->original_width;
+//            // On vérifie qu'il a la place avec move_character puis on le remet à sa position précédente
+//            character->x = copy_x;
+//        } else {
+//            character->y = copy_y;
+//            character->x = copy_x;
+//        }
+//    }
     // Si le personnage ne bouge pas on n'effectue pas de déplacement ET DE COLLISION !!!
     if ((character->dx != 0 || character->dy != 0) && character->dash->duration == 0)
         move_character(character, character->dx, character->dy, map, tile_width, tile_height);
@@ -144,7 +144,7 @@ void gravity(Character *character) {
 }
 
 void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height) {
-    printf("move of dx: %d dy: %d\n", x, y);
+//    printf("move of dx: %d dy: %d\n", x, y);
     // Déplace le personnage de x et y et gère les collisions avec la map
     if (x > 0) {
         for (int i = 0; i < x; i++) {
