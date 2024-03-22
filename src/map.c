@@ -18,7 +18,7 @@ Collision gen_tile_collision(int type) {
             collision.left = SDL_TRUE;
             collision.right = SDL_TRUE;
             break;
-        case 4:
+        case 21:
             collision.up = SDL_TRUE;
             collision.traversableUp = SDL_TRUE;
             break;
@@ -69,7 +69,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         ch = fgetc(file);
         // printf("%c", ch);
         // Remplit le tableau avec les valeurs correspondantes aux caractères du fichier texte (voir map.txt pour plus d'infos)
-        char tile_mapping[] = " #cC@G[{(D]})";
+        char tile_mapping[] = " #cCG[{(D]})123456789@";
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
             if (ch == tile_mapping[i]) {
