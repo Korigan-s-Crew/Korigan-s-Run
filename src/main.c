@@ -256,6 +256,7 @@ int main(void) {
     statut = EXIT_SUCCESS;
     free(controls);
     free(map);
+    free(character->dash);
     free(character);
     free_texture(texture);
 Quit:
@@ -284,7 +285,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer){
     Rdmtexture->size=0;
     //Cas ou le path pointe sur un png
     if (strstr(dir_path, ".png") != NULL && strstr(dir_path, ".png") == dir_path + strlen(dir_path) - 4) {
-        Rdmtexture->Data[0]= loadImage(strdup(dir_path), renderer);
+        Rdmtexture->Data[0]= loadImage(dir_path, renderer);
         Rdmtexture->size=1;
     }
     //Cas dossier
@@ -302,7 +303,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer){
                 char path[50];
                 snprintf(path, sizeof(path), "%s/%s", dir_path, entry->d_name);
                 //printf("%s\n",str);
-                Rdmtexture->Data[i] = loadImage(strdup(path), renderer);
+                Rdmtexture->Data[i] = loadImage(path, renderer);
                 Rdmtexture->size = i + 1;
                 i++;
                 if (i >= 10) break; // to prevent buffer overflow
@@ -394,6 +395,7 @@ void free_texture(Texture *texture) {
                     SDL_DestroyTexture(texture->collision[i]->Data[j]);
                 }
             }
+            free(texture->collision[i]);
         }
         if (NULL != texture->transparent[i]) {
             for (int j = 0; j < 10; j++) {
@@ -401,9 +403,11 @@ void free_texture(Texture *texture) {
                     SDL_DestroyTexture(texture->transparent[i]->Data[j]);
                 }
             }
+            free(texture->transparent[i]);
         }
-        if (NULL != texture->main_character[i])
+        if (NULL != texture->main_character[i]) {
             SDL_DestroyTexture(texture->main_character[i]);
+        }
     }
     // Libère la mémoire allouée pour la police de caractère
     TTF_CloseFont(texture->font);
