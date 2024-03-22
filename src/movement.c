@@ -88,8 +88,8 @@ void action_dash(Character *character, Controls *controls) {
     Dash *dash = character->dash;
     if (dash->cooldown == 0) {
         if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
-            dash->duration = 10;
-            dash->cooldown = 100;
+            dash->duration = 20;
+            dash->cooldown = 200;
             if (character->dx > 0) {
                 character->dash->direction.x = 1;
             } else if (character->dx < 0) {
@@ -115,9 +115,9 @@ void handle_dash(Character *character, int tile_width, int tile_height, Map *map
     // handle dash movement
     if (character->dash->duration > 0) {
         character->dy = 0;
-        character->dx = (tile_width / 3) * character->speed * character->dash->direction.x;
+        character->dx = (tile_width / (3*1.66)) * character->speed * character->dash->direction.x;
         if (character->dash->go_up == SDL_TRUE) {
-            character->dy = (tile_height / 5) * character->speed * character->dash->direction.y;
+            character->dy = (tile_height / (5*1.66)) * character->speed * character->dash->direction.y;
         }
         move_character(character, character->dx, character->dy, map, tile_width, tile_height);
         character->dash->duration -= 1;
