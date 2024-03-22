@@ -359,7 +359,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/herbe_droite.png",
             "END"};
     // Charge les textures des images de la map (transparentes)
-    for (int i = 0; list_strings_bis[i]!= "END"; i++) {
+    for (int i = 0; strcmp(list_strings_bis[i], "END"); i++) {
         texture->transparent[i] = load_from_dir(list_strings_bis[i], renderer);
     }
     // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
@@ -473,7 +473,7 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
     for (int i = 0; i < map->height; i++) {
         for (int j = 0; j < map->width; j++) {
             for (int k = 1; k < 1000; k++) {
-                if (map->tiles[i][j] == k && k>=10) {
+                if (map->tiles[i][j].type == k && k>=10) {
                     // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
                     int num_texture = k / 10;
                     int num_image = (k % 10)%(texture->collision[num_texture]->size);
@@ -484,7 +484,7 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                     }
                     break;
                 }
-                else if (map->tiles[i][j] == -k && k >= 20) {
+                else if (map->tiles[i][j].type == -k && k >= 20) {
                     // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
                     int num_texture = k / 10;
                     int num_image = (k % 10)%(texture->transparent[num_texture]->size);
