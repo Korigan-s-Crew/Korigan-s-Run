@@ -31,6 +31,7 @@ void move_character_up(Character *character, int tile_height);
 void move_character_down(Character *character, int tile_height);
 void move_character_left(Character *character, int tile_width);
 void move_character_right(Character *character, int tile_width);
+void slow_down(Character *character);
 void mouvement(Map *map, Character *character, int tile_width, int tile_height);
 void gravity(Character *character);
 

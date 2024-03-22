@@ -41,7 +41,7 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
     handle_dash(character, tile_width, tile_height, map);
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
     if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
-        character->dx = 0;
+        slow_down(character);
     }
     // Si le personnage est au sol et qu'il appuie sur control_down il se baisse (réduit sa taille)
 //    if (character->down == SDL_TRUE && character->on_ground == SDL_TRUE) {
@@ -200,8 +200,17 @@ void move_character(Character *character, int x, int y, Map *map) {
     }
 }
 
+void slow_down(Character *character) {
+    // Ralentit le personnage
+    if (character->dx > 0) {
+        character->dx -= 1;
+    } else if (character->dx < 0) {
+        character->dx += 1;
+    }
+}
+
 void move_character_up(Character *character, int tile_height) {
-    if (character->on_ground == SDL_TRUE) {
+    if (character->on_ground == SDL_TRUE ){//|| character->wall_right == SDL_TRUE || character->wall_left == SDL_TRUE) {
         character->dy = -(tile_height / 5);
         // printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
@@ -213,9 +222,9 @@ void move_character_down(Character *character, int tile_height) {
 }
 
 void move_character_left(Character *character, int tile_width) {
-    character->dx = -(tile_width / 15) * character->speed;
+    character->dx = max(character->dx - 1 , -(tile_width / 15.) * character->speed);
 }
 
 void move_character_right(Character *character, int tile_width) {
-    character->dx = (tile_width / 15) * character->speed;
+    character->dx = min(character->dx + 1 , (tile_width / 15.) * character->speed);
 }

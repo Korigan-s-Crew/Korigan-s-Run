@@ -200,25 +200,25 @@ int main(void) {
                 case SDL_KEYUP:
                     if (event.key.keysym.sym == controls->down) {
                         character->down = SDL_FALSE;
-                        if (character->dy < 0) {
-                            character->dy = 0;
-                        }
+//                        if (character->dy < 0) {
+//                            character->dy = 0;
+//                        }
                         break;
                     } else if (event.key.keysym.sym == controls->left) {
                         character->left = SDL_FALSE;
-                        character->dx = 0;
+//                        character->dx = 0;
                         break;
                     } else if (event.key.keysym.sym == controls->right) {
                         character->right = SDL_FALSE;
-                        character->dx = 0;
+//                        character->dx = 0;
                         break;
                     } else {
                         switch (event.key.keysym.sym) {
                             case SDLK_SPACE:
                                 character->up = SDL_FALSE;
-                                if (character->dy < 0) {
-                                    character->dy = 0;
-                                }
+//                                if (character->dy < 0) {
+//                                    character->dy = 0;
+//                                }
                                 break;
                         }
                     }
