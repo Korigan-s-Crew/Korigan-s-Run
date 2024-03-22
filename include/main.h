@@ -10,7 +10,7 @@
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 120
-#define MAX_TILES 150
+#define MAX_TILES 50
 #define max(a, b) (a > b ? a : b)
 
 typedef struct Dash Dash;

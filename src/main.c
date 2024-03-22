@@ -317,7 +317,8 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
                 Rdmtexture->Data[i] = loadImage(path, renderer);
                 Rdmtexture->size = i + 1;
                 i++;
-                if (i >= 10) break; // to prevent buffer overflow
+                if (i >= 10)
+                    break; // to prevent buffer overflow
             }
         }
         closedir(dir);
@@ -335,29 +336,29 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
-            "Textures/Terrain/nuage",
-            "Textures/Terrain/sol",//19
-            "Textures/Terrain/ss1",//29
-            "Textures/Terrain/ss2",//39
-            "Textures/Terrain/marron_cave.png",
-            "Textures/Terrain/sol_gauche.png",
-            "Textures/Terrain/ss1_gauche.png",
-            "Textures/Terrain/ss2_gauche.png",
-            "Textures/Terrain/ss3_gauche.png",//80-89
-            "Textures/Terrain/sol_droite.png",
-            "Textures/Terrain/ss1_droite.png",
-            "Textures/Terrain/ss2_droite.png",
-            "Textures/Terrain/ss3_droite.png",//120-129
-            "Textures/Terrain/sol_gauche_p_ss1",
-            "Textures/Terrain/ss1_gauche_p.png",
-            "Textures/Terrain/ss2_gauche_p.png",
-            "Textures/Terrain/ss3_gauche_p.png",//160-169
-            "Textures/Terrain/sol_droite_p_ss1",
-            "Textures/Terrain/ss1_droite_p.png",
-            "Textures/Terrain/ss2_droite_p.png",
-            "Textures/Terrain/ss3_droite_p.png",//200-209
-            "Textures/Terrain/nuage/nuage.png",
-            "END"};
+        "Textures/Terrain/nuage",
+        "Textures/Terrain/sol",  // 19
+        "Textures/Terrain/ss1",  // 29
+        "Textures/Terrain/ss2",  // 39
+        "Textures/Terrain/marron_cave.png",
+        "Textures/Terrain/sol_gauche.png",
+        "Textures/Terrain/ss1_gauche.png",
+        "Textures/Terrain/ss2_gauche.png",
+        "Textures/Terrain/ss3_gauche.png",  // 80-89
+        "Textures/Terrain/sol_droite.png",
+        "Textures/Terrain/ss1_droite.png",
+        "Textures/Terrain/ss2_droite.png",
+        "Textures/Terrain/ss3_droite.png",  // 120-129
+        "Textures/Terrain/sol_gauche_p_ss1",
+        "Textures/Terrain/ss1_gauche_p.png",
+        "Textures/Terrain/ss2_gauche_p.png",
+        "Textures/Terrain/ss3_gauche_p.png",  // 160-169
+        "Textures/Terrain/sol_droite_p_ss1",
+        "Textures/Terrain/ss1_droite_p.png",
+        "Textures/Terrain/ss2_droite_p.png",
+        "Textures/Terrain/ss3_droite_p.png",  // 200-209
+        "Textures/Terrain/nuage/nuage.png",   // 20
+        "END"};
     // Charge les textures des images de la map (collisables)
     for (int i = 0; strcmp(list_strings[i], "END"); i++) {
         texture->collision[i] = load_from_dir(list_strings[i], renderer);

@@ -82,11 +82,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         char tile_mapping[] = " #cCG[{(D]})123456789@";
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
-            if (ch == 'S'){
-                map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
-                                                            -50, 0);
-            }
-            else if (ch == tile_mapping[i]) {
+            if (ch == tile_mapping[i]) {
                 int random_texture = rand() % 10;
                 srand(rand());
                 map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
@@ -102,6 +98,11 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                 width++;
                 break;
             }
+        }
+        if (ch == 'S') {
+            map->tiles[height][width] = create_tile(height, width, tile_width, tile_height,
+                                                    -50, 0);
+            width++;
         }
         // Si c'est un 0 on met -1 dans le tableau (case de départ du personnage)
         if (ch == '0') {
