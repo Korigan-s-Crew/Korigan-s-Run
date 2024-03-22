@@ -506,6 +506,8 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         Map *last_pattern = create_map("Patterns/last_pattern.txt", map->tile_width, map->tile_height);
         // Si la map est complétement pleine alors on ne fait rien (cas si le dernier pattern est exactement la taille de la map)
         if (MAX_TILES < map->width + last_pattern->width) {
+            printf("map full tiles: %d width : %d patternwidth : %d",MAX_TILES,map->width,last_pattern->width);
+            free(last_pattern);
             return;
         } else {
             // Sinon on ajoute le dernier pattern à droite de la map
