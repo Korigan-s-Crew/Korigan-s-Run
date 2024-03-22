@@ -530,6 +530,8 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->right = SDL_FALSE;
     character->alive = SDL_TRUE;
     character->on_ground = SDL_FALSE;
+    character->wall_right = SDL_FALSE;
+    character->wall_left = SDL_FALSE;
     init_dash(character);
     return character;
 }

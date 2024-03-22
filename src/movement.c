@@ -21,6 +21,22 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
             move_character_down(character, tile_height);
         }
     }
+
+    if (character->wall_right == SDL_TRUE)  {
+        if (character->right == SDL_TRUE) {
+            character->dy = 0;
+        } else {
+            character->dy = min(character->dy, 2);
+        }
+    }
+    if (character->wall_left == SDL_TRUE) {
+        if (character->left == SDL_TRUE) {
+            character->dy = 0;
+        } else {
+            character->dy = min(character->dy, 2);
+        }
+    }
+
     // handle being in dash
     handle_dash(character, tile_width, tile_height, map);
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
@@ -62,7 +78,7 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
 //    }
     // Si le personnage ne bouge pas on n'effectue pas de déplacement ET DE COLLISION !!!
     if ((character->dx != 0 || character->dy != 0) && character->dash->duration == 0)
-        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+        move_character(character, character->dx, character->dy, map);
     // Si le personnage vient de faire un dash on divise sa vitesse par 20
 }
 
@@ -119,7 +135,7 @@ void handle_dash(Character *character, int tile_width, int tile_height, Map *map
         if (character->dash->go_up == SDL_TRUE) {
             character->dy = (tile_height / (5*1.66)) * character->speed * character->dash->direction.y;
         }
-        move_character(character, character->dx, character->dy, map, tile_width, tile_height);
+        move_character(character, character->dx, character->dy, map);
         character->dash->duration -= 1;
         if (character->dash->duration == 0) {
             character->dx = 0;
@@ -133,6 +149,8 @@ void handle_dash(Character *character, int tile_width, int tile_height, Map *map
     }
 }
 
+//############### End Dash part
+
 void gravity(Character *character) {
     // Applique la gravité au personnage
     // Si le personnage n'est pas sur le sol et que sa vitesse verticale est inférieure à 10
@@ -143,7 +161,7 @@ void gravity(Character *character) {
     }
 }
 
-void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height) {
+void move_character(Character *character, int x, int y, Map *map) {
 //    printf("move of dx: %d dy: %d\n", x, y);
     // Déplace le personnage de x et y et gère les collisions avec la map
     if (x > 0) {

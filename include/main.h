@@ -12,6 +12,7 @@
 #define MAX_FPS 120
 #define MAX_TILES 150
 #define max(a, b) (a > b ? a : b)
+#define min(a, b) (a < b ? a : b)
 
 typedef struct Dash Dash;
 typedef struct Map Map;
@@ -28,6 +29,8 @@ struct Character {
     float speed;
     SDL_bool alive;
     SDL_bool on_ground;
+    SDL_bool wall_right;
+    SDL_bool wall_left;
     SDL_bool right;
     SDL_bool left;
     SDL_bool up;

@@ -240,7 +240,9 @@ void collision(Character *character, Map *map) {
     if (map->tiles[feet][true_left].collision.up) {
         if (map->tiles[feet][true_left].collision.traversableUp) {
             if (character->down || map->tiles[ankle][true_left].collision.traversableUp) {
-                printf("character go through down left dy : %d\n", character->dy);
+                if (!map->tiles[ankle][true_left].collision.traversableUp){
+                    printf("character go through down left dy : %d\n", character->dy);
+                }
                 on_ground_left = SDL_FALSE;
             } else {
                 if (character->dy > 0) {
@@ -261,7 +263,9 @@ void collision(Character *character, Map *map) {
     if (map->tiles[feet][center].collision.up) {
         if (map->tiles[feet][center].collision.traversableUp) {
             if (character->down || map->tiles[ankle][center].collision.traversableUp) {
-                printf("character go through down center dy : %d\n", character->dy);
+                if (!map->tiles[ankle][center].collision.traversableUp){
+                    printf("character go through down center dy : %d\n", character->dy);
+                }
                 on_ground_center = SDL_FALSE;
             } else {
                 if (character->dy > 0) {
@@ -282,7 +286,9 @@ void collision(Character *character, Map *map) {
     if (map->tiles[feet][true_right].collision.up) {
         if (map->tiles[feet][true_right].collision.traversableUp) {
             if (character->down || map->tiles[ankle][true_right].collision.traversableUp) {
+                if (!map->tiles[ankle][true_right].collision.traversableUp){
                 printf("character go through down right dy : %d\n", character->dy);
+                }
                 on_ground_right = SDL_FALSE;
             } else {
                 if (character->dy > 0) {
@@ -303,130 +309,161 @@ void collision(Character *character, Map *map) {
     if (on_ground_right == SDL_FALSE && on_ground_center == SDL_FALSE && on_ground_left == SDL_FALSE) {
         character->on_ground = SDL_FALSE;
     }
+    SDL_bool wall_right_feet = SDL_TRUE;
+    SDL_bool wall_right_knee = SDL_TRUE;
+    SDL_bool wall_right_body = SDL_TRUE;
+    SDL_bool wall_right_neck = SDL_TRUE;
+    SDL_bool wall_right_head = SDL_TRUE;
+
+    if (wall_right_body == SDL_FALSE && wall_right_knee == SDL_FALSE && wall_right_neck == SDL_FALSE && wall_right_head == SDL_FALSE && wall_right_feet == SDL_FALSE) {
+        //just to avoid warning
+    }
+
     // Si le centre du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
     if (map->tiles[body][right].collision.left) {
         if (map->tiles[body][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+                wall_right_body = SDL_FALSE;
             } else {
                 if (character->dx > 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_right = SDL_TRUE;
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_right = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_right_body = SDL_FALSE;
     }
     // Si les genoux du personnage rentrent dans le mur de droite alors on annule sa vitesse horizontale
     if (map->tiles[knee][right].collision.left) {
         if (map->tiles[knee][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+                wall_right_knee = SDL_FALSE;
             } else {
                 if (character->dx > 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_right = SDL_TRUE;
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_right = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_right_knee = SDL_FALSE;
     }
     // Si le coup du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
     if (map->tiles[neck][right].collision.left) {
         if (map->tiles[neck][right].collision.traversableLeft) {
             if (character->right) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+                wall_right_neck = SDL_FALSE;
             } else {
                 if (character->dx > 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_right = SDL_TRUE;
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_right = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_right_neck = SDL_FALSE;
     }
+
+    if (wall_right_body == SDL_FALSE) {
+        character->wall_right = SDL_FALSE;
+    }
+
+
+    SDL_bool wall_left_feet = SDL_TRUE;
+    SDL_bool wall_left_knee = SDL_TRUE;
+    SDL_bool wall_left_body = SDL_TRUE;
+    SDL_bool wall_left_neck = SDL_TRUE;
+    SDL_bool wall_left_head = SDL_TRUE;
+
+    if (wall_left_body == SDL_FALSE && wall_left_knee == SDL_FALSE && wall_left_neck == SDL_FALSE && wall_left_head == SDL_FALSE && wall_left_feet == SDL_FALSE) {
+        //just to avoid warning
+    }
+
     // Si le centre du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[body][left].collision.right) {
         if (map->tiles[body][left].collision.traversableRight) {
-            if (character->left) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+            if (character->left) { // if user is pressing left he can go through
+                wall_left_body = SDL_FALSE;
             } else {
                 if (character->dx < 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_left = SDL_TRUE;
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_left = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_left_body = SDL_FALSE;
     }
     // Si les genoux du personnage rentrent dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[knee][left].collision.right) {
         if (map->tiles[knee][left].collision.traversableRight) {
-            if (character->left) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+            if (character->left) { // if user is pressing left he can go through
+                wall_left_knee = SDL_FALSE;
             } else {
                 if (character->dx < 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_left = SDL_TRUE;
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_left = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_left_knee = SDL_FALSE;
     }
     // Si le coup du personnage rentre dans le mur de gauche alors on annule sa vitesse horizontale
     if (map->tiles[neck][left].collision.right) {
         if (map->tiles[neck][left].collision.traversableRight) {
-            if (character->left) { // if user is pressing right he can go through
-                //may be usefull for wallslide
+            if (character->left) { // if user is pressing left he can go through
+                wall_left_neck = SDL_FALSE;
             } else {
                 if (character->dx < 0) {
                     character->dx = 0;
                 }
-                //todo wallslide
+                character->wall_left = SDL_TRUE;
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
-            // wallslide
+            character->wall_left = SDL_TRUE;
         }
     } else {
-        //wallslide
+        wall_left_neck = SDL_FALSE;
     }
+
+    if (wall_left_body == SDL_FALSE) {
+        character->wall_left = SDL_FALSE;
+    }
+
     // Si la tête côté droit du personnage alors on annule sa vitesse verticale
     if (map->tiles[head][true_right].collision.down) {
         if (map->tiles[head][true_right].collision.traversableDown) {
-            if (character->up) { // if user is pressing right he can go through
+            if (character->up) { // if user is pressing up he can go through
                 //may be usefull for wallslide
             } else {
                 if (character->dy < 0) {
