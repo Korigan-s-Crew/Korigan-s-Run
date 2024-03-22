@@ -9,20 +9,12 @@
 
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
-#define MAX_TILES 150
 #define MAX_FPS 120
+#define MAX_TILES 150
 #define max(a, b) (a > b ? a : b)
 
+typedef struct Dash Dash;
 typedef struct Map Map;
-struct Map {
-    int width;
-    int height;
-    int tiles[MAX_TILES][MAX_TILES];
-    int foreground[MAX_TILES][MAX_TILES];
-    SDL_bool full;
-    int tile_start_x;
-    int tile_start_y;
-};
 typedef struct Character Character;
 struct Character {
     int x;
@@ -40,7 +32,7 @@ struct Character {
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
-    int dash;
+    Dash *dash;
     SDL_Texture *images[100];
 };
 struct Camera {
@@ -74,7 +66,6 @@ Texture *create_texture(SDL_Renderer *renderer);
 void free_texture(Texture *texture);
 SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer);
 int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
-Map *create_map(char *path);
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera);
 void print_map(Map *map);
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
@@ -84,8 +75,6 @@ void draw_character_animation(SDL_Renderer *renderer, Character *character, Text
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
-void collision(Character *character, Map *map, int tile_width, int tile_height);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
-void add_right_pattern_to_map(Map *pattern, Map *map);
 #endif
