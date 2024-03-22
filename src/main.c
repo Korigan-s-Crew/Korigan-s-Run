@@ -10,6 +10,7 @@ int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
 
 int main(void) {
+
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Event event;

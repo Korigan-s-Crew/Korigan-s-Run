@@ -35,10 +35,8 @@ struct Tile {
     int width;
     int height;
     int type;
-    SDL_Texture *texture;
     Collision collision;
     int rotation;
-
 };
 
 typedef struct Map Map;
@@ -55,7 +53,7 @@ struct Map {
 };
 
 Collision gen_tile_collision(int type);
-Tile create_tile(int x, int y, int width, int height, int type, SDL_Texture *texture, int rotation);
+Tile create_tile(int x, int y, int width, int height, int type, int rotation);
 int check_out_of_bounds(int width, int bounds);
 
 Map *create_map(char *path, int tile_width, int tile_height);

@@ -26,7 +26,7 @@ Collision gen_tile_collision(int type) {
     return collision;
 }
 
-Tile create_tile(int x, int y, int width, int height, int type, SDL_Texture *texture, int rotation) {
+Tile create_tile(int x, int y, int width, int height, int type, int rotation) {
     // Crée une tile
     Tile tile;
     tile.x = x;
@@ -34,7 +34,6 @@ Tile create_tile(int x, int y, int width, int height, int type, SDL_Texture *tex
     tile.width = width;
     tile.height = height;
     tile.type = type;
-    tile.texture = texture;
     tile.collision = gen_tile_collision(type);
     tile.rotation = rotation;
     return tile;
@@ -63,7 +62,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     // Remplit le tableau avec des 0 pour éviter les problèmes de mémoire
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
-            map->tiles[i][j] = create_tile(i, j, tile_width, tile_height, 0, NULL, 0);
+            map->tiles[i][j] = create_tile(i, j, tile_width, tile_height, 0, 0);
         }
     }
     do {
@@ -76,15 +75,14 @@ Map *create_map(char *path, int tile_width, int tile_height) {
             if (ch == tile_mapping[i]) {
                 int random_texture = rand() % 10;
                 srand(rand());
-                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
-                                                        NULL, 0);
+                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture, 0);
 
                 //exemple d'herbe/texture transparente relative
                 if (i == 1 && height > 0 && map->tiles[height - 1][width].type == 0) {
                     random_texture = rand() % 10;
                     srand(rand());
                     map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
-                                                                -20 - random_texture, NULL, 0);
+                                                                -20 - random_texture, 0);
                 }
                 width++;
                 break;
@@ -92,7 +90,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         }
         // Si c'est un 0 on met -1 dans le tableau (case de départ du personnage)
         if (ch == '0') {
-            map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, -1, NULL, 0);
+            map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, -1, 0);
             map->tile_start_x = width;
             map->tile_start_y = height;
             width++;
@@ -498,3 +496,22 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         free(pattern);
     }
 }
+//
+//void free_map(Map *map) {
+//    // Free the textures for each tile
+//    for (int i = 0; i < MAX_TILES; i++) {
+//        for (int j = 0; j < MAX_TILES; j++) {
+//            free(map[i])
+//        }
+//    }
+//
+//    // Reset all other fields to their default values
+//    map->width = 0;
+//    map->height = 0;
+//    map->tile_width = 0;
+//    map->tile_height = 0;
+//    map->full = SDL_FALSE;
+//    map->tile_start_x = 0;
+//    map->tile_start_y = 0;
+//    memset(map->foreground, 0, sizeof(map->foreground));
+//}
