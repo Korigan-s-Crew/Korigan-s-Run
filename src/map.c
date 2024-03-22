@@ -106,24 +106,54 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     fclose(file);
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
-            if (i > 0 && (map->tiles[j][i].type) >= 10 && (map->tiles[j][i].type) < 20 &&
-                (map->tiles[j][i - 1].type) < 10) {
-                map->tiles[j][i].type = 50;
-            } else if (i > 0 && (map->tiles[j][i].type) >= 10 && (map->tiles[j][i].type) < 20 &&
-                       (map->tiles[j][i + 1].type) < 10) {
-                map->tiles[j][i].type = 90;
-            }
-            if (j > 0 && (map->tiles[j][i].type) >= 10 && (map->tiles[j - 1][i].type) >= 10) {
-                if ((map->tiles[j - 1][i].type) > 9 && map->tiles[j - 1][i].type <= 29) {
-                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
-                } else if ((map->tiles[j - 1][i].type) >= 50 && map->tiles[j - 1][i].type <= 79) {
-                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
-                } else if ((map->tiles[j - 1][i].type) >= 90 && map->tiles[j - 1][i].type <= 119) {
-                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
-                } else { map->tiles[j][i].type = 40; }
+            //initialisation des bord
+            if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 10 && (map->tiles[j][i].type) < 20) {
+                if (map->tiles[j - 1][i].type < 10) {
+                    if (map->tiles[j][i - 1].type < 10) {//coin ext gauche
+                        map->tiles[j][i].type = 50;
+                        map->tiles[j-1][i].type=-30;
+                    } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1].type < 10) {//coin ext droit
+                        map->tiles[j][i].type = 90;
+                        map->tiles[j-1][i].type=-40;
+                    } else {map->tiles[j-1][i].type=-20;}
+                } else if (map->tiles[j - 1][i - 1].type < 10 && map->tiles[j][i - 1].type >= 10) {//coin interieur gauche
+                    if (j>1 && map->tiles[j - 2][i - 1].type<10){
+                        map->tiles[j][i].type+=160;
+                    }
+                    else {
+
+                    }
+                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1].type<10 && map->tiles[j][i + 1].type >= 10) {//coin interieur droit
+                    map->tiles[j][i].type+=120;
+                }
             }
         }
     }
+    //Textures interieures
+    for (int i = 0; i < MAX_TILES; i++) {
+        for (int j = 0; j < MAX_TILES; j++) {
+            //textures descendantes
+            if (j>0 && (map->tiles[j][i].type)>= 10 && map->tiles[j][i].type<20 && (map->tiles[j-1][i].type)>=10){
+                if ((map->tiles[j-1][i].type)>9 && map->tiles[j-1][i].type <=29) {
+                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
+                }
+                else if ((map->tiles[j-1][i].type)>=50 && map->tiles[j-1][i].type <= 79 ) {
+                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
+                }
+                else if ((map->tiles[j-1][i].type)>=90 && map->tiles[j-1][i].type <= 119 ) {
+                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
+                }
+                else if ((map->tiles[j-1][i].type)>=130 && map->tiles[j-1][i].type <= 159 ) {
+                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
+                }
+                else if ((map->tiles[j-1][i].type)>=170 && map->tiles[j-1][i].type <= 199 ) {
+                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
+                }
+                else {map->tiles[j][i].type=40;}
+            }
+        }
+    }
+
     // Quand on arrive à la fin du fichier on ajoute la dernière ligne
     max_width = max(max_width, width);
     width = 0;
