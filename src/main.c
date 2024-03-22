@@ -53,6 +53,7 @@ int main(void) {
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
     Map *map = create_map("map.txt", tile_width, tile_height);
+    int nb_map = 1;
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
                                             (int) (tile_width * 0.9), (int) (tile_height * 1.5), 2, renderer);
