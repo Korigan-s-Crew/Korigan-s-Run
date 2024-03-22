@@ -3,25 +3,35 @@
 Collision gen_tile_collision(int type) {
     // Génère les collisions des tiles
     Collision collision;
-    collision.up = SDL_FALSE;
-    collision.down = SDL_FALSE;
-    collision.left = SDL_FALSE;
-    collision.right = SDL_FALSE;
+    collision.up = SDL_TRUE;
+    collision.down = SDL_TRUE;
+    collision.left = SDL_TRUE;
+    collision.right = SDL_TRUE;
     collision.traversableUp = SDL_FALSE;
     collision.traversableDown = SDL_FALSE;
     collision.traversableLeft = SDL_FALSE;
     collision.traversableRight = SDL_FALSE;
-    switch (type / 10) {
-        case 1:
-            collision.up = SDL_TRUE;
-            collision.down = SDL_TRUE;
-            collision.left = SDL_TRUE;
-            collision.right = SDL_TRUE;
-            break;
-        case 21:
-            collision.up = SDL_TRUE;
-            collision.traversableUp = SDL_TRUE;
-            break;
+    if (type < 0) {
+        collision.up = SDL_FALSE;
+        collision.down = SDL_FALSE;
+        collision.left = SDL_FALSE;
+        collision.right = SDL_FALSE;
+    } else {
+        switch (type / 10) {
+            case 0:
+                collision.up = SDL_FALSE;
+                collision.down = SDL_FALSE;
+                collision.left = SDL_FALSE;
+                collision.right = SDL_FALSE;
+                break;
+            case 21:
+                collision.up = SDL_TRUE;
+                collision.down = SDL_FALSE;
+                collision.left = SDL_FALSE;
+                collision.right = SDL_FALSE;
+                collision.traversableUp = SDL_TRUE;
+                break;
+        }
     }
     return collision;
 }
@@ -75,7 +85,8 @@ Map *create_map(char *path, int tile_width, int tile_height) {
             if (ch == tile_mapping[i]) {
                 int random_texture = rand() % 10;
                 srand(rand());
-                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture, 0);
+                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
+                                                        0);
 
                 //exemple d'herbe/texture transparente relative
                 if (i == 1 && height > 0 && map->tiles[height - 1][width].type == 0) {
@@ -111,20 +122,21 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                 if (map->tiles[j - 1][i].type < 10) {
                     if (map->tiles[j][i - 1].type < 10) {//coin ext gauche
                         map->tiles[j][i].type = 50;
-                        map->tiles[j-1][i].type=-30;
+                        map->tiles[j - 1][i].type = -30;
                     } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1].type < 10) {//coin ext droit
                         map->tiles[j][i].type = 90;
-                        map->tiles[j-1][i].type=-40;
-                    } else {map->tiles[j-1][i].type=-20;}
-                } else if (map->tiles[j - 1][i - 1].type < 10 && map->tiles[j][i - 1].type >= 10) {//coin interieur gauche
-                    if (j>1 && map->tiles[j - 2][i - 1].type<10){
-                        map->tiles[j][i].type+=160;
-                    }
-                    else {
+                        map->tiles[j - 1][i].type = -40;
+                    } else { map->tiles[j - 1][i].type = -20; }
+                } else if (map->tiles[j - 1][i - 1].type < 10 &&
+                           map->tiles[j][i - 1].type >= 10) {//coin interieur gauche
+                    if (j > 1 && map->tiles[j - 2][i - 1].type < 10) {
+                        map->tiles[j][i].type += 160;
+                    } else {
 
                     }
-                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1].type<10 && map->tiles[j][i + 1].type >= 10) {//coin interieur droit
-                    map->tiles[j][i].type+=120;
+                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1].type < 10 &&
+                           map->tiles[j][i + 1].type >= 10) {//coin interieur droit
+                    map->tiles[j][i].type += 120;
                 }
             }
         }
@@ -133,23 +145,19 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     for (int i = 0; i < MAX_TILES; i++) {
         for (int j = 0; j < MAX_TILES; j++) {
             //textures descendantes
-            if (j>0 && (map->tiles[j][i].type)>= 10 && map->tiles[j][i].type<20 && (map->tiles[j-1][i].type)>=10){
-                if ((map->tiles[j-1][i].type)>9 && map->tiles[j-1][i].type <=29) {
-                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
-                }
-                else if ((map->tiles[j-1][i].type)>=50 && map->tiles[j-1][i].type <= 79 ) {
-                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
-                }
-                else if ((map->tiles[j-1][i].type)>=90 && map->tiles[j-1][i].type <= 119 ) {
-                    map->tiles[j][i].type = map->tiles[j-1][i].type+10;
-                }
-                else if ((map->tiles[j-1][i].type)>=130 && map->tiles[j-1][i].type <= 159 ) {
+            if (j > 0 && (map->tiles[j][i].type) >= 10 && map->tiles[j][i].type < 20 &&
+                (map->tiles[j - 1][i].type) >= 10) {
+                if ((map->tiles[j - 1][i].type) > 9 && map->tiles[j - 1][i].type <= 29) {
                     map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
-                }
-                else if ((map->tiles[j-1][i].type)>=170 && map->tiles[j-1][i].type <= 199 ) {
+                } else if ((map->tiles[j - 1][i].type) >= 50 && map->tiles[j - 1][i].type <= 79) {
                     map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
-                }
-                else {map->tiles[j][i].type=40;}
+                } else if ((map->tiles[j - 1][i].type) >= 90 && map->tiles[j - 1][i].type <= 119) {
+                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
+                } else if ((map->tiles[j - 1][i].type) >= 130 && map->tiles[j - 1][i].type <= 159) {
+                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
+                } else if ((map->tiles[j - 1][i].type) >= 170 && map->tiles[j - 1][i].type <= 199) {
+                    map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
+                } else { map->tiles[j][i].type = 40; }
             }
         }
     }

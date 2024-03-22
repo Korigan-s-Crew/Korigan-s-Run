@@ -108,6 +108,8 @@ int main(void) {
                         // On met à jour la taille des tuiles
                         tile_width = SCREEN_WIDTH / camera.width;
                         tile_height = SCREEN_HEIGHT / camera.height;
+                        map->tile_width = tile_width;
+                        map->tile_height = tile_height;
                         // Permet de garder la position du personnage dans la même case
                         int tile_x = character->x / old_tile_width;
                         int tile_y = character->y / old_tile_height;
