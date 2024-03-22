@@ -235,13 +235,19 @@ int main(void) {
         // C'est la condition qui donne le game tick (60 fois par seconde) cad 16 ms par tick
         if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
             last_time = getCurrentTimeInMicroseconds();
-            if (character->alive == SDL_FALSE) {
+            if (character->alive == SDL_FALSE) {// ide warning is an error
                 character->x = map->tile_start_x * tile_width;
                 character->y = map->tile_start_y * tile_height;
-//                move_character(character, map->tile_start_x, map->tile_start_y, map, tile_width, tile_height);
                 character->alive = SDL_TRUE;
             }
-//                running = 0;
+            if (character->next_map == SDL_TRUE && nb_map == 1) {
+                map = change_map(map, "map2.txt", character, &camera, map->tile_width, map->tile_height);
+                nb_map++;
+            }
+            if (character->next_map == SDL_TRUE && nb_map == 2) {
+                map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                nb_map--;
+            }
             // Applique la gravité au personnage
             gravity(character);
             // Applique le mouvement au personnage
@@ -364,6 +370,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/herbe",
             "Textures/Terrain/herbe_gauche.png",
             "Textures/Terrain/herbe_droite.png",
+            "Textures/transparents/end_portal.png",
             "END"};
     // Charge les textures des images de la map (transparentes)
     for (int i = 0; strcmp(list_strings_bis[i], "END"); i++) {

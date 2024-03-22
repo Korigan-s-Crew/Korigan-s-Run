@@ -82,7 +82,11 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         char tile_mapping[] = " #cCG[{(D]})123456789@";
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
-            if (ch == tile_mapping[i]) {
+            if (ch == 'S'){
+                map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
+                                                            -50, 0);
+            }
+            else if (ch == tile_mapping[i]) {
                 int random_texture = rand() % 10;
                 srand(rand());
                 map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
@@ -460,7 +464,7 @@ void collision(Character *character, Map *map) {
         //wallslide
     }
     // Si le personnage est en dehors de la map en sortant par le bas (c'est à dire tombé dans un trou) alors on annule sa vitesse vertical
-    if (character->y + character->height > map->height * tile_height) { // todo handle fall
+    if (character->y + character->height > map->height * tile_height) {// todo handle fall
         if (character->dy > 0) {
             character->alive = SDL_FALSE;
             character->dy = 0;
@@ -479,6 +483,18 @@ void collision(Character *character, Map *map) {
         }
     }
     // Le personnage peut sortir par le haut de la map car la gravité va le ramener vers le bas
+
+    if (map->tiles[feet][left].type/10 == -5) {
+        character->next_map = SDL_TRUE;
+    } else if (map->tiles[head][left].type/10 == -5) {
+        character->next_map = SDL_TRUE;
+    }
+    if (map->tiles[feet][right].type/10 == -5) {
+        character->next_map = SDL_TRUE;
+    } else if (map->tiles[head][right].type/10 == -5) {
+        character->next_map = SDL_TRUE;
+    }
+
 }
 
 void add_right_pattern_to_map(Map *pattern, Map *map) {
@@ -534,22 +550,15 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         free(pattern);
     }
 }
-//
-//void free_map(Map *map) {
-//    // Free the textures for each tile
-//    for (int i = 0; i < MAX_TILES; i++) {
-//        for (int j = 0; j < MAX_TILES; j++) {
-//            free(map[i])
-//        }
-//    }
-//
-//    // Reset all other fields to their default values
-//    map->width = 0;
-//    map->height = 0;
-//    map->tile_width = 0;
-//    map->tile_height = 0;
-//    map->full = SDL_FALSE;
-//    map->tile_start_x = 0;
-//    map->tile_start_y = 0;
-//    memset(map->foreground, 0, sizeof(map->foreground));
-//}
+
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height) {
+    // Change la map et remet le personnage à la position de départ de la nouvelle map et déplace la camera
+    free(map);
+    map = create_map(map_name, tile_width, tile_height);
+    character->x = map->tile_start_x * tile_width;
+    character->y = map->tile_start_y * tile_height;
+    move_camera(camera, character, map);
+    collision(character, map);
+    character->next_map = SDL_FALSE;
+    return map;
+}

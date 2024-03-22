@@ -59,6 +59,6 @@ int check_out_of_bounds(int width, int bounds);
 Map *create_map(char *path, int tile_width, int tile_height);
 void collision(Character *character, Map *map);
 void add_right_pattern_to_map(Map *pattern, Map *map);
-
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height);
 
 #endif //CGAME_MAP_H

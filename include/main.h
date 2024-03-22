@@ -34,6 +34,7 @@ struct Character {
     SDL_bool down;
     Dash *dash;
     SDL_Texture *images[100];
+    SDL_bool next_map;
 };
 struct Camera {
     int x;
