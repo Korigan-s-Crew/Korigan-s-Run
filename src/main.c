@@ -471,15 +471,15 @@ void print_map(Map *map) {
         }
         printf("\n");
     }
-    for (int i = 0; i < map->height; i++) {
-        for (int j = 0; j < map->width; j++) {
-            // Si la case contient un nombre positif on affiche un espace avant le nombre
-//            if (map->tiles[i][j].type >= 0)
-//                printf(" ");
-            printf(" %d ", map->tiles[i][j].collision.up);
-        }
-        printf("\n");
-    }
+//    for (int i = 0; i < map->height; i++) {
+//        for (int j = 0; j < map->width; j++) {
+//            // Si la case contient un nombre positif on affiche un espace avant le nombre
+////            if (map->tiles[i][j].type >= 0)
+////                printf(" ");
+//            printf(" %d ", map->tiles[i][j].collision.up);
+//        }
+//        printf("\n");
+//    }
 }
 
 
