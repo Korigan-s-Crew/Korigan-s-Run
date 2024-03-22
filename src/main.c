@@ -251,7 +251,7 @@ int main(void) {
             // Applique la gravité au personnage
             gravity(character);
             // Applique le mouvement au personnage
-            mouvement(map, character, tile_width, tile_height);
+            mouvement(map, character);
             // Affiche la map et le personnage dans la fenêtre
             // draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
             // camera.fps++;
