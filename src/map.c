@@ -80,42 +80,40 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         // printf("%c", ch);
         // Remplit le tableau avec les valeurs correspondantes aux caractères du fichier texte (voir map.txt pour plus d'infos)
         char tile_mapping[] = " #cCG[{(D]})123456789@|T";
-
-        for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
-            if (ch == tile_mapping[i]) {
-                int random_texture = rand() % 10;
-                srand(rand());
-                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
-                                                        0);
-
-                //exemple d'herbe/texture transparente relative
-                if (i == 1 && height > 0 && map->tiles[height - 1][width].type == 0) {
-                    random_texture = rand() % 10;
-                    srand(rand());
-                    map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
-                                                                -20 - random_texture, 0);
-                }
-                width++;
-                break;
-            }
-        }
         if (ch == 'S') {
             map->tiles[height][width] = create_tile(height, width, tile_width, tile_height,
                                                     -50, 0);
             width++;
-        }
-        // Si c'est un 0 on met -1 dans le tableau (case de départ du personnage)
-        if (ch == '0') {
+        }  // Si c'est un 0 on met -1 dans le tableau (case de départ du personnage)
+        else if (ch == '0') {
             map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, -1, 0);
             map->tile_start_x = width;
             map->tile_start_y = height;
             width++;
-        }
-        // Si c'est un retour à la ligne on met à jour la largeur et la hauteur de la map
-        if (ch == '\n') {
+            // Si c'est un retour à la ligne on met à jour la largeur et la hauteur de la map
+        } else if (ch == '\n') {
             max_width = max(max_width, width);
             width = 0;
             height++;
+        } else {
+            for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
+                if (ch == tile_mapping[i]) {
+                    int random_texture = rand() % 10;
+                    srand(rand());
+                    map->tiles[height][width] = create_tile(height, width, tile_width, tile_height, i * 10 + random_texture,
+                                                            0);
+
+                    // exemple d'herbe/texture transparente relative
+                    if (i == 1 && height > 0 && map->tiles[height - 1][width].type == 0) {
+                        random_texture = rand() % 10;
+                        srand(rand());
+                        map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
+                                                                    -20 - random_texture, 0);
+                    }
+                    width++;
+                    break;
+                }
+            }
         }
     } while (ch != EOF);
     // Ferme le fichier
