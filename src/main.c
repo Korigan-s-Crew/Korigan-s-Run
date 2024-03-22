@@ -357,7 +357,9 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "Textures/Terrain/ss1_droite_p.png",
         "Textures/Terrain/ss2_droite_p.png",
         "Textures/Terrain/ss3_droite_p.png",  // 200-209
-        "Textures/Terrain/nuage/nuage.png",   // 20
+        "Textures/Terrain/nuage/nuage.png",   // 210-219
+        "Textures/Terrain/gate/gate.png", // 220-229
+        "Textures/Terrain/gate/gate_top.png",   // 230-239
         "END"};
     // Charge les textures des images de la map (collisables)
     for (int i = 0; strcmp(list_strings[i], "END"); i++) {

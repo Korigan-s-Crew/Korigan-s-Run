@@ -79,7 +79,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         ch = fgetc(file);
         // printf("%c", ch);
         // Remplit le tableau avec les valeurs correspondantes aux caractères du fichier texte (voir map.txt pour plus d'infos)
-        char tile_mapping[] = " #cCG[{(D]})123456789@";
+        char tile_mapping[] = " #cCG[{(D]})123456789@|T";
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
             if (ch == tile_mapping[i]) {
