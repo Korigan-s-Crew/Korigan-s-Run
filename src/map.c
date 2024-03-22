@@ -83,8 +83,10 @@ Map *create_map(char *path, int tile_width, int tile_height) {
 
         for (int i = 0; i < sizeof(tile_mapping) - 1; i++) {
             if (ch == 'S'){
-                map->tiles[height - 1][width] = create_tile(height, width, tile_width, tile_height,
+                map->tiles[height][width] = create_tile(height, width, tile_width, tile_height,
                                                             -50, 0);
+                width++;
+                break;
             }
             else if (ch == tile_mapping[i]) {
                 int random_texture = rand() % 10;
