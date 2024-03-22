@@ -138,18 +138,18 @@ int main(void) {
                     // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                 case SDL_KEYDOWN:
                     if (event.key.keysym.sym == controls->down) {
-                        printf("down\n");
+//                        printf("down\n");
                         character->down = SDL_TRUE;
                     } else if (event.key.keysym.sym == controls->left) {
-                        printf("left\n");
+//                        printf("left\n");
                         character->left = SDL_TRUE;
                     } else if (event.key.keysym.sym == controls->right) {
-                        printf("right\n");
+//                        printf("right\n");
                         character->right = SDL_TRUE;
                     } else {
                         switch (event.key.keysym.sym) {
                             case SDLK_SPACE:
-                                printf("space\n");
+//                                printf("space\n");
                                 character->up = SDL_TRUE;
                                 break;
                             case SDLK_ESCAPE:

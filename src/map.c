@@ -471,7 +471,7 @@ void collision(Character *character, Map *map) {
         }
     }
     // Si le personnage est en dehors de la map par la droite alors on annule sa vitesse horizontal
-    if (character->x > map->width * tile_width) {
+    if (character->x > map->width * tile_width) {//todo not working
         if (character->dx > 0) {
             character->dx = 0;
         }
@@ -499,7 +499,7 @@ void collision(Character *character, Map *map) {
 
 void add_right_pattern_to_map(Map *pattern, Map *map) {
     // Si la map est pleine alors on ajoute une autre map à droite qui est la dernière
-    if (MAX_TILES < map->width + pattern->width) {
+    if (MAX_TILES-2 < map->width + pattern->width) {
         map->full = SDL_TRUE;
         printf("map is full\n");
         free(pattern);

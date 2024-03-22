@@ -5,7 +5,6 @@
 #ifndef CGAME_MAP_H
 #define CGAME_MAP_H
 
-#define MAX_TILES 150
 typedef struct Character Character;
 typedef struct Collision Collision;
 struct Collision {
