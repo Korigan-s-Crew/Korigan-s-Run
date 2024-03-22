@@ -116,20 +116,31 @@ Map *create_map(char *path, int tile_width, int tile_height) {
             }
         }
     } while (ch != EOF);
+    // Quand on arrive à la fin du fichier on ajoute la dernière ligne
+    max_width = max(max_width, width);
+    width = 0;
+    height++;
+    // On met à jour la largeur et la hauteur de la map
+    map->width = max_width;
+    map->height = height;
     // Ferme le fichier
     fclose(file);
-    for (int i = 0; i < MAX_TILES; i++) {
-        for (int j = 0; j < MAX_TILES; j++) {
+    printf("map width : %d, map height : %d\n", map->width, map->height);
+    printf("MAX_TILES : %d\n", MAX_TILES);
+    for (int i = 0; i < map->width; i++) {
+        for (int j = 0; j < map->height; j++) {
             //initialisation des bord
             if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 10 && (map->tiles[j][i].type) < 20) {
                 if (map->tiles[j - 1][i].type < 10) {
                     if (map->tiles[j][i - 1].type < 10) {//coin ext gauche
                         map->tiles[j][i].type = 50;
                         map->tiles[j - 1][i].type = -30;
-                    } else if (i < MAX_TILES - 1 && map->tiles[j][i + 1].type < 10) {//coin ext droit
+                    } else if (i < map->width - 1 && map->tiles[j][i + 1].type < 10) {  // coin ext droit
                         map->tiles[j][i].type = 90;
                         map->tiles[j - 1][i].type = -40;
-                    } else { map->tiles[j - 1][i].type = -20; }
+                    } else {
+                        map->tiles[j - 1][i].type = -20;
+                    }
                 } else if (map->tiles[j - 1][i - 1].type < 10 &&
                            map->tiles[j][i - 1].type >= 10) {//coin interieur gauche
                     if (j > 1 && map->tiles[j - 2][i - 1].type < 10) {
@@ -137,16 +148,16 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                     } else {
 
                     }
-                } else if (j < MAX_TILES - 1 && i < MAX_TILES - 1 && map->tiles[j - 1][i + 1].type < 10 &&
-                           map->tiles[j][i + 1].type >= 10) {//coin interieur droit
+                } else if (j < map->height && i < map->width && map->tiles[j - 1][i + 1].type < 10 &&
+                           map->tiles[j][i + 1].type >= 10) {  // coin interieur droit
                     map->tiles[j][i].type += 120;
                 }
             }
         }
     }
     //Textures interieures
-    for (int i = 0; i < MAX_TILES; i++) {
-        for (int j = 0; j < MAX_TILES; j++) {
+    for (int i = 0; i < map->width; i++) {
+        for (int j = 0; j < map->height; j++) {
             //textures descendantes
             if (j > 0 && (map->tiles[j][i].type) >= 10 && map->tiles[j][i].type < 20 &&
                 (map->tiles[j - 1][i].type) >= 10) {
@@ -164,14 +175,6 @@ Map *create_map(char *path, int tile_width, int tile_height) {
             }
         }
     }
-
-    // Quand on arrive à la fin du fichier on ajoute la dernière ligne
-    max_width = max(max_width, width);
-    width = 0;
-    height++;
-    // On met à jour la largeur et la hauteur de la map
-    map->width = max_width;
-    map->height = height;
     // On retourne la map
     return map;
 }
