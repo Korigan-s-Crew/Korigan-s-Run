@@ -229,8 +229,13 @@ int main(void) {
         // C'est la condition qui donne le game tick (60 fois par seconde) cad 16 ms par tick
         if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
             last_time = getCurrentTimeInMicroseconds();
-            if (character->alive == SDL_FALSE)
-                running = 0;
+            if (character->alive == SDL_FALSE) {
+                character->x = map->tile_start_x * tile_width;
+                character->y = map->tile_start_y * tile_height;
+//                move_character(character, map->tile_start_x, map->tile_start_y, map, tile_width, tile_height);
+                character->alive = SDL_TRUE;
+            }
+//                running = 0;
             // Applique la gravité au personnage
             gravity(character);
             // Applique le mouvement au personnage
@@ -248,6 +253,7 @@ int main(void) {
     }
     // printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
+
     free(controls);
     free(map);
     free(character->dash);

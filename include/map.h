@@ -26,15 +26,6 @@ struct Position {
     Point center;
     Point right;
 };
-typedef struct CharHitbox CharHitbox;
-struct CharHitbox {
-    Position head;
-    Position neck;
-    Position body;
-    Position knee;
-    Position feet;
-};
-
 
 
 typedef struct Tile Tile;
@@ -62,6 +53,10 @@ struct Map {
     int tile_start_x;
     int tile_start_y;
 };
+
+Collision gen_tile_collision(int type);
+Tile create_tile(int x, int y, int width, int height, int type, SDL_Texture *texture, int rotation);
+int check_out_of_bounds(int width, int bounds);
 
 Map *create_map(char *path, int tile_width, int tile_height);
 void collision(Character *character, Map *map);

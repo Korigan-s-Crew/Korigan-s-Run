@@ -137,34 +137,6 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     return map;
 }
 
-//CharHitbox get_char_hitbox(Character *character, int tile_width, int tile_height) {
-// Récupère la hitbox du personnage
-//    CharHitbox hitbox;
-//    int x = character->x;
-//    int y = character->y;
-//    int width = character->width;
-//    int height = character->height;
-//    int feet = y + height;
-//    int body = y + height / 2;
-//    int x_center = x + width / 2;
-//    int x_tile = x / tile_width;
-//    // int y_tile = y / height;
-//    int  feet = feet / tile_height;
-//    int  knee = (int) (y + height * 0.95) / tile_height;
-//    int y_tile_center = body / tile_height;
-//    int  neck = (y + height / 15) / tile_height;
-//    int  head = (y - height / 15) / tile_height;
-//    int  true_right = (x + width) / tile_width;
-//    int  right = (int) (x + width * 1.05) / tile_width;
-//    int  left = (x - width / 15) / tile_width;
-//    int  center = x_center / tile_width;
-//    hitbox.head = {{ left, head}, { center, head}, { right, head}};
-//    SDL_bool on_ground_right = SDL_TRUE;
-//    SDL_bool on_ground_left = SDL_TRUE;
-//    SDL_bool on_ground_center = SDL_TRUE;
-//    return hitbox;
-//}
-
 int check_out_of_bounds(int width, int bounds) {
     // Prevent heap-buffer-overflow in the function collision
     if (width < 0) {
@@ -189,19 +161,33 @@ void collision(Character *character, Map *map) {
     // int y_tile = y / height;
 //    printf("x: %d, y: %d, width: %d, height: %d\n", x, y, width, height);
     // all of the different heights of the character
+    int feet = check_out_of_bounds((y + height) / tile_height, map->height - 1);
+    // bottom of the character
     int ankle = check_out_of_bounds((y + height - 1) / tile_height, map->height - 1);
-    int feet = check_out_of_bounds((y + height) / tile_height, map->height - 1); // bottom of the character
-    int knee = check_out_of_bounds((int) (y + height * 0.95) / tile_height, map->height - 1); // knees of the character
+    // 1 pixel above the bottom of the character
+    int knee = check_out_of_bounds((int) (y + height * 0.95) / tile_height, map->height - 1);
     int body = check_out_of_bounds((y + height / 2) / tile_height, map->height - 1);
+    // middle of the character i height
     int neck = check_out_of_bounds((y + height / 15) / tile_height, map->height - 1);
+    // a bit under the head of the character
     int head = check_out_of_bounds((y - height / 15) / tile_height, map->height - 1);
+    // a bit above the head of the character
+
 //    printf("feet: %d, knee: %d, body: %d, neck: %d, head: %d\n", feet, knee, body, neck, head);
+
     // all of the different widths of the character
     int true_right = check_out_of_bounds((x + width) / tile_width, map->width - 1);
+    //exact right of the character
     int true_left = x / tile_width;
+    //exact left of the character
     int right = check_out_of_bounds((int) (x + width * 1.05) / tile_width, map->width - 1);
+    // 5% more to the right of the character
     int left = check_out_of_bounds((x - width / 15) / tile_width, map->width - 1);
+    // 5% more to the left of the character
     int center = check_out_of_bounds((x + width / 2) / tile_width, map->width - 1);
+    // center of the character in width
+
+
 //    printf("true_right: %d, true_left: %d, right: %d, left: %d, center: %d\n", true_right, true_left, right, left, center);
 
     SDL_bool on_ground_right = SDL_TRUE;
@@ -438,8 +424,9 @@ void collision(Character *character, Map *map) {
         //wallslide
     }
     // Si le personnage est en dehors de la map en sortant par le bas (c'est à dire tombé dans un trou) alors on annule sa vitesse vertical
-    if (character->y > map->height * tile_height) {
+    if (character->y + character->height > map->height * tile_height) { // todo handle fall
         if (character->dy > 0) {
+            character->alive = SDL_FALSE;
             character->dy = 0;
         }
     }
