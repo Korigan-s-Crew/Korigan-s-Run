@@ -5,10 +5,10 @@
 void mouvement(Map *map, Character *character, int tile_width, int tile_height) {
 //    printf("character x: %d y: %d\n", character->x, character->y);
     // Gère le mouvement du personnage
-    if (character->right == SDL_TRUE) {
+    if (character->right == SDL_TRUE && !character->wall_right) {
         move_character_right(character, tile_width);
     }
-    if (character->left == SDL_TRUE) {
+    if (character->left == SDL_TRUE && !character->wall_left) {
         move_character_left(character, tile_width);
     }
     if (character->down == SDL_TRUE && character->up == SDL_TRUE) {
@@ -26,14 +26,14 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
         if (character->right == SDL_TRUE) {
             character->dy = 0;
         } else {
-            character->dy = min(character->dy, 2);
+            character->dy = min(character->dy, 30);
         }
     }
     if (character->wall_left == SDL_TRUE) {
         if (character->left == SDL_TRUE) {
             character->dy = 0;
         } else {
-            character->dy = min(character->dy, 2);
+            character->dy = min(character->dy, 30);
         }
     }
 
@@ -41,6 +41,9 @@ void mouvement(Map *map, Character *character, int tile_width, int tile_height) 
     handle_dash(character, tile_width, tile_height, map);
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
     if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
+        slow_down(character);
+    }
+    if (character->right == SDL_FALSE && character->left == SDL_FALSE) {
         slow_down(character);
     }
     // Si le personnage est au sol et qu'il appuie sur control_down il se baisse (réduit sa taille)
@@ -131,9 +134,9 @@ void handle_dash(Character *character, int tile_width, int tile_height, Map *map
     // handle dash movement
     if (character->dash->duration > 0) {
         character->dy = 0;
-        character->dx = (tile_width / (3*1.66)) * character->speed * character->dash->direction.x;
+        character->dx = (tile_width / (3*0.166)) * character->speed * character->dash->direction.x;
         if (character->dash->go_up == SDL_TRUE) {
-            character->dy = (tile_height / (5*1.66)) * character->speed * character->dash->direction.y;
+            character->dy = (tile_height / (5*0.166)) * character->speed * character->dash->direction.y;
         }
         move_character(character, character->dx, character->dy, map);
         character->dash->duration -= 1;
@@ -156,7 +159,7 @@ void gravity(Character *character) {
     // Si le personnage n'est pas sur le sol et que sa vitesse verticale est inférieure à 10
     if (character->on_ground == SDL_FALSE) {
         if (character->dash->duration == 0 || character->dash->go_up == SDL_TRUE) {
-            character->dy += 1;
+            character->dy += 10;
         }
     }
 }
@@ -165,7 +168,7 @@ void move_character(Character *character, int x, int y, Map *map) {
 //    printf("move of dx: %d dy: %d\n", x, y);
     // Déplace le personnage de x et y et gère les collisions avec la map
     if (x > 0) {
-        for (int i = 0; i < x; i++) {
+        for (int i = 0; i < x/10; i++) {
             collision(character, map);
             if (character->dx == 0) {
                 break;
@@ -173,7 +176,7 @@ void move_character(Character *character, int x, int y, Map *map) {
             character->x += 1;
         }
     } else {
-        for (int i = 0; i < -x; i++) {
+        for (int i = 0; i < -x/10; i++) {
             collision(character, map);
             if (character->dx == 0) {
                 break;
@@ -182,7 +185,7 @@ void move_character(Character *character, int x, int y, Map *map) {
         }
     }
     if (y > 0) {
-        for (int i = 0; i < y; i++) {
+        for (int i = 0; i < y/10; i++) {
             collision(character, map);
             if (character->dy == 0) {
                 break;
@@ -190,7 +193,7 @@ void move_character(Character *character, int x, int y, Map *map) {
             character->y += 1;
         }
     } else {
-        for (int i = 0; i < -y; i++) {
+        for (int i = 0; i < -y/10; i++) {
             collision(character, map);
             if (character->dy == 0) {
                 break;
@@ -203,28 +206,28 @@ void move_character(Character *character, int x, int y, Map *map) {
 void slow_down(Character *character) {
     // Ralentit le personnage
     if (character->dx > 0) {
-        character->dx -= 1;
+        character->dx -= 3;
     } else if (character->dx < 0) {
-        character->dx += 1;
+        character->dx += 3;
     }
 }
 
 void move_character_up(Character *character, int tile_height) {
     if (character->on_ground == SDL_TRUE ){//|| character->wall_right == SDL_TRUE || character->wall_left == SDL_TRUE) {
-        character->dy = -(tile_height / 5);
+        character->dy = -(tile_height * 2);
         // printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
     }
 }
 
 void move_character_down(Character *character, int tile_height) {
-    character->dy = (tile_height / 5);
+    character->dy = (tile_height *2);
 }
 
 void move_character_left(Character *character, int tile_width) {
-    character->dx = max(character->dx - 1 , -(tile_width / 15.) * character->speed);
+    character->dx = max(character->dx - 5 , -(tile_width / 1.5) * character->speed);
 }
 
 void move_character_right(Character *character, int tile_width) {
-    character->dx = min(character->dx + 1 , (tile_width / 15.) * character->speed);
+    character->dx = min(character->dx + 5 , (tile_width / 1.5) * character->speed);
 }
