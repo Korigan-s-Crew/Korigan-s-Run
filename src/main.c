@@ -494,8 +494,8 @@ void print_map(Map *map) {
 
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera) {
     // Affiche la map dans la fenêtre
-    for (int i = 0; i < map->height; i++) {
-        for (int j = 0; j < map->width; j++) {
+    for (int i = (camera->y / tile_height); i < (camera->y / tile_height) + camera->height + 1; i++) {
+        for (int j = (camera->x / tile_width); j < (camera->x / tile_width) + camera->width + 1; j++) {
             int k = abs(map->tiles[i][j].type);
             if (map->tiles[i][j].type >= 10) {
                 // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
