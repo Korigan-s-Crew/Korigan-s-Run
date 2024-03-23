@@ -109,11 +109,19 @@ void action_dash(Character *character, Controls *controls) {
         if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
             dash->duration = 20;
             dash->cooldown = 200;
-            if (character->dx > 0) {
+            if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                 character->dash->direction.x = 1;
-            } else if (character->dx < 0) {
+            } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
                 character->dash->direction.x = -1;
-            } else {
+            } else if(character->right == SDL_TRUE && character->left == SDL_TRUE){
+                if (character->dx > 0) {
+                    character->dash->direction.x = 1;
+                } else if (character->dx < 0) {
+                    character->dash->direction.x = -1;
+                } else {
+                    character->dash->direction.x = 0;
+                }
+            }else {
                 character->dash->direction.x = 0;
             }
             if (character->up == SDL_TRUE) {
@@ -218,14 +226,17 @@ void slow_down(Character *character) {
 
 void move_character_up(Character *character, int tile_width, int tile_height) {
     if (character->on_ground == SDL_TRUE) {//|| character->wall_right == SDL_TRUE || character->wall_left == SDL_TRUE) {
+        printf("jump\n");
         character->dy = -(tile_height * 2);
         // printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
-    }else if (character->wall_right == SDL_TRUE) {
+    }else if (character->wall_right == SDL_TRUE && character->dy > 0) {
+        printf("jump wall right\n");
         character->dy = -(tile_height * 2);
         character->dx = -(tile_width / 1.45) * character->speed;
         character->wall_right = SDL_FALSE;
-    }else if (character->wall_left == SDL_TRUE) {
+    }else if (character->wall_left == SDL_TRUE && character->dy > 0) {
+        printf("jump wall left\n");
         character->dy = -(tile_height * 2);
         character->dx = (tile_width / 1.45) * character->speed;
         character->wall_left = SDL_FALSE;
@@ -233,7 +244,7 @@ void move_character_up(Character *character, int tile_width, int tile_height) {
 }
 
 void move_character_down(Character *character, int tile_height) {
-    character->dy = (tile_height * 2);
+    character->dy = 250;//()
 }
 
 void move_character_left(Character *character, int tile_width) {
