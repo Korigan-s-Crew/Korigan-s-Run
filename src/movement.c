@@ -140,7 +140,7 @@ void action_dash(Character *character, Controls *controls) {
 
 void handle_dash(Character *character, Map *map) {
     // handle dash movement
-    if (character->dash->duration > 0) {
+    if (character->dash->duration > 0) {// inside dash animation
         character->dy = 0;
         character->dx = (map->tile_width / (3 * 0.166)) * character->speed * character->dash->direction.x;
         if (character->dash->go_up == SDL_TRUE) {
@@ -148,7 +148,7 @@ void handle_dash(Character *character, Map *map) {
         }
         move_character(character, character->dx, character->dy, map);
         character->dash->duration -= 1;
-        if (character->dash->duration == 0) {
+        if (character->dash->duration == 0) { // dash is finished
             if (character->dx > 0) {
                 character->dx = min((map->tile_width / 1.5) * character->speed, character->dx);
             } else if (character->dx < 0) {
@@ -157,10 +157,13 @@ void handle_dash(Character *character, Map *map) {
 
             character->dy = 0;
         }
+
         character->dash->cooldown -= 1;
     } else {
-        if (character->dash->cooldown > 0) {
-            character->dash->cooldown -= 1;
+        if (character->dash->cooldown > 0) { // if the dash in on cooldown
+            if (!(character->dy == 0  && (character->wall_left || character->wall_right)) || character->on_ground) {
+                character->dash->cooldown -= 1;// cooldown don't refresh if you stick to a wall
+            }
         }
     }
 }
@@ -168,11 +171,10 @@ void handle_dash(Character *character, Map *map) {
 //############### End Dash part
 
 void gravity(Character *character) {
-    // Applique la gravité au personnage
-    // Si le personnage n'est pas sur le sol et que sa vitesse verticale est inférieure à 10
-    if (character->on_ground == SDL_FALSE) {
-        if (character->dash->duration == 0 || character->dash->go_up == SDL_TRUE) {
-            if (character->up == SDL_FALSE) {
+    // gravity application
+    if (character->on_ground == SDL_FALSE) {// if in the air
+        if (character->dash->duration == 0 || character->dash->go_up == SDL_TRUE) {// if not in dash or in dash form 3
+            if (character->up == SDL_FALSE) {// if not pressing up key then higher gravity
                 character->dy = min(character->dy + 25, 180);
             } else {
                 character->dy = min(character->dy + 8, 180);
@@ -221,15 +223,15 @@ void move_character(Character *character, int x, int y, Map *map) {
 }
 
 void slow_down(Character *character) {
-    // Ralentit le personnage
+    // slowly stop character
     if (character->dx > 0) {
-        if (character->on_ground == SDL_FALSE) {
+        if (character->on_ground == SDL_FALSE) {// on air there is less friction
             character->dx -= 3;
         } else {
             character->dx = max(character->dx - 5, 0);
         }
     } else if (character->dx < 0) {
-        if (character->on_ground == SDL_FALSE) {
+        if (character->on_ground == SDL_FALSE) {// same here
             character->dx += 3;
         } else {
             character->dx = min(character->dx + 5, 0);
@@ -238,18 +240,16 @@ void slow_down(Character *character) {
 }
 
 void move_character_up(Character *character, int tile_width, int tile_height) {
-    if (character->on_ground == SDL_TRUE) {//|| character->wall_right == SDL_TRUE || character->wall_left == SDL_TRUE) {
-        printf("jump\n");
+    if (character->on_ground == SDL_TRUE) {// classic jump
         character->dy = -(tile_height * 2);
-        // printf("dy: %d\n", character->dy);
         character->on_ground = SDL_FALSE;
     } else if (character->wall_right == SDL_TRUE && character->dy > 0 && !character->right) {
-        printf("jump wall right\n");
+        //right wall jump (jump to the left)
         character->dy = -(tile_height * 2);
         character->dx = -(tile_width / 1.40) * character->speed;
         character->wall_right = SDL_FALSE;
     } else if (character->wall_left == SDL_TRUE && character->dy > 0 && !character->left) {
-        printf("jump wall left\n");
+        //left wall jump (jump to the right)
         character->dy = -(tile_height * 2);
         character->dx = (tile_width / 1.40) * character->speed;
         character->wall_left = SDL_FALSE;
@@ -257,11 +257,11 @@ void move_character_up(Character *character, int tile_width, int tile_height) {
 }
 
 void move_character_down(Character *character, int tile_height) {
-    character->dy = 250;//()
+    character->dy = 250;// fall faster than max gravity
 }
 
 void move_character_left(Character *character, int tile_width) {
-    if (character->dx > 0 && character->on_ground) {
+    if (character->dx > 0 && character->on_ground) {// if the character has right inertia
         character->dx = character->dx - 7;
     } else {
         character->dx = max(character->dx - 5, -(tile_width / 1.5) * character->speed);
@@ -269,7 +269,7 @@ void move_character_left(Character *character, int tile_width) {
 }
 
 void move_character_right(Character *character, int tile_width) {
-    if (character->dx < 0 && character->on_ground) {
+    if (character->dx < 0 && character->on_ground) {// if the character has left inertia
         character->dx = character->dx + 7;
     } else {
         character->dx = min(character->dx + 5, (tile_width / 1.5) * character->speed);
