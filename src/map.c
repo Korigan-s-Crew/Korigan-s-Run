@@ -125,8 +125,6 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     map->height = height;
     // Ferme le fichier
     fclose(file);
-    printf("map width : %d, map height : %d\n", map->width, map->height);
-    printf("MAX_TILES : %d\n", MAX_TILES);
     for (int i = 0; i < map->width; i++) {
         for (int j = 0; j < map->height; j++) {
             //initialisation des bord
