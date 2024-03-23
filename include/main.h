@@ -1,11 +1,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <dirent.h>
 
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
@@ -75,6 +75,7 @@ void print_map(Map *map);
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
 char *addcat(char *result, char *path, char *name);
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera);
+void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
