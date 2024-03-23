@@ -37,6 +37,9 @@ void mouvement(Map *map, Character *character) {
         }
     }
 
+
+    // handle slide
+    handle_slide(character,map);
     // handle being in dash
     handle_dash(character, map);
     // Si le personnage va sur la droite et sur la gauche en même temps on annule sa vitesse horizontale
@@ -85,21 +88,86 @@ void mouvement(Map *map, Character *character) {
     // Si le personnage vient de faire un dash on divise sa vitesse par 20
 }
 
+// ############## Slide part
+
+Slide *init_slide() {
+    // Initialise le dash du personnage
+    Slide *slide = malloc(sizeof(Slide));
+    if (!slide) {
+        fprintf(stderr, "Failed to allocate memory for slide\n");
+        return NULL;
+    }
+    slide->duration = 0;
+    slide->go_left = SDL_FALSE;
+    slide->go_right = SDL_FALSE;
+    return slide;
+}
+
+void action_slide(Character *character) {
+    // Handle slide key pressed
+    Slide *slide = character->slide;
+    if (character->just_landed && character->down) {
+        character->just_landed = SDL_FALSE;
+        slide->duration = 50;
+        character->height = character->original_width;
+        character->width = character->original_height;
+        if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
+            slide->go_right = SDL_TRUE;
+        } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
+            slide->go_left = SDL_TRUE;
+        }
+        printf("slide duration: %d %d %d \n", slide->duration, slide->go_right, slide->go_left);
+    }
+}
+
+void handle_slide(Character *character, Map *map){
+
+    if (character->slide->duration > 0) {
+        if (character->slide->go_right) {
+            character->dx = (map->tile_width / 1.2) * character->speed;
+        } else if (character->slide->go_left) {
+            character->dx = -(map->tile_width / 1.2) * character->speed;
+        }
+        if (character->up){
+            slide_cancel(character);
+            move_character_up(character, map->tile_width, map->tile_height);
+        }
+        character->slide->duration -= 1;
+        if (character->slide->duration == 0) {
+            slide_cancel(character);
+        }
+    } else {
+        action_slide(character);
+    }
+}
+
+void slide_cancel(Character *character) {
+    // cancel slide
+    character->slide->duration = 0;
+    character->height = character->original_height;
+    character->width = character->original_width;
+    character->slide->go_right = SDL_FALSE;
+    character->slide->go_left = SDL_FALSE;
+}
+
+// ############## End Slide part
+
 // ############## Dash part
 
-void init_dash(Character *character) {
+Dash *init_dash() {
     // Initialise le dash du personnage
-    character->dash = malloc(sizeof(Dash));
-    if (!character->dash) {
+    Dash *dash = malloc(sizeof(Dash));
+    if (!dash) {
         fprintf(stderr, "Failed to allocate memory for dash\n");
-        return;
+        return NULL;
     }
-    character->dash->duration = 0;
-    character->dash->cooldown = 0;
-    character->dash->direction.x = 0;
-    character->dash->direction.y = 0;
-    character->dash->on_air = SDL_FALSE;
-    character->dash->go_up = SDL_FALSE;
+    dash->duration = 0;
+    dash->cooldown = 0;
+    dash->direction.x = 0;
+    dash->direction.y = 0;
+    dash->on_air = SDL_FALSE;
+    dash->go_up = SDL_FALSE;
+    return dash;
 }
 
 void action_dash(Character *character, Controls *controls) {
@@ -166,6 +234,15 @@ void handle_dash(Character *character, Map *map) {
             }
         }
     }
+}
+
+void print_dash(Dash *dash) {
+    printf("dash duration: %d\n", dash->duration);
+    printf("dash cooldown: %d\n", dash->cooldown);
+    printf("dash direction x: %d\n", dash->direction.x);
+    printf("dash direction y: %d\n", dash->direction.y);
+    printf("dash on air: %d\n", dash->on_air);
+    printf("dash go up: %d\n", dash->go_up);
 }
 
 //############### End Dash part

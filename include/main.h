@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <dirent.h>
 
+
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 120
@@ -14,6 +15,7 @@
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
 
+typedef struct Slide Slide;
 typedef struct Dash Dash;
 typedef struct Map Map;
 typedef struct Character Character;
@@ -28,6 +30,8 @@ struct Character {
     int original_height;
     float speed;
     SDL_bool alive;
+    SDL_bool just_landed;
+    SDL_bool crouch;
     SDL_bool on_ground;
     SDL_bool wall_right;
     SDL_bool wall_left;
@@ -35,9 +39,10 @@ struct Character {
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
-    Dash *dash;
-    SDL_Texture *images[100];
     SDL_bool next_map;
+    Dash *dash;
+    Slide *slide;
+    SDL_Texture *images[100];
 };
 struct Camera {
     int x;
@@ -73,6 +78,7 @@ int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera);
 void print_map(Map *map);
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
+void print_character(Character *character);
 char *addcat(char *result, char *path, char *name);
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);

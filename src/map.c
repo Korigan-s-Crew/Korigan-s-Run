@@ -125,8 +125,8 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     map->height = height;
     // Ferme le fichier
     fclose(file);
-    printf("map width : %d, map height : %d\n", map->width, map->height);
-    printf("MAX_TILES : %d\n", MAX_TILES);
+//    printf("map width : %d, map height : %d\n", map->width, map->height);
+//    printf("MAX_TILES : %d\n", MAX_TILES);
     for (int i = 0; i < map->width; i++) {
         for (int j = 0; j < map->height; j++) {
             //initialisation des bord
@@ -193,6 +193,13 @@ int check_out_of_bounds(int width, int bounds) {
     return width;
 }
 
+void change_size_collision(Character *character, int width, int height) {
+    // Change la taille de collision du personnage
+    character->width = width;
+    character->height = height;
+
+}
+
 void collision(Character *character, Map *map) {
     // Gère les collisions entre le personnage et la map
     int x = character->x;
@@ -236,6 +243,7 @@ void collision(Character *character, Map *map) {
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
     SDL_bool on_ground_center = SDL_TRUE;
+    SDL_bool was_on_ground = character->on_ground;
 
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
 
@@ -251,11 +259,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                }else{
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            }else{
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }
@@ -274,11 +292,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                }else{
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            }else{
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }
@@ -297,11 +325,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                }else{
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            }else{
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }

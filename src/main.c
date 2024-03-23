@@ -57,6 +57,7 @@ int main(void) {
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
                                             (int) (tile_width * 0.9), (int) (tile_height * 1.5), 2, renderer);
+    print_character(character);
     // DEBUG MAP
     print_map(map);
     // Initialise la seed pour le random
@@ -77,6 +78,7 @@ int main(void) {
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
 
     while (running) {
+//        print_character(character);
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -268,6 +270,7 @@ int main(void) {
     free(controls);
     free(map);
     free(character->dash);
+    free(character->slide);
     free(character);
     free_texture(texture);
     Quit:
@@ -518,6 +521,10 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer) {
     // Crée un personnage
     Character *character = malloc(sizeof(Character));
+    if (NULL == character) {
+        fprintf(stderr, "Error allocating character memory");
+        return NULL;
+    }
     character->x = x;
     character->y = y;
     character->width = width;
@@ -532,11 +539,25 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->left = SDL_FALSE;
     character->right = SDL_FALSE;
     character->alive = SDL_TRUE;
+    character->just_landed = SDL_FALSE;
+    character->crouch = SDL_FALSE;
     character->on_ground = SDL_FALSE;
     character->wall_right = SDL_FALSE;
     character->wall_left = SDL_FALSE;
-    init_dash(character);
+    character->next_map = SDL_FALSE;
+    character->dash = init_dash();
+    character->slide = init_slide();
     return character;
+}
+
+void print_character(Character *character) {
+    // Affiche les informations du personnage dans la console
+    printf("x: %d, y: %d, dx: %d, dy: %d, width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d, on_ground: %d, wall_right: %d, wall_left: %d\n",
+           character->x, character->y, character->dx, character->dy, character->width, character->height, character->speed,
+           character->up, character->down, character->left, character->right, character->alive, character->on_ground,
+           character->wall_right, character->wall_left);
+    // Affiche les informations du dash
+    print_dash(character->dash);
 }
 
 char *addcat(char *result, char *path, char *name) {

@@ -40,3 +40,7 @@ clean:
 
 run: $(BINARY)
 	./$(BINARY)
+
+valgrind: $(BINARY)
+	valgrind --verbose a--leak-check=full --show-leak-kinds=all --track-origins=yes ./$(BINARY)
+
