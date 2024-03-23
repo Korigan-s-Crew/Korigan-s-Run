@@ -23,15 +23,29 @@ struct Dash {
 };
 typedef struct Dash Dash;
 
+
 void init_dash(Character *character);
+
 void action_dash(Character *character, Controls *controls);
-void handle_dash(Character *character, int tile_width, int tile_height, Map *map);
-void move_character(Character *character, int x, int y, Map *map, int tile_width, int tile_height);
-void move_character_up(Character *character, int tile_height);
+
+void handle_dash(Character *character, Map *map);
+
+
+void move_character(Character *character, int x, int y, Map *map);
+
+void move_character_up(Character *character, int tile_width, int tile_height);
+
 void move_character_down(Character *character, int tile_height);
+
 void move_character_left(Character *character, int tile_width);
+
 void move_character_right(Character *character, int tile_width);
-void mouvement(Map *map, Character *character, int tile_width, int tile_height);
+
+void mouvement(Map *map, Character *character);
+
+
 void gravity(Character *character);
+
+void slow_down(Character *character);
 
 #endif //CGAME_MOUVEMENT_H
