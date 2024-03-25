@@ -51,7 +51,7 @@ void slide_cancel(Character *character, Map *map);
 
 void move_character(Character *character, int x, int y, Map *map);
 
-void move_character_up(Character *character, int tile_width, int tile_height);
+void move_character_up(Character *character, int tile_width, int tile_height, int bonus);
 
 void move_character_down(Character *character, int tile_height);
 
