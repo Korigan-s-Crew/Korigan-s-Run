@@ -55,6 +55,12 @@ Collision gen_tile_collision(int type);
 Tile create_tile(int x, int y, int width, int height, int type, int rotation);
 int check_out_of_bounds(int width, int bounds);
 
+SDL_bool expand_right(Character *character, Map *map, int width, int height);
+SDL_bool expand_left(Character *character, Map *map, int width, int height);
+SDL_bool expand_up(Character *character, Map *map, int width, int height);
+SDL_bool expand_down(Character *character, Map *map, int width, int height);
+SDL_bool change_size_collision(Character *character, Map *map, int width, int height);
+
 Map *create_map(char *path, int tile_width, int tile_height);
 void collision(Character *character, Map *map);
 void add_right_pattern_to_map(Map *pattern, Map *map);

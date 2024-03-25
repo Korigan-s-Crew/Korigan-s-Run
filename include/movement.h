@@ -42,11 +42,11 @@ void print_dash(Dash *dash);
 
 Slide *init_slide();
 
-void action_slide(Character *character);
+void action_slide(Character *character, Map *map);
 
 void handle_slide(Character *character, Map *map);
 
-void slide_cancel(Character *character);
+void slide_cancel(Character *character, Map *map);
 
 
 void move_character(Character *character, int x, int y, Map *map);
