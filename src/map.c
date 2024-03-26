@@ -472,9 +472,9 @@ void collision(Character *character, Map *map) {
     // int y_tile = y / height;
     //    printf("x: %d, y: %d, width: %d, height: %d\n", x, y, width, height);
     // all of the different heights of the character
-    int feet = check_out_of_bounds((y + height -1) / tile_height, map->height - 1);
+    int feet = check_out_of_bounds((y + height) / tile_height, map->height - 1);
     // bottom of the character
-    int ankle = check_out_of_bounds((y + height - 2) / tile_height, map->height - 1);
+    int ankle = check_out_of_bounds((y + height - 1) / tile_height, map->height - 1);
     // 1 pixel above the bottom of the character
     int knee = check_out_of_bounds((int) (y + height * 0.95) / tile_height, map->height - 1);
     int body = check_out_of_bounds((y + height / 2) / tile_height, map->height - 1);

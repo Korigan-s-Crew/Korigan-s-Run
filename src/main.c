@@ -192,6 +192,8 @@ int main(void) {
                             case SDLK_F3:
                                 camera.show_fps = !camera.show_fps;
                                 break;
+                            case SDLK_KP_0:
+                                character->alive = SDL_FALSE;
                             case SDLK_TAB:
                                 switchLayout(controls);
                                 break;
@@ -339,31 +341,31 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
-        "Textures/Terrain/nuage",
-        "Textures/Terrain/sol",  // 19
-        "Textures/Terrain/ss1",  // 29
-        "Textures/Terrain/ss2",  // 39
-        "Textures/Terrain/marron_cave.png",
-        "Textures/Terrain/sol_gauche.png",
-        "Textures/Terrain/ss1_gauche.png",
-        "Textures/Terrain/ss2_gauche.png",
-        "Textures/Terrain/ss3_gauche.png",  // 80-89
-        "Textures/Terrain/sol_droite.png",
-        "Textures/Terrain/ss1_droite.png",
-        "Textures/Terrain/ss2_droite.png",
-        "Textures/Terrain/ss3_droite.png",  // 120-129
-        "Textures/Terrain/sol_gauche_p_ss1",
-        "Textures/Terrain/ss1_gauche_p.png",
-        "Textures/Terrain/ss2_gauche_p.png",
-        "Textures/Terrain/ss3_gauche_p.png",  // 160-169
-        "Textures/Terrain/sol_droite_p_ss1",
-        "Textures/Terrain/ss1_droite_p.png",
-        "Textures/Terrain/ss2_droite_p.png",
-        "Textures/Terrain/ss3_droite_p.png",  // 200-209
-        "Textures/Terrain/nuage/nuage.png",   // 210-219
-        "Textures/Terrain/gate/gate.png", // 220-229
-        "Textures/Terrain/gate/gate_top.png",   // 230-239
-        "END"};
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/sol",  // 19
+            "Textures/Terrain/ss1",  // 29
+            "Textures/Terrain/ss2",  // 39
+            "Textures/Terrain/marron_cave.png",
+            "Textures/Terrain/sol_gauche.png",
+            "Textures/Terrain/ss1_gauche.png",
+            "Textures/Terrain/ss2_gauche.png",
+            "Textures/Terrain/ss3_gauche.png",  // 80-89
+            "Textures/Terrain/sol_droite.png",
+            "Textures/Terrain/ss1_droite.png",
+            "Textures/Terrain/ss2_droite.png",
+            "Textures/Terrain/ss3_droite.png",  // 120-129
+            "Textures/Terrain/sol_gauche_p_ss1",
+            "Textures/Terrain/ss1_gauche_p.png",
+            "Textures/Terrain/ss2_gauche_p.png",
+            "Textures/Terrain/ss3_gauche_p.png",  // 160-169
+            "Textures/Terrain/sol_droite_p_ss1",
+            "Textures/Terrain/ss1_droite_p.png",
+            "Textures/Terrain/ss2_droite_p.png",
+            "Textures/Terrain/ss3_droite_p.png",  // 200-209
+            "Textures/Terrain/nuage/nuage.png",   // 210-219
+            "Textures/Terrain/gate/gate.png", // 220-229
+            "Textures/Terrain/gate/gate_top.png",   // 230-239
+            "END"};
     // Charge les textures des images de la map (collisables)
     for (int i = 0; strcmp(list_strings[i], "END"); i++) {
         texture->collision[i] = load_from_dir(list_strings[i], renderer);
@@ -489,7 +491,6 @@ void print_map(Map *map) {
 }
 
 
-
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera) {
     // Affiche la map dans la fenêtre
     for (int i = 0; i < map->height; i++) {
@@ -553,7 +554,8 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
 void print_character(Character *character) {
     // Affiche les informations du personnage dans la console
     printf("x: %d, y: %d, dx: %d, dy: %d, width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d, on_ground: %d, wall_right: %d, wall_left: %d\n",
-           character->x, character->y, character->dx, character->dy, character->width, character->height, character->speed,
+           character->x, character->y, character->dx, character->dy, character->width, character->height,
+           character->speed,
            character->up, character->down, character->left, character->right, character->alive, character->on_ground,
            character->wall_right, character->wall_left);
     // Affiche les informations du dash
