@@ -14,10 +14,10 @@ void mouvement(Map *map, Character *character) {
         move_character_left(character, map->tile_width);
     }
     if (character->down == SDL_TRUE && character->up == SDL_TRUE) {
-        move_character_up(character, map->tile_width, map->tile_height,0);
+        move_character_up(character, map->tile_width, map->tile_height, 0);
     } else {
         if (character->up == SDL_TRUE) {
-            move_character_up(character, map->tile_width, map->tile_height,0);
+            move_character_up(character, map->tile_width, map->tile_height, 0);
         }
         if (character->down == SDL_TRUE && character->height == character->original_height) {
             move_character_down(character, map->tile_height);
@@ -37,6 +37,14 @@ void mouvement(Map *map, Character *character) {
         } else {
             character->dy = min(character->dy, 30);
         }
+    }
+
+    if (character->on_ground && character->down && !character->crouch && !in_action(character)) {
+        go_crouch(character, map);
+    }
+
+    if (character->crouch && (!character->down || !character->on_ground)) {
+        cancel_crouch(character, map);
     }
 
     // handle slide
@@ -91,6 +99,28 @@ void mouvement(Map *map, Character *character) {
     // Si le personnage vient de faire un dash on divise sa vitesse par 20
 }
 
+
+SDL_bool in_action(Character *character) {
+    return character->dash->duration > 0 || character->slide->duration > 0;
+}
+
+
+void go_crouch(Character *character, Map *map) {
+    if (change_size_collision(character, map, character->original_width, character->original_width)) {
+        character->crouch = SDL_TRUE;
+        character->height = character->original_width;
+        character->width = character->original_width;
+    }
+}
+
+void cancel_crouch(Character *character, Map *map) {
+    if (change_size_collision(character, map, character->original_width, character->original_height)) {
+        character->crouch = SDL_FALSE;
+        character->height = character->original_height;
+        character->width = character->original_width;
+    }
+}
+
 // ############## Slide part
 
 Slide *init_slide() {
@@ -111,6 +141,7 @@ void action_slide(Character *character, Map *map) {
     Slide *slide = character->slide;
     if (character->just_landed && character->on_ground && character->down) {
         character->just_landed = SDL_FALSE;
+        character->crouch = SDL_FALSE;
         printf("right: %d left: %d\n", character->right, character->left);
         if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
             if (change_size_collision(character, map, character->original_height, character->original_width)) {
@@ -163,10 +194,12 @@ void slide_cancel(Character *character, Map *map) {
     // cancel slide
     character->slide->duration = 0;
     if (change_size_collision(character, map, character->original_width, character->original_height)) {
+        printf("cancel slide\n");
         character->height = character->original_height;
         character->width = character->original_width;
-    }else{
-        // crouch
+    } else {
+        printf("can't cancel slide\n");
+        go_crouch(character, map);
     }
     character->slide->go_right = SDL_FALSE;
     character->slide->go_left = SDL_FALSE;
@@ -340,7 +373,7 @@ void slow_down(Character *character) {
 
 void move_character_up(Character *character, int tile_width, int tile_height, int bonus) {
     if (character->on_ground == SDL_TRUE) {// classic jump
-        if (character->slide->duration <20){
+        if (character->slide->duration < 20) {
             character->dy = -(tile_height * 2) - bonus;
             character->on_ground = SDL_FALSE;
             character->just_landed = SDL_FALSE;
@@ -368,7 +401,11 @@ void move_character_left(Character *character, int tile_width) {
     if (character->dx > 0 && character->on_ground) {// if the character has right inertia
         character->dx = character->dx - 7;
     } else {
-        character->dx = max(character->dx - 5, -(tile_width / 1.5) * character->speed);
+        if (character->crouch == SDL_TRUE) {
+            character->dx = max(character->dx - 5, -(tile_width / 4) * character->speed);
+        } else {
+            character->dx = max(character->dx - 5, -(tile_width / 1.5) * character->speed);
+        }
     }
 }
 
@@ -376,6 +413,10 @@ void move_character_right(Character *character, int tile_width) {
     if (character->dx < 0 && character->on_ground) {// if the character has left inertia
         character->dx = character->dx + 7;
     } else {
-        character->dx = min(character->dx + 5, (tile_width / 1.5) * character->speed);
+        if (character->crouch == SDL_TRUE) {
+            character->dx = min(character->dx + 5, (tile_width / 4) * character->speed);
+        } else {
+            character->dx = min(character->dx + 5, (tile_width / 1.5) * character->speed);
+        }
     }
 }

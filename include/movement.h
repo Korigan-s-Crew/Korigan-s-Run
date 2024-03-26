@@ -40,6 +40,14 @@ void handle_dash(Character *character, Map *map);
 void print_dash(Dash *dash);
 
 
+SDL_bool in_action(Character *character);
+
+
+void go_crouch(Character *character,Map *map);
+
+void cancel_crouch(Character *character,Map *map);
+
+
 Slide *init_slide();
 
 void action_slide(Character *character, Map *map);
