@@ -59,6 +59,7 @@ int main(void) {
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
                                             (int)(tile_width * 0.9), (int)(tile_height * 1.5), 2, renderer);
+    print_character(character);
     // DEBUG MAP
     print_map(map);
     // Initialise la seed pour le random
@@ -82,149 +83,151 @@ int main(void) {
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
-            // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
-            case SDL_QUIT:
-                running = 0;
-                break;
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    // Si la fenêtre est redimensionnée on met à jour la taille de la fenêtre
-                    // et la taille des tuiles et la taille de la caméra et la taille du personnage
-                    // On récupère la nouvelle taille de la fenêtre
-                    SCREEN_WIDTH = event.window.data1;
-                    SCREEN_HEIGHT = event.window.data2;
-                    // On limite la taille de la fenêtre à 100x100 pour éviter les crashs (valeur testé empiriquement)
-                    if (SCREEN_WIDTH < 100) {
-                        SCREEN_WIDTH = 100;
-                    }
-                    if (SCREEN_HEIGHT < 100) {
-                        SCREEN_HEIGHT = 100;
-                    }
-                    printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
-                    // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
-                    // Car ça permet d'avoir une physique constante
-                    // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
-                    camera.width = (int)(SCREEN_WIDTH / 100);
-                    camera.height = (int)(SCREEN_HEIGHT / 100);
-                    int old_tile_width = tile_width;
-                    int old_tile_height = tile_height;
-                    // On met à jour la taille des tuiles
-                    tile_width = SCREEN_WIDTH / camera.width;
-                    tile_height = SCREEN_HEIGHT / camera.height;
-                    map->tile_width = tile_width;
-                    map->tile_height = tile_height;
-                    // Permet de garder la position du personnage dans la même case
-                    int tile_x = character->x / old_tile_width;
-                    int tile_y = character->y / old_tile_height;
-                    // Permet de garder la position du personnage dans à la même position dans la case
-                    int sub_tile_x = character->x % old_tile_width;
-                    int sub_tile_y = character->y % old_tile_height;
-                    // On met à jour la position du personnage en x
-                    character->x =
-                        tile_x * tile_width + (int)(sub_tile_x * (float)tile_width / (float)old_tile_width);
-                    // On met à jour la position du personnage en y
-                    character->y = tile_y * tile_height +
-                                   (int)(sub_tile_y * (float)tile_height / (float)old_tile_height);
-                    // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
-                    // On met à jour la taille du personnage et sa taille d'origine
-                    character->width = tile_width * 0.9;
-                    character->height = tile_height * 1.5;
-                    character->original_width = tile_width * 0.9;
-                    character->original_height = tile_height * 1.5;
-                    // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
-                    collision(character, map);
-                    // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
-                    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                }
-                break;
-                // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
-            case SDL_KEYDOWN:
-                if (event.key.keysym.sym == controls->down) {
-                    //                        printf("down\n");
-                    character->down = SDL_TRUE;
-                } else if (event.key.keysym.sym == controls->left) {
-                    //                        printf("left\n");
-                    character->left = SDL_TRUE;
-                } else if (event.key.keysym.sym == controls->right) {
-                    //                        printf("right\n");
-                    character->right = SDL_TRUE;
-                } else {
-                    switch (event.key.keysym.sym) {
-                    case SDLK_SPACE:
-                        //                                printf("space\n");
-                        character->up = SDL_TRUE;
-                        break;
-                    case SDLK_ESCAPE:
-                        printf("escape\n");
-                        running = 0;
-                        break;
-                    case SDLK_p:
-                        character->speed += 0.5;
-                        break;
-                    case SDLK_o:
-                        character->speed -= 0.5;
-                        break;
-                    case SDLK_LSHIFT:
-                        action_dash(character, controls);
-                        break;
-                    case SDLK_KP_5:
-                        character->dash->on_air = SDL_TRUE;
-                        break;
-                    case SDLK_KP_8:
-                        character->dash->go_up = SDL_TRUE;
-                        break;
-                    case SDLK_F11:
-                        // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
-                        if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
-                            SDL_SetWindowFullscreen(window, 0);
-                        } else {
-                            // Récupère la taille de l'écran
-                            SCREEN_WIDTH = screen_size.w;
-                            SCREEN_HEIGHT = screen_size.h;
-                            // Met à jour la taille de la fenêtre
-                            SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
-                            // Met la fenêtre en plein écran
-                            // On fait ça parce que le fullscreen ne met pas à jour la taille de la fenêtre
-                            // mais trigger l'event SDL_WINDOWEVENT_RESIZED
-                            SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
+                case SDL_QUIT:
+                    running = 0;
+                    break;
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        // Si la fenêtre est redimensionnée on met à jour la taille de la fenêtre
+                        // et la taille des tuiles et la taille de la caméra et la taille du personnage
+                        // On récupère la nouvelle taille de la fenêtre
+                        SCREEN_WIDTH = event.window.data1;
+                        SCREEN_HEIGHT = event.window.data2;
+                        // On limite la taille de la fenêtre à 100x100 pour éviter les crashs (valeur testé empiriquement)
+                        if (SCREEN_WIDTH < 100) {
+                            SCREEN_WIDTH = 100;
                         }
-                        break;
-                    case SDLK_F3:
-                        camera.show_fps = !camera.show_fps;
-                        break;
-                    case SDLK_TAB:
-                        switchLayout(controls);
-                        break;
+                        if (SCREEN_HEIGHT < 100) {
+                            SCREEN_HEIGHT = 100;
+                        }
+                        printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                        // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
+                        // Car ça permet d'avoir une physique constante
+                        // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
+                        camera.width = (int) (SCREEN_WIDTH / 100);
+                        camera.height = (int) (SCREEN_HEIGHT / 100);
+                        int old_tile_width = tile_width;
+                        int old_tile_height = tile_height;
+                        // On met à jour la taille des tuiles
+                        tile_width = SCREEN_WIDTH / camera.width;
+                        tile_height = SCREEN_HEIGHT / camera.height;
+                        map->tile_width = tile_width;
+                        map->tile_height = tile_height;
+                        // Permet de garder la position du personnage dans la même case
+                        int tile_x = character->x / old_tile_width;
+                        int tile_y = character->y / old_tile_height;
+                        // Permet de garder la position du personnage dans à la même position dans la case
+                        int sub_tile_x = character->x % old_tile_width;
+                        int sub_tile_y = character->y % old_tile_height;
+                        // On met à jour la position du personnage en x
+                        character->x =
+                                tile_x * tile_width + (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
+                        // On met à jour la position du personnage en y
+                        character->y = tile_y * tile_height +
+                                       (int) (sub_tile_y * (float) tile_height / (float) old_tile_height);
+                        // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
+                        // On met à jour la taille du personnage et sa taille d'origine
+                        character->width = tile_width * 0.9;
+                        character->height = tile_height * 1.5;
+                        character->original_width = tile_width * 0.9;
+                        character->original_height = tile_height * 1.5;
+                        // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
+                        collision(character, map);
+                        // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
+                        draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                     }
-                }
-                break;
-                // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
-            case SDL_KEYUP:
-                if (event.key.keysym.sym == controls->down) {
-                    character->down = SDL_FALSE;
-                    //                        if (character->dy < 0) {
-                    //                            character->dy = 0;
-                    //                        }
                     break;
-                } else if (event.key.keysym.sym == controls->left) {
-                    character->left = SDL_FALSE;
-                    //                        character->dx = 0;
-                    break;
-                } else if (event.key.keysym.sym == controls->right) {
-                    character->right = SDL_FALSE;
-                    //                        character->dx = 0;
-                    break;
-                } else {
-                    switch (event.key.keysym.sym) {
-                    case SDLK_SPACE:
-                        character->up = SDL_FALSE;
-                        //                                if (character->dy < 0) {
-                        //                                    character->dy = 0;
-                        //                                }
-                        break;
+                    // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
+                case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == controls->down) {
+//                        printf("down\n");
+                        character->down = SDL_TRUE;
+                    } else if (event.key.keysym.sym == controls->left) {
+//                        printf("left\n");
+                        character->left = SDL_TRUE;
+                    } else if (event.key.keysym.sym == controls->right) {
+//                        printf("right\n");
+                        character->right = SDL_TRUE;
+                    } else {
+                        switch (event.key.keysym.sym) {
+                            case SDLK_SPACE:
+//                                printf("space\n");
+                                character->up = SDL_TRUE;
+                                break;
+                            case SDLK_ESCAPE:
+                                printf("escape\n");
+                                running = 0;
+                                break;
+                            case SDLK_p:
+                                character->speed += 0.5;
+                                break;
+                            case SDLK_o:
+                                character->speed -= 0.5;
+                                break;
+                            case SDLK_LSHIFT:
+                                action_dash(character, controls);
+                                break;
+                            case SDLK_KP_5:
+                                character->dash->on_air = SDL_TRUE;
+                                break;
+                            case SDLK_KP_8:
+                                character->dash->go_up = SDL_TRUE;
+                                break;
+                            case SDLK_F11:
+                                // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
+                                if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
+                                    SDL_SetWindowFullscreen(window, 0);
+                                } else {
+                                    // Récupère la taille de l'écran
+                                    SCREEN_WIDTH = screen_size.w;
+                                    SCREEN_HEIGHT = screen_size.h;
+                                    // Met à jour la taille de la fenêtre
+                                    SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+                                    // Met la fenêtre en plein écran
+                                    // On fait ça parce que le fullscreen ne met pas à jour la taille de la fenêtre
+                                    // mais trigger l'event SDL_WINDOWEVENT_RESIZED
+                                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                                }
+                                break;
+                            case SDLK_F3:
+                                camera.show_fps = !camera.show_fps;
+                                break;
+                            case SDLK_KP_0:
+                                character->alive = SDL_FALSE;
+                            case SDLK_TAB:
+                                switchLayout(controls);
+                                break;
+                        }
                     }
-                }
-                break;
+                    break;
+                    // Si l'événement est de type SDL_KEYUP (relachement d'une touche)
+                case SDL_KEYUP:
+                    if (event.key.keysym.sym == controls->down) {
+                        character->down = SDL_FALSE;
+//                        if (character->dy < 0) {
+//                            character->dy = 0;
+//                        }
+                        break;
+                    } else if (event.key.keysym.sym == controls->left) {
+                        character->left = SDL_FALSE;
+//                        character->dx = 0;
+                        break;
+                    } else if (event.key.keysym.sym == controls->right) {
+                        character->right = SDL_FALSE;
+//                        character->dx = 0;
+                        break;
+                    } else {
+                        switch (event.key.keysym.sym) {
+                            case SDLK_SPACE:
+                                character->up = SDL_FALSE;
+//                                if (character->dy < 0) {
+//                                    character->dy = 0;
+//                                }
+                                break;
+                        }
+                    }
+                    break;
             }
         }
         if (getCurrentTimeInMicroseconds() - last_time_sec >= 1000000) {
@@ -270,6 +273,7 @@ int main(void) {
     free(controls);
     free(map);
     free(character->dash);
+    free(character->slide);
     free(character);
     free_texture(texture);
 Quit:
@@ -523,6 +527,10 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer) {
     // Crée un personnage
     Character *character = malloc(sizeof(Character));
+    if (NULL == character) {
+        fprintf(stderr, "Error allocating character memory");
+        return NULL;
+    }
     character->x = x;
     character->y = y;
     character->width = width;
@@ -537,11 +545,26 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->left = SDL_FALSE;
     character->right = SDL_FALSE;
     character->alive = SDL_TRUE;
+    character->just_landed = SDL_FALSE;
+    character->crouch = SDL_FALSE;
     character->on_ground = SDL_FALSE;
     character->wall_right = SDL_FALSE;
     character->wall_left = SDL_FALSE;
-    init_dash(character);
+    character->next_map = SDL_FALSE;
+    character->dash = init_dash();
+    character->slide = init_slide();
     return character;
+}
+
+void print_character(Character *character) {
+    // Affiche les informations du personnage dans la console
+    printf("x: %d, y: %d, dx: %d, dy: %d, width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d, on_ground: %d, wall_right: %d, wall_left: %d\n",
+           character->x, character->y, character->dx, character->dy, character->width, character->height,
+           character->speed,
+           character->up, character->down, character->left, character->right, character->alive, character->on_ground,
+           character->wall_right, character->wall_left);
+    // Affiche les informations du dash
+    print_dash(character->dash);
 }
 
 char *addcat(char *result, char *path, char *name) {
@@ -603,7 +626,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 0);
     }
-    
+
 }
 
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
@@ -669,6 +692,7 @@ void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, in
     draw_fps(renderer, camera, texture);
     SDL_RenderPresent(renderer);
 }
+
 
 void create_camera(Camera *camera, int x, int y, int width, int height) {
     // Crée la camera

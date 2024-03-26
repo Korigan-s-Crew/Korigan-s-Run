@@ -23,17 +23,43 @@ struct Dash {
 };
 typedef struct Dash Dash;
 
+struct Slide {
+    int duration;
+    SDL_bool go_left;
+    SDL_bool go_right;
+};
+typedef struct Slide Slide;
 
-void init_dash(Character *character);
+
+Dash *init_dash();
 
 void action_dash(Character *character, Controls *controls);
 
 void handle_dash(Character *character, Map *map);
 
+void print_dash(Dash *dash);
+
+
+SDL_bool in_action(Character *character);
+
+
+void go_crouch(Character *character,Map *map);
+
+void cancel_crouch(Character *character,Map *map);
+
+
+Slide *init_slide();
+
+void action_slide(Character *character, Map *map);
+
+void handle_slide(Character *character, Map *map);
+
+void slide_cancel(Character *character, Map *map);
+
 
 void move_character(Character *character, int x, int y, Map *map);
 
-void move_character_up(Character *character, int tile_width, int tile_height);
+void move_character_up(Character *character, int tile_width, int tile_height, int bonus);
 
 void move_character_down(Character *character, int tile_height);
 

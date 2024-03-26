@@ -125,6 +125,8 @@ Map *create_map(char *path, int tile_width, int tile_height) {
     map->height = height;
     // Ferme le fichier
     fclose(file);
+//    printf("map width : %d, map height : %d\n", map->width, map->height);
+//    printf("MAX_TILES : %d\n", MAX_TILES);
     for (int i = 0; i < map->width; i++) {
         for (int j = 0; j < map->height; j++) {
             //initialisation des bord
@@ -191,6 +193,273 @@ int check_out_of_bounds(int width, int bounds) {
     return width;
 }
 
+SDL_bool expand_right(Character *character, Map *map, int width, int height) {
+    // Check if we can expand the character width to the right
+
+    int x = character->x;
+    int y = character->y;
+    int tile_width = map->tile_width;
+    int tile_height = map->tile_height;
+
+    int cur_true_right = check_out_of_bounds((x + character->width-1) / tile_width, map->width - 1);
+    int next_true_right = check_out_of_bounds((x + width-1) / tile_width, map->width - 1);
+
+    if (next_true_right <= cur_true_right) {
+        return SDL_TRUE;
+    }
+
+    // all of the different heights of the character
+    int feet = check_out_of_bounds((y + height - 1) / tile_height, map->height - 1);
+    // bottom of the character
+    int body = check_out_of_bounds((y + height / 2) / tile_height, map->height - 1);
+    // middle of the character i height
+    int head = check_out_of_bounds(y  / tile_height, map->height - 1);
+    // a bit above the head of the character
+
+    SDL_bool wall_right_body = SDL_FALSE;
+    SDL_bool wall_right_head = SDL_FALSE;
+    SDL_bool wall_right_feet = SDL_FALSE;
+
+    if (map->tiles[body][next_true_right].collision.left) {
+        if (map->tiles[body][next_true_right].collision.traversableLeft) {
+            if (character->right) {  // if user is pressing right he can go through
+                wall_right_body = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_right_body = SDL_TRUE;
+    }
+
+    if (map->tiles[head][next_true_right].collision.left) {
+        if (map->tiles[head][next_true_right].collision.traversableLeft) {
+            if (character->right) {  // if user is pressing right he can go through
+                wall_right_head = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_right_head = SDL_TRUE;
+    }
+
+    if (map->tiles[feet][next_true_right].collision.left) {
+        if (map->tiles[feet][next_true_right].collision.traversableLeft) {
+            if (character->right) {  // if user is pressing right he can go through
+                wall_right_feet = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_right_feet = SDL_TRUE;
+    }
+
+
+    return wall_right_body && wall_right_head && wall_right_feet;
+}
+
+SDL_bool expand_left(Character *character, Map *map, int width, int height) {
+    // Check if we can expand the character width to the left
+
+    int x = character->x;
+    int y = character->y;
+    int tile_width = map->tile_width;
+    int tile_height = map->tile_height;
+
+    int cur_true_left = x / tile_width;
+    int next_true_left = check_out_of_bounds((x - (width - character->width)) / tile_width, map->width - 1);
+
+    if (next_true_left >= cur_true_left) {
+        return SDL_TRUE;
+    }
+
+    // all of the different heights of the character
+    int feet = check_out_of_bounds((y + height -1) / tile_height, map->height - 1);
+    // bottom of the character
+    int body = check_out_of_bounds((y + height / 2) / tile_height, map->height - 1);
+    // middle of the character i height
+    int head = check_out_of_bounds((y - height / 15) / tile_height, map->height - 1);
+    // a bit above the head of the character
+
+    SDL_bool wall_left_body = SDL_FALSE;
+    SDL_bool wall_left_head = SDL_FALSE;
+    SDL_bool wall_left_feet = SDL_FALSE;
+
+    if (map->tiles[body][next_true_left].collision.right) {
+        if (map->tiles[body][next_true_left].collision.traversableRight) {
+            if (character->left) {  // if user is pressing left he can go through
+                wall_left_body = SDL_TRUE;
+            }
+        }
+    }else{
+        wall_left_body = SDL_TRUE;
+    }
+
+    if (map->tiles[head][next_true_left].collision.right) {
+        if (map->tiles[head][next_true_left].collision.traversableRight) {
+            if (character->left) {  // if user is pressing left he can go through
+                wall_left_head = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_left_head = SDL_TRUE;
+    }
+
+    if (map->tiles[feet][next_true_left].collision.right) {
+        if (map->tiles[feet][next_true_left].collision.traversableRight) {
+            if (character->left) {  // if user is pressing left he can go through
+                wall_left_feet = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_left_feet = SDL_TRUE;
+    }
+
+
+    return wall_left_body && wall_left_head && wall_left_feet;
+}
+
+SDL_bool expand_up(Character *character, Map *map, int width, int height) {
+    // Check if we can expand the character width to the left
+
+    int x = character->x;
+    int y = character->y;
+    int tile_width = map->tile_width;
+    int tile_height = map->tile_height;
+
+    int cur_true_head = y / tile_height;
+    int next_true_head = check_out_of_bounds((y - (height - character->height)) / tile_height, map->height - 1);
+    if (next_true_head >= cur_true_head) {
+        return SDL_TRUE;
+    }
+
+    int true_right = check_out_of_bounds((x + width-1) / tile_width, map->width - 1);
+    //exact right of the character
+    int true_left = x / tile_width;
+    //exact left of the character
+    int center = check_out_of_bounds((x + width / 2) / tile_width, map->width - 1);
+    // center of the character in width
+
+    SDL_bool wall_left_head = SDL_FALSE;
+    SDL_bool wall_center_head = SDL_FALSE;
+    SDL_bool wall_right_head = SDL_FALSE;
+
+    if (map->tiles[next_true_head][true_left].collision.down) {
+        if (map->tiles[next_true_head][true_left].collision.traversableDown) {
+            if (character->up) {  // if user is pressing left he can go through
+                wall_left_head = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_left_head = SDL_TRUE;
+    }
+
+    if (map->tiles[next_true_head][center].collision.down) {
+        if (map->tiles[next_true_head][center].collision.traversableDown) {
+            if (character->up) {  // if user is pressing left he can go through
+                wall_center_head = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_center_head = SDL_TRUE;
+    }
+
+    if (map->tiles[next_true_head][true_right].collision.down) {
+        if (map->tiles[next_true_head][true_right].collision.traversableDown) {
+            if (character->up) {  // if user is pressing left he can go through
+                wall_right_head = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_right_head = SDL_TRUE;
+    }
+    return wall_left_head && wall_center_head && wall_right_head;
+}
+
+SDL_bool expand_down(Character *character, Map *map, int width, int height) {
+    // Check if we can expand the character width to the left
+
+    int x = character->x;
+    int y = character->y;
+    int tile_width = map->tile_width;
+    int tile_height = map->tile_height;
+
+    printf("y: %d, height + y: %d, character->height + y : %d, tile_height : %d\n", y, height + y,character->height + y,map->tile_height);
+    int cur_true_feet = (y + character->height-1) / tile_height;
+    int next_true_feet = check_out_of_bounds((y + height-1) / tile_height, map->height - 1);
+    printf("cur_true_feet: %d, next_true_feet: %d\n", cur_true_feet, next_true_feet);
+    if (next_true_feet <= cur_true_feet) {
+        return SDL_TRUE;
+    }
+
+    int true_right = check_out_of_bounds((x + width-1) / tile_width, map->width - 1);
+    //exact right of the character
+    int true_left = x / tile_width;
+    //exact left of the character
+    int center = check_out_of_bounds((x + width / 2) / tile_width, map->width - 1);
+    // center of the character in width
+
+    SDL_bool wall_left_feet = SDL_FALSE;
+    SDL_bool wall_center_feet = SDL_FALSE;
+    SDL_bool wall_right_feet = SDL_FALSE;
+
+    if (map->tiles[next_true_feet][true_left].collision.up) {
+        if (map->tiles[next_true_feet][true_left].collision.traversableUp) {
+            if (character->down) {  // if user is pressing down he can go through
+                wall_left_feet = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_left_feet = SDL_TRUE;
+    }
+
+    if (map->tiles[next_true_feet][center].collision.up) {
+        if (map->tiles[next_true_feet][center].collision.traversableUp) {
+            if (character->down) {  // if user is pressing left he can go through
+                wall_center_feet = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_center_feet = SDL_TRUE;
+    }
+
+    if (map->tiles[next_true_feet][true_right].collision.up) {
+        if (map->tiles[next_true_feet][true_right].collision.traversableUp) {
+            if (character->down) {  // if user is pressing left he can go through
+                wall_right_feet = SDL_TRUE;
+            }
+        }
+    }else {
+        wall_right_feet = SDL_TRUE;
+    }
+    printf("wall_left_feet: %d bloc: %d,wall_center_feet: %d bloc: %d, wall_right_feet: %d bloc: %d\n", wall_left_feet, map->tiles[next_true_feet][true_left].type, wall_center_feet, map->tiles[next_true_feet][center].type, wall_right_feet, map->tiles[next_true_feet][true_right].type);
+    return wall_left_feet && wall_center_feet && wall_right_feet;
+}
+
+SDL_bool change_size_collision(Character *character, Map *map, int width, int height) {
+    if (expand_up(character, map, width, height)) {
+        printf("expand up\n");
+        if (expand_right(character, map, width, height)) {
+            character->y = (character->y - (height - character->height));
+            printf("expand right\n");
+            return SDL_TRUE;
+        } else if (expand_left(character, map, width, height)) {
+            character->y = character->y - (height - character->height);
+            character->x = character->x - (width - character->width);
+            printf("expand left\n");
+            return SDL_TRUE;
+        }
+    } else if (expand_down(character, map, width, height)) {
+        printf("expand down\n");
+        if (expand_right(character, map, width, height)) {
+            printf("expand right\n");
+            return SDL_TRUE;
+        } else if (expand_left(character, map, width, height)) {
+            printf("expand left\n");
+            character->x = character->x - (width - character->width);
+            return SDL_TRUE;
+        }
+    }
+
+    return SDL_FALSE;
+}
+
 void collision(Character *character, Map *map) {
     // Gère les collisions entre le personnage et la map
     int x = character->x;
@@ -217,7 +486,7 @@ void collision(Character *character, Map *map) {
 //    printf("feet: %d, knee: %d, body: %d, neck: %d, head: %d\n", feet, knee, body, neck, head);
 
     // all of the different widths of the character
-    int true_right = check_out_of_bounds((x + width) / tile_width, map->width - 1);
+    int true_right = check_out_of_bounds((x + width-1) / tile_width, map->width - 1);
     //exact right of the character
     int true_left = x / tile_width;
     //exact left of the character
@@ -234,6 +503,7 @@ void collision(Character *character, Map *map) {
     SDL_bool on_ground_right = SDL_TRUE;
     SDL_bool on_ground_left = SDL_TRUE;
     SDL_bool on_ground_center = SDL_TRUE;
+    SDL_bool was_on_ground = character->on_ground;
 
     // printf("x_tile: %d, y_tile: %d\n", x_tile, y_tile);
 
@@ -249,11 +519,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                } else {
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            } else {
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }
@@ -272,11 +552,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                } else {
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            } else {
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }
@@ -295,11 +585,21 @@ void collision(Character *character, Map *map) {
                 if (character->dy > 0) {
                     character->dy = 0;
                 }
+                if (was_on_ground == SDL_FALSE) {
+                    character->just_landed = SDL_TRUE;
+                } else {
+                    character->just_landed = SDL_FALSE;
+                }
                 character->on_ground = SDL_TRUE;
             }
         } else {
             if (character->dy > 0) {
                 character->dy = 0;
+            }
+            if (was_on_ground == SDL_FALSE) {
+                character->just_landed = SDL_TRUE;
+            } else {
+                character->just_landed = SDL_FALSE;
             }
             character->on_ground = SDL_TRUE;
         }
@@ -316,7 +616,8 @@ void collision(Character *character, Map *map) {
     SDL_bool wall_right_neck = SDL_TRUE;
     SDL_bool wall_right_head = SDL_TRUE;
 
-    if (wall_right_body == SDL_FALSE && wall_right_knee == SDL_FALSE && wall_right_neck == SDL_FALSE && wall_right_head == SDL_FALSE && wall_right_feet == SDL_FALSE) {
+    if (wall_right_body == SDL_FALSE && wall_right_knee == SDL_FALSE && wall_right_neck == SDL_FALSE &&
+        wall_right_head == SDL_FALSE && wall_right_feet == SDL_FALSE) {
         // just to avoid warning
     }
 
@@ -391,7 +692,8 @@ void collision(Character *character, Map *map) {
     SDL_bool wall_left_neck = SDL_TRUE;
     SDL_bool wall_left_head = SDL_TRUE;
 
-    if (wall_left_body == SDL_FALSE && wall_left_knee == SDL_FALSE && wall_left_neck == SDL_FALSE && wall_left_head == SDL_FALSE && wall_left_feet == SDL_FALSE) {
+    if (wall_left_body == SDL_FALSE && wall_left_knee == SDL_FALSE && wall_left_neck == SDL_FALSE &&
+        wall_left_head == SDL_FALSE && wall_left_feet == SDL_FALSE) {
         // just to avoid warning
     }
 
@@ -542,7 +844,7 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
         Map *last_pattern = create_map("Patterns/last_pattern.txt", map->tile_width, map->tile_height);
         // Si la map est complétement pleine alors on ne fait rien (cas si le dernier pattern est exactement la taille de la map)
         if (MAX_TILES < map->width + last_pattern->width) {
-            printf("map full tiles: %d width : %d patternwidth : %d",MAX_TILES,map->width,last_pattern->width);
+            printf("map full tiles: %d width : %d patternwidth : %d", MAX_TILES, map->width, last_pattern->width);
             free(last_pattern);
             return;
         } else {
