@@ -111,7 +111,7 @@ void action_slide(Character *character, Map *map) {
     Slide *slide = character->slide;
     if (character->just_landed && character->on_ground && character->down) {
         character->just_landed = SDL_FALSE;
-
+        printf("right: %d left: %d\n", character->right, character->left);
         if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
             if (change_size_collision(character, map, character->original_height, character->original_width)) {
                 character->height = character->original_width;
