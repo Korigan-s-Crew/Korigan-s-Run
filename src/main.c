@@ -171,7 +171,13 @@ int main(void) {
                             case SDLK_KP_5:
                                 character->dash->on_air = SDL_TRUE;
                                 break;
+                            case SDLK_RIGHTPAREN:
+                                character->dash->on_air = SDL_TRUE;
+                                break;
                             case SDLK_KP_8:
+                                character->dash->go_up = SDL_TRUE;
+                                break;
+                            case SDLK_EQUALS:
                                 character->dash->go_up = SDL_TRUE;
                                 break;
                             case SDLK_F11:
@@ -420,6 +426,9 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "jump_cooldown.png",
         "jump_right_cooldown.png",
         "jump_right_fall_cooldown.png",
+        "wall.png",
+        "walk_crouch.png",
+        "crouch.png",
         "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(imageNames[i], "END"); i++) {
@@ -599,12 +608,28 @@ char *addcat(char *result, char *path, char *name) {
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst,
                            int offset) {
     if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
-    } else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
-        draw_character_animation(renderer, character, texture, &dst, camera, 1 + offset, character->speed, 7);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[12 + offset], NULL, &dst);
+        }
+    }else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
+        //marche à droite
+        if (character->crouch == SDL_FALSE){
+            draw_character_animation(renderer, character, texture, &dst, camera, 1 + offset, character->speed, 7);
+        } else {
+            draw_character_animation(renderer, character, texture, &dst, camera, 11 + offset, character->speed, 3);
+        }
     } else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
-        draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL, character->speed,
-                                   7);
+        if (character->crouch == SDL_FALSE){
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL, character->speed,7);
+        } else {
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 11 + offset, SDL_FLIP_HORIZONTAL, character->speed,3);
+        }
+    } else if (character->wall_jump_right == SDL_TRUE){
+        SDL_RenderCopy(renderer, texture->main_character[10 + offset], NULL, &dst);
+    } else if (character->wall_jump_right == SDL_TRUE){
+        SDL_RenderCopyEx(renderer, texture->main_character[10 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
     } else if (character->right == SDL_TRUE && character->dx != 0) {
         if (character->dy > 0 && character->on_ground == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[4 + offset], NULL, &dst);
@@ -620,15 +645,31 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
     } else if (character->on_ground == SDL_FALSE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else if (character->down == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[12 + offset], NULL, &dst);
+        }
     } else if (character->dash->duration > 0) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[12 + offset], NULL, &dst);
+        }
     } else if (character->on_ground == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[12 + offset], NULL, &dst);
+        }
     } else if (character->up == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[12 + offset], NULL, &dst);
+        }
     }
 }
 
