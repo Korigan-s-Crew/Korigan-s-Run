@@ -570,6 +570,8 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->on_ground = SDL_FALSE;
     character->wall_right = SDL_FALSE;
     character->wall_left = SDL_FALSE;
+    character->wall_jump_right = SDL_FALSE;
+    character->wall_jump_left = SDL_FALSE;
     character->next_map = SDL_FALSE;
     character->dash = init_dash();
     character->slide = init_slide();
@@ -578,11 +580,11 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
 
 void print_character(Character *character) {
     // Affiche les informations du personnage dans la console
-    printf("x: %d, y: %d, dx: %d, dy: %d, width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d, on_ground: %d, wall_right: %d, wall_left: %d\n",
+    printf("x: %d, y: %d, dx: %d, dy: %d \n width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d \n on_ground: %d, wall_right: %d, wall_left: %d\n wall_jump_right: %d, wall_jump_left: %d",
            character->x, character->y, character->dx, character->dy, character->width, character->height,
            character->speed,
            character->up, character->down, character->left, character->right, character->alive, character->on_ground,
-           character->wall_right, character->wall_left);
+           character->wall_right, character->wall_left, character->wall_jump_right, character->wall_jump_left);
     // Affiche les informations du dash
     print_dash(character->dash);
 }

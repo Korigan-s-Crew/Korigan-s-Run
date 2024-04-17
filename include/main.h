@@ -35,6 +35,8 @@ struct Character {
     SDL_bool on_ground;
     SDL_bool wall_right;
     SDL_bool wall_left;
+    SDL_bool wall_jump_right;
+    SDL_bool wall_jump_left;
     SDL_bool right;
     SDL_bool left;
     SDL_bool up;

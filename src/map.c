@@ -11,6 +11,7 @@ Collision gen_tile_collision(int type) {
     collision.traversableDown = SDL_FALSE;
     collision.traversableLeft = SDL_FALSE;
     collision.traversableRight = SDL_FALSE;
+    collision.WallJumpable = SDL_FALSE;
     if (type < 0) {
         collision.up = SDL_FALSE;
         collision.down = SDL_FALSE;
@@ -30,6 +31,9 @@ Collision gen_tile_collision(int type) {
                 collision.left = SDL_FALSE;
                 collision.right = SDL_FALSE;
                 collision.traversableUp = SDL_TRUE;
+                break;
+            case 37:
+                collision.WallJumpable = SDL_TRUE;
                 break;
         }
     }
@@ -682,12 +686,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
+                if (map->tiles[body][right].collision.WallJumpable){
+                    character->wall_jump_right = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
+            if (map->tiles[body][right].collision.WallJumpable){
+                character->wall_jump_right = SDL_TRUE;
+            }
         }
     } else {
         wall_right_body = SDL_FALSE;
@@ -702,12 +712,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
+                if (map->tiles[body][right].collision.WallJumpable){
+                    character->wall_jump_right = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
+            if (map->tiles[body][right].collision.WallJumpable){
+                character->wall_jump_right = SDL_TRUE;
+            }
         }
     } else {
         wall_right_knee = SDL_FALSE;
@@ -722,12 +738,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
+                if (map->tiles[body][right].collision.WallJumpable){
+                    character->wall_jump_right = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx > 0) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
+            if (map->tiles[body][right].collision.WallJumpable){
+                character->wall_jump_right = SDL_TRUE;
+            }
         }
     } else {
         wall_right_neck = SDL_FALSE;
@@ -735,6 +757,7 @@ void collision(Character *character, Map *map) {
 
     if (wall_right_body == SDL_FALSE) {
         character->wall_right = SDL_FALSE;
+        character->wall_jump_right = SDL_FALSE;
     }
 
     SDL_bool wall_left_feet = SDL_TRUE;
@@ -758,12 +781,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
+                if (map->tiles[body][left].collision.WallJumpable){
+                    character->wall_jump_left = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
+            if (map->tiles[body][left].collision.WallJumpable){
+                character->wall_jump_left = SDL_TRUE;
+            }
         }
     } else {
         wall_left_body = SDL_FALSE;
@@ -778,12 +807,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
+                if (map->tiles[body][left].collision.WallJumpable){
+                    character->wall_jump_left = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
+            if (map->tiles[body][left].collision.WallJumpable){
+                character->wall_jump_left = SDL_TRUE;
+            }
         }
     } else {
         wall_left_knee = SDL_FALSE;
@@ -798,12 +833,18 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
+                if (map->tiles[body][left].collision.WallJumpable){
+                    character->wall_jump_left = SDL_TRUE;
+                }
             }
         } else {
             if (character->dx < 0) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
+            if (map->tiles[body][left].collision.WallJumpable){
+                character->wall_jump_left = SDL_TRUE;
+            }
         }
     } else {
         wall_left_neck = SDL_FALSE;
@@ -811,6 +852,7 @@ void collision(Character *character, Map *map) {
 
     if (wall_left_body == SDL_FALSE) {
         character->wall_left = SDL_FALSE;
+        character->wall_jump_left = SDL_FALSE;
     }
 
     // Si la tête côté droit du personnage alors on annule sa vitesse verticale
