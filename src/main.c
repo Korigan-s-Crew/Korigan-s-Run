@@ -56,6 +56,7 @@ int main(void) {
     int tile_height = SCREEN_HEIGHT / camera_height;
     Map *map = create_map("map.txt", tile_width, tile_height);
     int nb_map = 1;
+
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
                                             (int)(tile_width * 0.9), (int)(tile_height * 1.5), 2, renderer);
@@ -64,12 +65,10 @@ int main(void) {
     print_map(map);
     // Initialise la seed pour le random
     srand(time(NULL));  // srand(8675612346585);
-    // Boucle principale
-    int running = 1;
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     // Affiche la première image
-    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+    draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
@@ -77,9 +76,22 @@ int main(void) {
     long long last_time_sec = 0;
     // Initialise la variable qui contient les contrôles
     Controls *controls = init_controls();
+    //  Initialise le tutoriel
+    int tutorial = 0;
+    SDL_Keycode key_for_tuto[]={
+            SDLK_F15,
+            SDLK_q,
+            SDLK_d,
+            SDLK_SPACE,
+            SDLK_s,
+            SDLK_F15
+    };
+    // Boucle principale
+    int running = 2;
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
 
-    while (running) {
+    //Boucle de menu d'acceuil
+    while (running == 2) {
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -135,11 +147,139 @@ int main(void) {
                         // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                         collision(character, map);
                         // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
-                        draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+                        draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                     }
                     break;
                     // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                 case SDL_KEYDOWN:
+                    switch (event.key.keysym.sym) {
+                        case SDLK_ESCAPE:
+                            printf("escape\n");
+                            running = 0;
+                            break;
+                        case SDLK_t:
+                            running=1;
+                            nb_map=1;
+                            tutorial=1;
+                            character->key_suggestion=key_for_tuto[tutorial];
+                            break;
+                            case SDLK_e:
+                            running=1;
+                            nb_map=1;
+                            tutorial=0;
+                            break;
+
+                    }
+            }
+        }
+        if (getCurrentTimeInMicroseconds() - last_time_sec >= 1000000) {
+            last_time_sec = getCurrentTimeInMicroseconds();
+            // printf("fps: %d\n", camera.fps);
+            camera.avg_fps = camera.fps;
+            camera.fps = 0;
+        }
+        // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
+        // C'est la condition qui donne le game tick (60 fois par seconde) cad 16 ms par tick
+        if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
+            last_time = getCurrentTimeInMicroseconds();
+            if (character->alive == SDL_FALSE) {  // ide warning is an error
+                character->x = map->tile_start_x * tile_width;
+                character->y = map->tile_start_y * tile_height;
+                character->alive = SDL_TRUE;
+            }
+            if (character->next_map == SDL_TRUE && nb_map == 1) {
+                map = change_map(map, "map2.txt", character, &camera, map->tile_width, map->tile_height);
+                nb_map++;
+            }
+            if (character->next_map == SDL_TRUE && nb_map == 2) {
+                map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                nb_map--;
+            }
+            // Applique la gravité au personnage
+            gravity(character);
+            // Applique le mouvement au personnage
+            mouvement(map, character);
+            // Affiche la map et le personnage dans la fenêtre
+            // draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+            // camera.fps++;
+        }
+        // C'est la condition qui donne le FPS
+        if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
+            last_time_fps = getCurrentTimeInMicroseconds();
+            draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+            camera.fps++;
+        }
+    }
+
+    //boucle de jeu
+    while (running == 1) {
+        // Boucle de gestion des événements
+        if (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                // Si l'événement est de type SDL_QUIT (clic sur la croix de la fenêtre) on met fin à la boucle
+                case SDL_QUIT:
+                    running = 0;
+                    break;
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        // Si la fenêtre est redimensionnée on met à jour la taille de la fenêtre
+                        // et la taille des tuiles et la taille de la caméra et la taille du personnage
+                        // On récupère la nouvelle taille de la fenêtre
+                        SCREEN_WIDTH = event.window.data1;
+                        SCREEN_HEIGHT = event.window.data2;
+                        // On limite la taille de la fenêtre à 100x100 pour éviter les crashs (valeur testé empiriquement)
+                        if (SCREEN_WIDTH < 100) {
+                            SCREEN_WIDTH = 100;
+                        }
+                        if (SCREEN_HEIGHT < 100) {
+                            SCREEN_HEIGHT = 100;
+                        }
+                        printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                        // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
+                        // Car ça permet d'avoir une physique constante
+                        // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
+                        camera.width = (int) (SCREEN_WIDTH / 100);
+                        camera.height = (int) (SCREEN_HEIGHT / 100);
+                        int old_tile_width = tile_width;
+                        int old_tile_height = tile_height;
+                        // On met à jour la taille des tuiles
+                        tile_width = SCREEN_WIDTH / camera.width;
+                        tile_height = SCREEN_HEIGHT / camera.height;
+                        map->tile_width = tile_width;
+                        map->tile_height = tile_height;
+                        // Permet de garder la position du personnage dans la même case
+                        int tile_x = character->x / old_tile_width;
+                        int tile_y = character->y / old_tile_height;
+                        // Permet de garder la position du personnage dans à la même position dans la case
+                        int sub_tile_x = character->x % old_tile_width;
+                        int sub_tile_y = character->y % old_tile_height;
+                        // On met à jour la position du personnage en x
+                        character->x =
+                                tile_x * tile_width + (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
+                        // On met à jour la position du personnage en y
+                        character->y = tile_y * tile_height +
+                                       (int) (sub_tile_y * (float) tile_height / (float) old_tile_height);
+                        // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
+                        // On met à jour la taille du personnage et sa taille d'origine
+                        character->width = tile_width * 0.9;
+                        character->height = tile_height * 1.5;
+                        character->original_width = tile_width * 0.9;
+                        character->original_height = tile_height * 1.5;
+                        // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
+                        collision(character, map);
+                        // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
+                        draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+                    }
+                    break;
+                    // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
+                case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == key_for_tuto[tutorial]) {
+                        character->key_suggestion = key_for_tuto[tutorial + 1];
+                        tutorial += 1;
+                        if (key_for_tuto[tutorial] == SDLK_F15) {
+                            tutorial = 0;
+                        }
+                    }
                     if (event.key.keysym.sym == controls->down) {
 //                        printf("down\n");
                         character->down = SDL_TRUE;
@@ -270,10 +410,11 @@ int main(void) {
         // C'est la condition qui donne le FPS
         if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
             last_time_fps = getCurrentTimeInMicroseconds();
-            draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
+            draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
             camera.fps++;
         }
     }
+
     // printf("x: %d, y: %d \n", character->x, character->y);
     statut = EXIT_SUCCESS;
     free(controls);
@@ -442,7 +583,10 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     // Liste des noms des images de suggestion de touche
     char *key_images[] = {
-            "enter.png",
+            "q.png",
+            "d.png",
+            "space.png",
+            "s.png",
             "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(key_images[i], "END"); i++) {
@@ -601,7 +745,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->next_map = SDL_FALSE;
     character->dash = init_dash();
     character->slide = init_slide();
-    character->key_suggestion = SDLK_F14;
+    character->key_suggestion=SDLK_F15;
     return character;
 }
 
@@ -742,6 +886,20 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     }
 }
 
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst){
+    if (character->key_suggestion != SDLK_F15) {
+        if (character->key_suggestion == SDLK_q) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst);
+        } else if (character->key_suggestion == SDLK_d) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[1], NULL, &dst);
+        } else if (character->key_suggestion == SDLK_SPACE) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[2], NULL, &dst);
+        } else if (character->key_suggestion == SDLK_s) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[3], NULL, &dst);
+        }
+    }
+}
+
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
     if (camera->show_fps == SDL_TRUE) {
         // Affiche le nombre d'images par seconde dans la fenêtre
@@ -765,7 +923,7 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
     }
 }
 
-void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height,
+void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height,
           Character *character, Camera *camera) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
@@ -835,13 +993,5 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     // Sinon la camera est centré en y par rapport au personnage
     else {
         camera->y = character->y - pixel_height + (character->height / 2);
-    }
-}
-
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst){
-    if (character->key_suggestion != SDLK_F14){
-        if (character->key_suggestion==SDLK_KP_ENTER) {
-            SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst);
-        }
     }
 }

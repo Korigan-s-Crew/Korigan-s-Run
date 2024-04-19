@@ -88,9 +88,9 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
-void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
+void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst);
 #endif
