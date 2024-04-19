@@ -35,6 +35,8 @@ struct Character {
     SDL_bool on_ground;
     SDL_bool wall_right;
     SDL_bool wall_left;
+    SDL_bool wall_jump_right;
+    SDL_bool wall_jump_left;
     SDL_bool right;
     SDL_bool left;
     SDL_bool up;
@@ -43,6 +45,7 @@ struct Character {
     Dash *dash;
     Slide *slide;
     SDL_Texture *images[100];
+    SDL_Keycode key_suggestion;
 };
 struct Camera {
     int x;
@@ -66,6 +69,7 @@ struct Texture {
     RdmTexture *collision[100];
     RdmTexture *transparent[100];
     SDL_Texture *main_character[100];
+    SDL_Texture *key_suggestion[100];
     TTF_Font *font;
 };
 typedef struct Texture Texture;
@@ -88,4 +92,5 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst);
 #endif

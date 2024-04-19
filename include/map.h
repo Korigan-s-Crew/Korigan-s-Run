@@ -16,6 +16,7 @@ struct Collision {
     SDL_bool traversableDown;
     SDL_bool traversableLeft;
     SDL_bool traversableRight;
+    SDL_bool WallJumpable;
 };
 
 typedef struct Point Point;

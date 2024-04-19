@@ -171,7 +171,13 @@ int main(void) {
                             case SDLK_KP_5:
                                 character->dash->on_air = SDL_TRUE;
                                 break;
+                            case SDLK_RIGHTPAREN:
+                                character->dash->on_air = SDL_TRUE;
+                                break;
                             case SDLK_KP_8:
+                                character->dash->go_up = SDL_TRUE;
+                                break;
+                            case SDLK_EQUALS:
                                 character->dash->go_up = SDL_TRUE;
                                 break;
                             case SDLK_F11:
@@ -339,34 +345,55 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->collision[i] = NULL;
         texture->transparent[i] = NULL;
         texture->main_character[i] = NULL;
+        texture->key_suggestion[i] = NULL;
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
-        "Textures/Terrain/nuage",
-        "Textures/Terrain/sol",  // 19
-        "Textures/Terrain/ss1",  // 29
-        "Textures/Terrain/ss2",  // 39
-        "Textures/Terrain/marron_cave.png",
-        "Textures/Terrain/sol_gauche.png",
-        "Textures/Terrain/ss1_gauche.png",
-        "Textures/Terrain/ss2_gauche.png",
-        "Textures/Terrain/ss3_gauche.png",  // 80-89
-        "Textures/Terrain/sol_droite.png",
-        "Textures/Terrain/ss1_droite.png",
-        "Textures/Terrain/ss2_droite.png",
-        "Textures/Terrain/ss3_droite.png",  // 120-129
-        "Textures/Terrain/sol_gauche_p_ss1",
-        "Textures/Terrain/ss1_gauche_p.png",
-        "Textures/Terrain/ss2_gauche_p.png",
-        "Textures/Terrain/ss3_gauche_p.png",  // 160-169
-        "Textures/Terrain/sol_droite_p_ss1",
-        "Textures/Terrain/ss1_droite_p.png",
-        "Textures/Terrain/ss2_droite_p.png",
-        "Textures/Terrain/ss3_droite_p.png",   // 200-209
-        "Textures/Terrain/nuage/nuage.png",    // 210-219
-        "Textures/Terrain/gate/gate.png",      // 220-229
-        "Textures/Terrain/gate/gate_top.png",  // 230-239
-        "END"};
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/sol",  // 19
+            "Textures/Terrain/ss1",  // 29
+            "Textures/Terrain/ss2",  // 39
+            "Textures/Terrain/marron_cave.png",
+            "Textures/Terrain/sol_gauche.png",
+            "Textures/Terrain/ss1_gauche.png",
+            "Textures/Terrain/ss2_gauche.png",
+            "Textures/Terrain/ss3_gauche.png",  // 80-89
+            "Textures/Terrain/sol_droite.png",
+            "Textures/Terrain/ss1_droite.png",
+            "Textures/Terrain/ss2_droite.png",
+            "Textures/Terrain/ss3_droite.png",  // 120-129
+            "Textures/Terrain/sol_gauche_p_ss1",
+            "Textures/Terrain/ss1_gauche_p.png",
+            "Textures/Terrain/ss2_gauche_p.png",
+            "Textures/Terrain/ss3_gauche_p.png",  // 160-169
+            "Textures/Terrain/sol_droite_p_ss1",
+            "Textures/Terrain/ss1_droite_p.png",
+            "Textures/Terrain/ss2_droite_p.png",
+            "Textures/Terrain/ss3_droite_p.png",   // 200-209
+            "Textures/Terrain/nuage_bas",// 210-219
+            "Textures/Terrain/nuage_g.png",
+            "Textures/Terrain/nuage_ge.png",
+            "Textures/Terrain/nuage_gi.png",
+            "Textures/Terrain/nuage_d.png",
+            "Textures/Terrain/nuage_di.png",
+            "Textures/Terrain/nuage_de.png",
+            "Textures/Terrain/nuage_seul.png",
+            "Textures/Terrain/nuage_top",
+            "Textures/Terrain/nuage_gt.png",
+            "Textures/Terrain/nuage_get.png",
+            "Textures/Terrain/nuage_git.png",
+            "Textures/Terrain/nuage_dt.png",
+            "Textures/Terrain/nuage_dit.png",
+            "Textures/Terrain/nuage_det.png",
+            "Textures/Terrain/nuage_seult.png",
+            "Textures/Terrain/wall_1",//370-379
+            "Textures/Terrain/wall_top",
+            "Textures/Terrain/wall_mid",
+            "Textures/Terrain/wall_bot",
+            "Textures/Terrain/gate/gate.png",      // 220-229
+            "Textures/Terrain/gate/gate_top.png",  // 230-239
+            "END"};
+
     // Charge les textures des images de la map (collisables)
     for (int i = 0; strcmp(list_strings[i], "END"); i++) {
         texture->collision[i] = load_from_dir(list_strings[i], renderer);
@@ -395,17 +422,33 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "jump.png",
         "jump_right.png",
         "jump_right_fall.png",
+        "wall.png",
+        "walk_crouch.png",
+        "crouch.png",
         "character_cooldown.png",
         "character_run_cooldown.png",
         "jump_cooldown.png",
         "jump_right_cooldown.png",
         "jump_right_fall_cooldown.png",
+        "wall_cooldown.png",
+        "walk_crouch_cooldown.png",
+        "crouch_cooldown.png",
         "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(imageNames[i], "END"); i++) {
         char imagePath[100];
         addcat(imagePath, "Textures/korigan", imageNames[i]);
         texture->main_character[i] = loadImage(imagePath, renderer);
+    }
+    // Liste des noms des images de suggestion de touche
+    char *key_images[] = {
+            "enter.png",
+            "END"};
+    // Chargement des textures du personnage
+    for (int i = 0; strcmp(key_images[i], "END"); i++) {
+        char imagePath[100];
+        addcat(imagePath, "Textures/key_suggestion", key_images[i]);
+        texture->key_suggestion[i] = loadImage(imagePath, renderer);
     }
     // Crée une police de caractère avec le fichier arial.ttf de taille 28
     texture->font = TTF_OpenFont("Fonts/arial.ttf", 28);
@@ -435,6 +478,9 @@ void free_texture(Texture *texture) {
         }
         if (NULL != texture->main_character[i]) {
             SDL_DestroyTexture(texture->main_character[i]);
+        }
+        if (NULL != texture->key_suggestion[i]) {
+            SDL_DestroyTexture(texture->key_suggestion[i]);
         }
     }
     // Libère la mémoire allouée pour la police de caractère
@@ -550,19 +596,22 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->on_ground = SDL_FALSE;
     character->wall_right = SDL_FALSE;
     character->wall_left = SDL_FALSE;
+    character->wall_jump_right = SDL_FALSE;
+    character->wall_jump_left = SDL_FALSE;
     character->next_map = SDL_FALSE;
     character->dash = init_dash();
     character->slide = init_slide();
+    character->key_suggestion = SDLK_F14;
     return character;
 }
 
 void print_character(Character *character) {
     // Affiche les informations du personnage dans la console
-    printf("x: %d, y: %d, dx: %d, dy: %d, width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d, on_ground: %d, wall_right: %d, wall_left: %d\n",
+    printf("x: %d, y: %d, dx: %d, dy: %d \n width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d \n on_ground: %d, wall_right: %d, wall_left: %d\n wall_jump_right: %d, wall_jump_left: %d",
            character->x, character->y, character->dx, character->dy, character->width, character->height,
            character->speed,
            character->up, character->down, character->left, character->right, character->alive, character->on_ground,
-           character->wall_right, character->wall_left);
+           character->wall_right, character->wall_left, character->wall_jump_right, character->wall_jump_left);
     // Affiche les informations du dash
     print_dash(character->dash);
 }
@@ -577,12 +626,28 @@ char *addcat(char *result, char *path, char *name) {
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst,
                            int offset) {
     if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
-    } else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
-        draw_character_animation(renderer, character, texture, &dst, camera, 1 + offset, character->speed, 7);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
+        }
+    }else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
+        //marche à droite
+        if (character->crouch == SDL_FALSE){
+            draw_character_animation(renderer, character, texture, &dst, camera, 1 + offset, character->speed, 7);
+        } else {
+            draw_character_animation(renderer, character, texture, &dst, camera, 6 + offset, character->speed, 3);
+        }
     } else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
-        draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL, character->speed,
-                                   7);
+        if (character->crouch == SDL_FALSE){
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL, character->speed,7);
+        } else {
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 6 + offset, SDL_FLIP_HORIZONTAL, character->speed,3);
+        }
+    } else if (character->wall_jump_right == SDL_TRUE){
+        SDL_RenderCopy(renderer, texture->main_character[5 + offset], NULL, &dst);
+    } else if (character->wall_jump_left == SDL_TRUE){
+        SDL_RenderCopyEx(renderer, texture->main_character[5 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
     } else if (character->right == SDL_TRUE && character->dx != 0) {
         if (character->dy > 0 && character->on_ground == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[4 + offset], NULL, &dst);
@@ -598,35 +663,53 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
     } else if (character->on_ground == SDL_FALSE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else if (character->down == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
+        }
     } else if (character->dash->duration > 0) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
+        }
     } else if (character->on_ground == SDL_TRUE) {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
+        }
     } else if (character->up == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else {
-        SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        if (character->crouch == SDL_FALSE){
+            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
+        }
     }
 }
 
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera) {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
+    SDL_Rect dst_indication = {character->x - camera->x, character->y - camera->y-50,100, 25};
     if (character->dash->cooldown > 0) {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 0, 0);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
-        draw_character_offset(renderer, character, texture, camera, dst, 5);
+        draw_character_offset(renderer, character, texture, camera, dst, 8);
+        draw_indication(renderer, character, texture, dst_indication);
     } else {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 255, 255);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 0);
+        draw_indication(renderer, character, texture, dst_indication);
     }
-
 }
 
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
@@ -752,5 +835,13 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     // Sinon la camera est centré en y par rapport au personnage
     else {
         camera->y = character->y - pixel_height + (character->height / 2);
+    }
+}
+
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst){
+    if (character->key_suggestion != SDLK_F14){
+        if (character->key_suggestion==SDLK_KP_ENTER) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst);
+        }
     }
 }
