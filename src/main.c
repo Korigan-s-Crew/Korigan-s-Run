@@ -115,8 +115,35 @@ int main(void) {
             "vous pouvez dash en sautant pour passer ce mur",
             "allez sur la porte",
             "appuyez sur e",
-            ""
+            "",
+            "END"
     };
+    SDL_Texture *text_for_tuto_texture[50];
+    // Chargement des textures de suggestions
+    for (int i = 0; strcmp(text_for_tuto[i], "END"); i++) {
+        TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+        SDL_Color color = {192, 190, 193, 255};
+        if (strcmp(text_for_tuto[i], "") != 0) {
+            // Créer la surface à partir du texte
+            SDL_Surface *surface = TTF_RenderText_Solid(texture->font, text_for_tuto[i], color);
+            if (surface == NULL) {
+                printf("Erreur lors de la création de la surface pour le texte %d : %s\n", i, SDL_GetError());
+                text_for_tuto_texture[i] = NULL;
+                break;
+            }
+            SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (text_texture == NULL) {
+                printf("Erreur lors de la création de la texture pour le texte %d : %s\n", i, SDL_GetError());
+                text_for_tuto_texture[i] = NULL;
+                break;
+            }
+            text_for_tuto_texture[i] = text_texture;
+            SDL_FreeSurface(surface);
+        } else {
+            text_for_tuto_texture[i] = NULL;
+        }
+    }
+
 #define next_step_tuto() ( \
 (tutorial_step==5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
 (tutorial_step == 6 && character->x > 4000) ||                                                                           \
@@ -200,7 +227,7 @@ int main(void) {
                                 nb_map = 1;
                                 tutorial_step = 1;
                                 character->key_suggestion = key_for_tuto[tutorial_step];
-                                strcpy(character->text_suggestion, text_for_tuto[tutorial_step]);
+                                character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                 map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
                                 break;
                             case SDLK_e:
@@ -208,7 +235,7 @@ int main(void) {
                                 nb_map = 1;
                                 tutorial_step = 0;
                                 character->key_suggestion = SDLK_F15;
-                                strcpy(character->text_suggestion, "");
+                                character->text_suggestion = NULL;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
                                 break;
 
@@ -220,7 +247,7 @@ int main(void) {
                                 game_playing = 1;
                                 nb_map=1;
                                 tutorial_step=0;
-                                strcpy(character->text_suggestion, "");
+                                character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
                                 break;
@@ -229,7 +256,7 @@ int main(void) {
                                 nb_map=1;
                                 tutorial_step = 1;
                                 character->key_suggestion=key_for_tuto[tutorial_step];
-                                strcpy(character->text_suggestion, text_for_tuto[tutorial_step]);
+                                character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                 map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
                                 break;
                             }
@@ -285,7 +312,7 @@ int main(void) {
             if (tutorial_step != 0){
                 if next_step_tuto() {
                     character->key_suggestion = key_for_tuto[tutorial_step + 1];
-                    strcpy(character->text_suggestion, text_for_tuto[tutorial_step + 1]);
+                    character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                     tutorial_step += 1;
                     if (key_for_tuto[tutorial_step] == SDLK_F15) {
                         tutorial_step = 0;
@@ -352,9 +379,9 @@ int main(void) {
                         break;
                         // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                     case SDL_KEYDOWN:
-                        if (tutorial_step !=0 && (event.key.keysym.sym == key_for_tuto[tutorial_step])) {
+                        if (tutorial_step !=0 && (event.key.keysym.sym == key_for_tuto[tutorial_step] || event.key.keysym.sym == SDLK_k)) {
                             character->key_suggestion = key_for_tuto[tutorial_step + 1];
-                            strcpy(character->text_suggestion, text_for_tuto[tutorial_step + 1]);
+                            character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                             tutorial_step += 1;
                             if (key_for_tuto[tutorial_step] == SDLK_F15) {
                                 tutorial_step = 0;
@@ -848,7 +875,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->dash = init_dash();
     character->slide = init_slide();
     character->key_suggestion=SDLK_F15;
-    strcpy(character->text_suggestion, "");
+    character->text_suggestion = NULL;
     return character;
 }
 
@@ -949,14 +976,14 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 8);
-        draw_indication(renderer, character, texture, dst_indication_key, dst_indication_text);
+        draw_indication(renderer, character, texture, camera, dst_indication_key);
     } else {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 255, 255);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 0);
-        draw_indication(renderer, character, texture, dst_indication_key, dst_indication_text);
+        draw_indication(renderer, character, texture, camera, dst_indication_key);
     }
 }
 
@@ -990,7 +1017,7 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     }
 }
 
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst_key, SDL_Rect dst_text){
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key){
     if (character->key_suggestion != SDLK_F15) {
         if (character->key_suggestion == SDLK_q) {
             SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst_key);
@@ -1004,24 +1031,14 @@ void draw_indication(SDL_Renderer *renderer, Character *character, Texture *text
             SDL_RenderCopy(renderer, texture->key_suggestion[4], NULL, &dst_key);
         }
     }
-    if (strcmp(character->text_suggestion, "")!=0) {
-        char indication[50];
-        strcpy(indication, character->text_suggestion);
-        TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
-        SDL_Color color = {192, 190, 193, 255};
-        //const char *text = "Hello, World!";
-        int textWidth, textHeight;
-        TTF_SizeText(texture->font, indication, &textWidth, &textHeight);
+    if (character->text_suggestion != NULL) {
+        int textureWidth, textureHeight;
+        SDL_QueryTexture(character->text_suggestion, NULL, NULL, &textureWidth, &textureHeight);
+        SDL_Rect dst_text = {camera->width * 100 /2,camera->height * 100 /3, textureWidth, textureHeight};
+        dst_text.x -= textureWidth/2;
+        dst_text.y -= textureHeight/2;
 
-        dst_text.x -= textWidth/2;
-        dst_text.y -= textHeight/2;
-
-        SDL_Surface *surface = TTF_RenderText_Solid(texture->font, indication, color);
-        SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_QueryTexture(text_texture, NULL, NULL, &dst_text.w, &dst_text.h);
-        SDL_RenderCopy(renderer, text_texture, NULL, &dst_text);
-        SDL_FreeSurface(surface);
-        SDL_DestroyTexture(text_texture);
+        SDL_RenderCopy(renderer, character->text_suggestion, NULL, &dst_text);
     }
 
 }

@@ -47,7 +47,7 @@ struct Character {
     Slide *slide;
     SDL_Texture *images[100];
     SDL_Keycode key_suggestion;
-    char text_suggestion[50];
+    SDL_Texture *text_suggestion;
 };
 typedef struct Mouse Mouse;
 struct Mouse {
@@ -100,7 +100,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst_key, SDL_Rect dst_text);
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse);
