@@ -917,14 +917,23 @@ void collision(Character *character, Map *map) {
     // Le personnage peut sortir par le haut de la map car la gravité va le ramener vers le bas
 
     if (map->tiles[feet][left].type / 10 == -5) {
-        character->next_map = SDL_TRUE;
+        printf("iciiiiiiii/\n");
+        character->on_portal = SDL_TRUE;
+        character->key_suggestion = SDLK_e;
     } else if (map->tiles[head][left].type / 10 == -5) {
-        character->next_map = SDL_TRUE;
-    }
-    if (map->tiles[feet][right].type / 10 == -5) {
-        character->next_map = SDL_TRUE;
+        character->on_portal = SDL_TRUE;
+        character->key_suggestion = SDLK_e;
+    } else if (map->tiles[feet][right].type / 10 == -5) {
+        character->on_portal = SDL_TRUE;
+        character->key_suggestion = SDLK_e;
     } else if (map->tiles[head][right].type / 10 == -5) {
-        character->next_map = SDL_TRUE;
+        character->on_portal = SDL_TRUE;
+        character->key_suggestion = SDLK_e;
+    } else {
+        character->on_portal = SDL_FALSE;
+        if (character->key_suggestion == SDLK_e) {
+            character->key_suggestion=SDLK_F15;
+        }
     }
 }
 

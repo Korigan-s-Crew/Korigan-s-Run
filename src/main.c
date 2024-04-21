@@ -77,15 +77,43 @@ int main(void) {
     // Initialise la variable qui contient les contrôles
     Controls *controls = init_controls();
     //  Initialise le tutoriel
-    int tutorial = 0;
+    int tutorial_step = 0;
     SDL_Keycode key_for_tuto[]={
             SDLK_F15,
             SDLK_q,
             SDLK_d,
             SDLK_SPACE,
             SDLK_s,
+            SDLK_F14,
+            SDLK_F14,
+            SDLK_F14,
+            SDLK_LSHIFT,
+            SDLK_F14,
+            SDLK_F14,
+            SDLK_e,
             SDLK_F15
     };
+    char *text_for_tuto[50]={
+            "",
+            "appuyez sur q et d pour vous déplacer",
+            "appuyez sur q et d pour vous déplacer",
+            "appuyez sur espace pour sauter",
+            "appuyez sur s pour vpous baisser",
+            "maintenant, sautez contre un mur",
+            "",
+            "appuyez sur 5 puis 8 pour activer le dash",
+            "appuyez sur shift pour faire un dash",
+            "vous pouvez dash en sautant pour passer ce mur",
+            "allez sur la porte",
+            "appuyez sur e",
+            ""
+    };
+#define next_step_tuto() ( \
+(tutorial_step==5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
+(tutorial_step == 6 && character->x > 4000) ||                                                                           \
+(tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
+(tutorial_step == 9 && character->x > 7900) ||                                                                           \
+(tutorial_step == 10 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 2;
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
@@ -160,13 +188,15 @@ int main(void) {
                         case SDLK_t:
                             running=1;
                             nb_map=1;
-                            tutorial=1;
-                            character->key_suggestion=key_for_tuto[tutorial];
+                            tutorial_step=1;
+                            character->key_suggestion=key_for_tuto[tutorial_step];
+                            strcpy(character->text_suggestion, text_for_tuto[tutorial_step]);
+                            map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
                             break;
                             case SDLK_e:
                             running=1;
                             nb_map=1;
-                            tutorial=0;
+                            tutorial_step=0;
                             break;
 
                     }
@@ -213,6 +243,16 @@ int main(void) {
 
     //boucle de jeu
     while (running == 1) {
+        if (tutorial_step != 0){
+            if next_step_tuto() {
+                character->key_suggestion = key_for_tuto[tutorial_step + 1];
+                strcpy(character->text_suggestion, text_for_tuto[tutorial_step + 1]);
+                tutorial_step += 1;
+                if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                    tutorial_step = 0;
+                }
+            }
+        }
         // Boucle de gestion des événements
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -273,12 +313,16 @@ int main(void) {
                     break;
                     // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                 case SDL_KEYDOWN:
-                    if (event.key.keysym.sym == key_for_tuto[tutorial]) {
-                        character->key_suggestion = key_for_tuto[tutorial + 1];
-                        tutorial += 1;
-                        if (key_for_tuto[tutorial] == SDLK_F15) {
-                            tutorial = 0;
+                    if (tutorial_step !=0 && (event.key.keysym.sym == key_for_tuto[tutorial_step])) {
+                        character->key_suggestion = key_for_tuto[tutorial_step + 1];
+                       strcpy(character->text_suggestion, text_for_tuto[tutorial_step + 1]);
+                        tutorial_step += 1;
+                        if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                            tutorial_step = 0;
                         }
+                    }
+                    if (event.key.keysym.sym == SDLK_e && character->on_portal==SDL_TRUE) {
+                        character->next_map=SDL_TRUE;
                     }
                     if (event.key.keysym.sym == controls->down) {
 //                        printf("down\n");
@@ -587,6 +631,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "d.png",
             "space.png",
             "s.png",
+            "e.png",
             "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(key_images[i], "END"); i++) {
@@ -595,7 +640,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->key_suggestion[i] = loadImage(imagePath, renderer);
     }
     // Crée une police de caractère avec le fichier arial.ttf de taille 28
-    texture->font = TTF_OpenFont("Fonts/arial.ttf", 28);
+    texture->font = TTF_OpenFont("Fonts/arcade.ttf", 28);
     if (texture->font == NULL)
         fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
     return texture;
@@ -743,9 +788,11 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->wall_jump_right = SDL_FALSE;
     character->wall_jump_left = SDL_FALSE;
     character->next_map = SDL_FALSE;
+    character->on_portal = SDL_FALSE;
     character->dash = init_dash();
     character->slide = init_slide();
     character->key_suggestion=SDLK_F15;
+    strcpy(character->text_suggestion, "");
     return character;
 }
 
@@ -838,21 +885,22 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera) {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
-    SDL_Rect dst_indication = {character->x - camera->x, character->y - camera->y-50,100, 25};
+    SDL_Rect dst_indication_key = {character->x - camera->x, character->y - camera->y-50,100, 25};
+    SDL_Rect dst_indication_text = {camera->width * 100 /2,camera->height * 100 /3,100, 25};
     if (character->dash->cooldown > 0) {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 0, 0);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 8);
-        draw_indication(renderer, character, texture, dst_indication);
+        draw_indication(renderer, character, texture, dst_indication_key, dst_indication_text);
     } else {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 255, 255);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
         draw_character_offset(renderer, character, texture, camera, dst, 0);
-        draw_indication(renderer, character, texture, dst_indication);
+        draw_indication(renderer, character, texture, dst_indication_key, dst_indication_text);
     }
 }
 
@@ -886,18 +934,40 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     }
 }
 
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst){
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst_key, SDL_Rect dst_text){
     if (character->key_suggestion != SDLK_F15) {
         if (character->key_suggestion == SDLK_q) {
-            SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst_key);
         } else if (character->key_suggestion == SDLK_d) {
-            SDL_RenderCopy(renderer, texture->key_suggestion[1], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->key_suggestion[1], NULL, &dst_key);
         } else if (character->key_suggestion == SDLK_SPACE) {
-            SDL_RenderCopy(renderer, texture->key_suggestion[2], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->key_suggestion[2], NULL, &dst_key);
         } else if (character->key_suggestion == SDLK_s) {
-            SDL_RenderCopy(renderer, texture->key_suggestion[3], NULL, &dst);
+            SDL_RenderCopy(renderer, texture->key_suggestion[3], NULL, &dst_key);
+        } else if (character->key_suggestion == SDLK_e) {
+            SDL_RenderCopy(renderer, texture->key_suggestion[4], NULL, &dst_key);
         }
     }
+    if (strcmp(character->text_suggestion, "")!=0) {
+        char indication[50];
+        strcpy(indication, character->text_suggestion);
+        TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+        SDL_Color color = {192, 190, 193, 255};
+        //const char *text = "Hello, World!";
+        int textWidth, textHeight;
+        TTF_SizeText(texture->font, indication, &textWidth, &textHeight);
+
+        dst_text.x -= textWidth/2;
+        dst_text.y -= textHeight/2;
+
+        SDL_Surface *surface = TTF_RenderText_Solid(texture->font, indication, color);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_QueryTexture(texture, NULL, NULL, &dst_text.w, &dst_text.h);
+        SDL_RenderCopy(renderer, texture, NULL, &dst_text);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+    }
+
 }
 
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {

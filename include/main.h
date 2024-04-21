@@ -11,7 +11,7 @@
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 60
-#define MAX_TILES 50
+#define MAX_TILES 200
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
 
@@ -41,11 +41,13 @@ struct Character {
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
+    SDL_bool on_portal;
     SDL_bool next_map;
     Dash *dash;
     Slide *slide;
     SDL_Texture *images[100];
     SDL_Keycode key_suggestion;
+    char text_suggestion[50];
 };
 struct Camera {
     int x;
@@ -56,6 +58,7 @@ struct Camera {
     int avg_fps;
     SDL_bool show_fps;
     int pattern_generated_history[100];
+
 };
 typedef struct Camera Camera;
 
@@ -88,7 +91,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst);
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect dst_key, SDL_Rect dst_text);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void create_camera(Camera *camera, int x, int y, int width, int height);
