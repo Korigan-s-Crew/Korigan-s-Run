@@ -601,6 +601,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->transparent[i] = NULL;
         texture->main_character[i] = NULL;
         texture->key_suggestion[i] = NULL;
+        texture->bouttons[i] = NULL;
     }
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
