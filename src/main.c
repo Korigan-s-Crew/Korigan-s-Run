@@ -45,7 +45,9 @@ int main(void) {
     // printf("screen_size: %d, %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
     //  Remplit la fenêtre de blanc
     setWindowColor(renderer, bleu);
-    // Crée la map
+    // Initialise la variable qui contient les contrôles
+    Controls *controls = init_controls();
+    // Crée la camera
     Camera camera;
     // Crée la caméra en fonction de la taille de la fenêtre
     int camera_width = (int)(SCREEN_WIDTH / 100);
@@ -54,6 +56,7 @@ int main(void) {
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
+    // Crée la map
     Map *map = create_map("map.txt", tile_width, tile_height);
     int nb_map = 1;
 
@@ -83,8 +86,6 @@ int main(void) {
     long long last_time = 0;
     long long last_time_fps = 0;
     long long last_time_sec = 0;
-    // Initialise la variable qui contient les contrôles
-    Controls *controls = init_controls();
     //  Initialise le tutoriel
     int tutorial_step = 0;
     SDL_Keycode key_for_tuto[]={
@@ -104,10 +105,10 @@ int main(void) {
     };
     char *text_for_tuto[50]={
             "",
-            "appuyez sur q et d pour vous déplacer",
-            "appuyez sur q et d pour vous déplacer",
+            "appuyez sur q et d pour vous deplacer",
+            "appuyez sur q et d pour vous deplacer",
             "appuyez sur espace pour sauter",
-            "appuyez sur s pour vpous baisser",
+            "appuyez sur s pour vous baisser",
             "maintenant, sautez contre un mur",
             "",
             "appuyez sur 5 puis 8 pour activer le dash",
@@ -969,7 +970,6 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
     SDL_Rect dst_indication_key = {character->x - camera->x, character->y - camera->y-50,100, 25};
-    SDL_Rect dst_indication_text = {camera->width * 100 /2,camera->height * 100 /3,100, 25};
     if (character->dash->cooldown > 0) {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 0, 0);
@@ -1091,17 +1091,20 @@ void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int
         mouse->y >= dst_bouton_start.y && mouse->y < dst_bouton_start.y + dst_bouton_start.h) {
         mouse->on_boutton = SDL_TRUE;
         mouse->num_boutton = 0;
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128); // Blanc semi-transparent
-        SDL_Rect highlightRect = dst_bouton_start; // Créer un rectangle de highlight sur le bouton "Start"
-        SDL_RenderFillRect(renderer, &highlightRect); // Dessiner le rectangle de highlight
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        // Dessiner un rectangle blanc légèrement transparent sur le bouton "Tutorial" si la souris est dessus
+        SDL_SetRenderDrawColor(renderer, 150, 150, 150, 100); // Blanc semi-transparent
+        SDL_Rect highlightRect = dst_bouton_start; // Créer un rectangle de highlight sur le bouton "Tutorial"
+        SDL_RenderFillRect(renderer, &highlightRect);
     } else if (mouse->x >= dst_bouton_tutorial.x && mouse->x < dst_bouton_tutorial.x + dst_bouton_tutorial.w &&
                mouse->y >= dst_bouton_tutorial.y && mouse->y < dst_bouton_tutorial.y + dst_bouton_tutorial.h) {
         mouse->on_boutton = SDL_TRUE;
         mouse->num_boutton = 1;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         // Dessiner un rectangle blanc légèrement transparent sur le bouton "Tutorial" si la souris est dessus
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128); // Blanc semi-transparent
+        SDL_SetRenderDrawColor(renderer, 150, 150, 150, 100); // Blanc semi-transparent
         SDL_Rect highlightRect = dst_bouton_tutorial; // Créer un rectangle de highlight sur le bouton "Tutorial"
-        SDL_RenderFillRect(renderer, &highlightRect); // Dessiner le rectangle de highlight
+        SDL_RenderFillRect(renderer, &highlightRect);
     } else {
         mouse->on_boutton = SDL_FALSE;
     }
