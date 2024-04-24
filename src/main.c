@@ -101,6 +101,8 @@ int main(void) {
             SDLK_LSHIFT,
             SDLK_F14,
             SDLK_F14,
+            SDLK_F14,
+            SDLK_F14,
             SDLK_e,
             SDLK_F15
     };
@@ -115,6 +117,8 @@ int main(void) {
             "appuyez sur 5 puis 8 pour activer le dash",
             "appuyez sur shift pour faire un dash",
             "vous pouvez dash en sautant pour passer ce mur",
+            "appuyez sur s en l'air pour slide",
+            "apres un slide, vous pouvez sauter plus haut",
             "allez sur la porte",
             "appuyez sur e",
             "",
@@ -150,8 +154,10 @@ int main(void) {
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
 (tutorial_step == 6 && character->x > 4000) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
-(tutorial_step == 9 && character->x > 7900) ||                                                                           \
-(tutorial_step == 10 && character->on_portal == SDL_TRUE))
+(tutorial_step == 9 && character->x > 7900) ||                                                                             \
+(tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
+(tutorial_step == 11 && character->x > 9800) || \
+(tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
     int game_playing=0;
@@ -466,6 +472,8 @@ int main(void) {
                                 case SDLK_TAB:
                                     switchLayout(controls);
                                     break;
+                                case SDLK_l:
+                                    printf("x : %d, y: %d\n", character->x, character->y);
                             }
                         }
                         break;
@@ -706,6 +714,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "wall_cooldown.png",
         "walk_crouch_cooldown.png",
         "crouch_cooldown.png",
+        "slide_cooldown.png",
         "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(imageNames[i], "END"); i++) {
@@ -1127,9 +1136,10 @@ void draw_time(SDL_Renderer *renderer, Character *character, Camera *camera, Tex
         SDL_Rect dst = {camera->width *100 - numWidth * 2, 0, 100, 100};
         dst.w = numWidth * 2;
         dst.h = numHeight * 2;
-        SDL_RenderCopy(renderer, texture->timer[d2], NULL, &dst);
-        dst.x -= numWidth * 2;
         SDL_RenderCopy(renderer, texture->timer[d1], NULL, &dst);
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[d2], NULL, &dst);
+        dst.x -= comaWidth * 2;
         dst.x -= comaWidth * 2;
         dst.w = comaWidth *2;
         SDL_RenderCopy(renderer, texture->timer[10], NULL, &dst);
