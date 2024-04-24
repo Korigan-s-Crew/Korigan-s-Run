@@ -11,7 +11,7 @@
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 60
-#define MAX_TILES 200
+#define MAX_TILES 100
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
 
@@ -48,6 +48,7 @@ struct Character {
     SDL_Texture *images[100];
     SDL_Keycode key_suggestion;
     SDL_Texture *text_suggestion;
+    double timer;
 };
 typedef struct Mouse Mouse;
 struct Mouse {
@@ -65,6 +66,7 @@ struct Camera {
     int fps;
     int avg_fps;
     SDL_bool show_fps;
+    SDL_bool show_timer;
     int pattern_generated_history[100];
 
 };
@@ -82,6 +84,7 @@ struct Texture {
     SDL_Texture *main_character[100];
     SDL_Texture *key_suggestion[100];
     SDL_Texture *bouttons[100];
+    SDL_Texture *timer[11];
     TTF_Font *font;
 };
 typedef struct Texture Texture;

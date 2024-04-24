@@ -71,9 +71,10 @@ int main(void) {
     mouse->y = mouseY;
     mouse->on_boutton = SDL_FALSE;
     mouse->num_boutton=0;
-    print_character(character);
+    // DEBUG Character
+    //print_character(character);
     // DEBUG MAP
-    print_map(map);
+    //print_map(map);
     // Initialise la seed pour le random
     srand(time(NULL));  // srand(8675612346585);
     // Chargement des textures
@@ -146,7 +147,7 @@ int main(void) {
     }
 
 #define next_step_tuto() ( \
-(tutorial_step==5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
+(tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
 (tutorial_step == 6 && character->x > 4000) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
 (tutorial_step == 9 && character->x > 7900) ||                                                                           \
@@ -154,6 +155,8 @@ int main(void) {
     // Boucle principale
     int running = 1;
     int game_playing=0;
+    double timer_start;
+
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
     while (running==1){
         if (game_playing == 0) {
@@ -211,6 +214,7 @@ int main(void) {
                             character->original_height = tile_height * 1.5;
                             // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                             collision(character, map);
+
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                             draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
@@ -230,6 +234,7 @@ int main(void) {
                                 character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                 map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                camera.show_timer = SDL_FALSE;
                                 break;
                             case SDLK_e:
                                 game_playing = 1;
@@ -237,7 +242,9 @@ int main(void) {
                                 tutorial_step = 0;
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
+                                camera.show_timer = SDL_TRUE;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
 
                         }
@@ -250,7 +257,9 @@ int main(void) {
                                 tutorial_step=0;
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
+                                camera.show_timer = SDL_TRUE;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
                                 game_playing = 1;
@@ -259,6 +268,7 @@ int main(void) {
                                 character->key_suggestion=key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                 map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                camera.show_timer = SDL_FALSE;
                                 break;
                             }
                         }
@@ -374,6 +384,7 @@ int main(void) {
                             character->original_height = tile_height * 1.5;
                             // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                             collision(character, map);
+                            character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                         }
@@ -521,6 +532,7 @@ int main(void) {
             // C'est la condition qui donne le FPS
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
+                character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
                 draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                 camera.fps++;
             }
@@ -572,7 +584,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         struct dirent *entry;
         dir = opendir(dir_path);
         if (!dir) {
-            printf("empty");
+            printf("empty dir on %s\n", dir_path);
             return Rdmtexture;
         }
         int i = 0;
@@ -603,6 +615,10 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->key_suggestion[i] = NULL;
         texture->bouttons[i] = NULL;
     }
+    for (int i = 0; i < 11; i++) {
+        texture->timer[i] = NULL;
+    }
+
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
             "Textures/Terrain/nuage",
@@ -722,9 +738,30 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->bouttons[i] = loadImage(imagePath, renderer);
     }
     // Crée une police de caractère avec le fichier arial.ttf de taille 28
-    texture->font = TTF_OpenFont("Fonts/arcade.ttf", 28);
+    texture->font = TTF_OpenFont("Fonts/Pixel_Sans_Serif.ttf", 28);
     if (texture->font == NULL)
         fprintf(stderr, "Erreur TTF_OpenFont : %s", TTF_GetError());
+    //chargement des nombres pour le timer
+    for (int i = 0; i < 10; i++) {
+        char num[2];
+        num[0] = i + '0'; // Convertir le chiffre en caractère
+        num[1] = '\0'; // Terminer la chaîne de caractères avec le caractère nul
+
+        TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+        SDL_Color color = {192, 190, 193, 255};
+
+        // Créer la surface à partir du texte
+        SDL_Surface *surface = TTF_RenderText_Solid(texture->font, num, color);
+        SDL_Texture *num_texture = SDL_CreateTextureFromSurface(renderer, surface);
+        texture->timer[i] = num_texture;
+        SDL_FreeSurface(surface);
+        }
+    TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+    SDL_Color color = {192, 190, 193, 255};
+    SDL_Surface *surface = TTF_RenderText_Solid(texture->font, ".", color);
+    SDL_Texture *num_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    texture->timer[10] = num_texture;
+    SDL_FreeSurface(surface);
     return texture;
 }
 
@@ -756,6 +793,9 @@ void free_texture(Texture *texture) {
         if (NULL != texture->bouttons[i]) {
             SDL_DestroyTexture(texture->bouttons[i]);
         }
+        for (int i = 0; i < 11; i++) {
+            SDL_DestroyTexture(texture->timer[i]);
+        }
     }
     // Libère la mémoire allouée pour la police de caractère
     TTF_CloseFont(texture->font);
@@ -768,7 +808,7 @@ SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer) {
     // Charge l'image dans une surface temporaire
     tmp = IMG_Load(path);
     if (NULL == tmp) {
-        fprintf(stderr, "Erreur IMG_Load : %s", SDL_GetError());
+        fprintf(stderr, "Erreur IMG_Load : %s\n", SDL_GetError());
         return NULL;
     }
     // Crée une texture à partir de la surface temporaire
@@ -878,6 +918,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->slide = init_slide();
     character->key_suggestion=SDLK_F15;
     character->text_suggestion = NULL;
+    character->timer = 543.21;
     return character;
 }
 
@@ -1044,6 +1085,63 @@ void draw_indication(SDL_Renderer *renderer, Character *character, Texture *text
 
 }
 
+void draw_time(SDL_Renderer *renderer, Character *character, Camera *camera, Texture *texture) {
+    if (camera->show_timer == SDL_TRUE) {
+        int m1, m2, s1, s2, d1, d2;
+        if (character->timer >= 999.99) {
+            m1 = 9;
+            m2 = 9;
+            s1 = 9;
+            s2 = 9;
+            d1 = 9;
+            d2 = 9;
+        } else if (character->timer == 0.) {
+            m1 = 0;
+            m2 = 0;
+            s1 = 0;
+            s2 = 0;
+            d1 = 0;
+            d2 = 0;
+        } else {
+            int secondes = (int) character->timer;
+            int minutes = secondes / 60;
+            secondes = secondes % 60;
+            m1 = minutes %10;
+            m2 = (minutes / 10) % 10;
+            s1 = (secondes) % 10;
+            s2 = (secondes / 10) % 10;
+            d1 = ((int)(character->timer * 100)) % 10;
+            d2 = ((int)(character->timer * 100)) / 10 % 10;
+        }
+        int numWidth, numHeight;
+        int comaWidth, comaHeight;
+        SDL_QueryTexture(texture->timer[8], NULL, NULL, &numWidth, &numHeight);
+        SDL_QueryTexture(texture->timer[10], NULL, NULL, &comaWidth, &comaHeight);
+        SDL_Rect dst = {camera->width *100 - numWidth * 2, 0, 100, 100};
+        dst.w = numWidth * 2;
+        dst.h = numHeight * 2;
+        SDL_RenderCopy(renderer, texture->timer[d2], NULL, &dst);
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[d1], NULL, &dst);
+        dst.x -= comaWidth * 2;
+        dst.w = comaWidth *2;
+        SDL_RenderCopy(renderer, texture->timer[10], NULL, &dst);
+        dst.w = numWidth * 2;
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[s1], NULL, &dst);
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[s2], NULL, &dst);
+        dst.x -= comaWidth * 2;
+        dst.w = comaWidth *2;
+        SDL_RenderCopy(renderer, texture->timer[10], NULL, &dst);
+        dst.w = numWidth * 2;
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[m1], NULL, &dst);
+        dst.x -= numWidth * 2;
+        SDL_RenderCopy(renderer, texture->timer[m2], NULL, &dst);
+    }
+}
+
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
     if (camera->show_fps == SDL_TRUE) {
         // Affiche le nombre d'images par seconde dans la fenêtre
@@ -1075,6 +1173,7 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
     draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera, texture);
+    draw_time(renderer, character, camera, texture);
     SDL_RenderPresent(renderer);
 }
 
@@ -1122,6 +1221,7 @@ void create_camera(Camera *camera, int x, int y, int width, int height) {
     camera->avg_fps = 0;
     // Utilisation de show_camera comme un debug mode comme sur minecraft pour les trucs que t'as besoin de print tous les tours de boucle
     camera->show_fps = SDL_FALSE;
+    camera->show_timer = SDL_TRUE;
     camera->pattern_generated_history[0] = -1;
     for (int i = 1; i < 100; i++) {
         camera->pattern_generated_history[i] = -1;
