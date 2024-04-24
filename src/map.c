@@ -168,7 +168,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                         map->tiles[j][i].type += 10;//nuage double
                         map->tiles[j][i + 1].type += 40;
                     } else {
-                        printf("%d", rand());
+                        //printf("%d", rand());
                         if (rand() % 2 == 0) {
                             map->tiles[j][i].type += 10;
                         } else {
@@ -435,10 +435,10 @@ SDL_bool expand_down(Character *character, Map *map, int width, int height) {
     int tile_width = map->tile_width;
     int tile_height = map->tile_height;
 
-    printf("y: %d, height + y: %d, character->height + y : %d, tile_height : %d\n", y, height + y,character->height + y,map->tile_height);
+    //printf("y: %d, height + y: %d, character->height + y : %d, tile_height : %d\n", y, height + y,character->height + y,map->tile_height);
     int cur_true_feet = (y + character->height-1) / tile_height;
     int next_true_feet = check_out_of_bounds((y + height-1) / tile_height, map->height - 1);
-    printf("cur_true_feet: %d, next_true_feet: %d\n", cur_true_feet, next_true_feet);
+    //printf("cur_true_feet: %d, next_true_feet: %d\n", cur_true_feet, next_true_feet);
     if (next_true_feet <= cur_true_feet) {
         return SDL_TRUE;
     }
@@ -483,7 +483,7 @@ SDL_bool expand_down(Character *character, Map *map, int width, int height) {
     }else {
         wall_right_feet = SDL_TRUE;
     }
-    printf("wall_left_feet: %d bloc: %d,wall_center_feet: %d bloc: %d, wall_right_feet: %d bloc: %d\n", wall_left_feet, map->tiles[next_true_feet][true_left].type, wall_center_feet, map->tiles[next_true_feet][center].type, wall_right_feet, map->tiles[next_true_feet][true_right].type);
+    //printf("wall_left_feet: %d bloc: %d,wall_center_feet: %d bloc: %d, wall_right_feet: %d bloc: %d\n", wall_left_feet, map->tiles[next_true_feet][true_left].type, wall_center_feet, map->tiles[next_true_feet][center].type, wall_right_feet, map->tiles[next_true_feet][true_right].type);
     return wall_left_feet && wall_center_feet && wall_right_feet;
 }
 
@@ -675,7 +675,6 @@ void collision(Character *character, Map *map) {
         wall_right_head == SDL_FALSE && wall_right_feet == SDL_FALSE) {
         // just to avoid warning
     }
-
     // Si le centre du personnage rentre dans le mur de droite alors on annule sa vitesse horizontale
     if (map->tiles[body][right].collision.left) {
         if (map->tiles[body][right].collision.traversableLeft) {
@@ -686,7 +685,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
-                if (map->tiles[body][right].collision.WallJumpable){
+                if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_right = SDL_TRUE;
                 }
             }
@@ -695,7 +694,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
-            if (map->tiles[body][right].collision.WallJumpable){
+            if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_right = SDL_TRUE;
             }
         }
@@ -712,7 +711,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
-                if (map->tiles[body][right].collision.WallJumpable){
+                if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_right = SDL_TRUE;
                 }
             }
@@ -721,7 +720,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
-            if (map->tiles[body][right].collision.WallJumpable){
+            if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_right = SDL_TRUE;
             }
         }
@@ -738,7 +737,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_right = SDL_TRUE;
-                if (map->tiles[body][right].collision.WallJumpable){
+                if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_right = SDL_TRUE;
                 }
             }
@@ -747,7 +746,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_right = SDL_TRUE;
-            if (map->tiles[body][right].collision.WallJumpable){
+            if (map->tiles[body][right].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_right = SDL_TRUE;
             }
         }
@@ -781,7 +780,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
-                if (map->tiles[body][left].collision.WallJumpable){
+                if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_left = SDL_TRUE;
                 }
             }
@@ -790,7 +789,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
-            if (map->tiles[body][left].collision.WallJumpable){
+            if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_left = SDL_TRUE;
             }
         }
@@ -807,7 +806,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
-                if (map->tiles[body][left].collision.WallJumpable){
+                if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_left = SDL_TRUE;
                 }
             }
@@ -816,7 +815,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
-            if (map->tiles[body][left].collision.WallJumpable){
+            if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_left = SDL_TRUE;
             }
         }
@@ -833,7 +832,7 @@ void collision(Character *character, Map *map) {
                     character->dx = 0;
                 }
                 character->wall_left = SDL_TRUE;
-                if (map->tiles[body][left].collision.WallJumpable){
+                if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                     character->wall_jump_left = SDL_TRUE;
                 }
             }
@@ -842,7 +841,7 @@ void collision(Character *character, Map *map) {
                 character->dx = 0;
             }
             character->wall_left = SDL_TRUE;
-            if (map->tiles[body][left].collision.WallJumpable){
+            if (map->tiles[body][left].collision.WallJumpable && character->on_ground == SDL_FALSE){
                 character->wall_jump_left = SDL_TRUE;
             }
         }
@@ -917,7 +916,6 @@ void collision(Character *character, Map *map) {
     // Le personnage peut sortir par le haut de la map car la gravité va le ramener vers le bas
 
     if (map->tiles[feet][left].type / 10 == -5) {
-        printf("iciiiiiiii/\n");
         character->on_portal = SDL_TRUE;
         character->key_suggestion = SDLK_e;
     } else if (map->tiles[head][left].type / 10 == -5) {
