@@ -697,6 +697,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "wall.png",
         "walk_crouch.png",
         "crouch.png",
+        "slide.png",
         "character_cooldown.png",
         "character_run_cooldown.png",
         "jump_cooldown.png",
@@ -942,7 +943,13 @@ char *addcat(char *result, char *path, char *name) {
 
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst,
                            int offset) {
-    if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
+    if (character->slide->duration > 0){
+        if (character->slide->go_right) {
+            SDL_RenderCopy(renderer, texture->main_character[8 + offset], NULL, &dst);
+        } else {
+            SDL_RenderCopyEx(renderer, texture->main_character[8 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+        }
+    } else if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
         if (character->crouch == SDL_FALSE){
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
         } else {
@@ -1017,7 +1024,7 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 0, 0);
         //     SDL_SetTextureAlphaMod(texture->main_character[i], 255);
         // }
-        draw_character_offset(renderer, character, texture, camera, dst, 8);
+        draw_character_offset(renderer, character, texture, camera, dst, 9);
         draw_indication(renderer, character, texture, camera, dst_indication_key);
     } else {
         // for (int i = 0; i < 5; i++) {
