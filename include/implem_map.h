@@ -23,7 +23,7 @@ struct Graphe* create_graph();
 
 void free_graph(struct Graphe* graphe);
 
-FILE* concat_Files(char* file1, char* file2);
+void concat_Files(char* file1, char* file2);
 
 char* parcours_graphe(struct Graphe* graphe);
 
