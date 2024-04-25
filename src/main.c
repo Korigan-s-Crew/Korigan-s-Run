@@ -625,6 +625,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     for (int i = 0; i < 11; i++) {
         texture->timer[i] = NULL;
+        texture->background[i] = NULL;
     }
 
     // Liste des noms des images de la map (collisables) avec "END" A la fin
@@ -747,6 +748,23 @@ Texture *create_texture(SDL_Renderer *renderer) {
         addcat(imagePath, "Textures/bouttons", bouttons_images[i]);
         texture->bouttons[i] = loadImage(imagePath, renderer);
     }
+
+    char *background_images[] = {
+            "blured_foreground.png",
+            "blured_midground.png",
+            "background.png",
+            "END"};
+    // Chargement des textures de bouttons
+    for (int i = 0; strcmp(background_images[i], "END"); i++) {
+        char imagePath[100];
+        printf("i : %d\n", i);
+        addcat(imagePath, "Textures/fond", background_images[i]);
+        texture->background[i] = loadImage(imagePath, renderer);
+        texture->background_x[i]=0;
+        texture->background_x[i]=0;
+    }
+
+
     // Crée une police de caractère avec le fichier arial.ttf de taille 28
     texture->font = TTF_OpenFont("Fonts/Pixel_Sans_Serif.ttf", 28);
     if (texture->font == NULL)
@@ -1186,6 +1204,7 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
           Character *character, Camera *camera) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
+    draw_background(renderer, texture, camera, map);
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
     draw_character(renderer, character, texture, camera);
@@ -1194,6 +1213,25 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
     SDL_RenderPresent(renderer);
 }
 
+void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map ){
+    int tile_width = SCREEN_WIDTH / camera->width;
+    int tile_height = SCREEN_HEIGHT / camera->height;
+    int max_size=map->width * tile_width - (camera->width * tile_width);
+    int width=1024*2;
+    int height= 512 *2;
+    int total_width_midground=0;
+    int total_width_foreground=0;
+    while (total_width_midground <= max_size/3 + width){
+        SDL_Rect dst = {-camera->x /3 + total_width_midground, (camera->height +1)*100-1024, width, height};
+        SDL_RenderCopy(renderer, texture->background[1], NULL, &dst);
+        total_width_midground += width;
+    }
+    while (total_width_foreground <= max_size/2 + width){
+        SDL_Rect dst = {-camera->x /2 + total_width_foreground, (camera->height +1)*100-1024, width, height};
+        SDL_RenderCopy(renderer, texture->background[0], NULL, &dst);
+        total_width_foreground += width;
+    }
+}
 
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage

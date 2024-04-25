@@ -78,6 +78,12 @@ struct RdmTexture {
 };
 typedef struct RdmTexture RdmTexture;
 
+struct Paralax {
+    SDL_Texture *image;
+    int x;
+};
+typedef struct Paralax Paralax;
+
 struct Texture {
     RdmTexture *collision[100];
     RdmTexture *transparent[100];
@@ -85,6 +91,8 @@ struct Texture {
     SDL_Texture *key_suggestion[100];
     SDL_Texture *bouttons[100];
     SDL_Texture *timer[11];
+    SDL_Texture *background[11];
+    int background_x[11];
     TTF_Font *font;
 };
 typedef struct Texture Texture;
@@ -106,6 +114,7 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
 void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
+void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map);
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
