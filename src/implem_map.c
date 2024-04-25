@@ -3,6 +3,7 @@
 #include "../include/implem_map.h"
 
 void normalize_line(char ligne[20]){
+    // normalise une ligne en remplaçant le '\n' par '\0'
     for(int i=0;i<20;i++){
         if(ligne[i]=='\n'){
             ligne[i]='\0';
@@ -58,10 +59,10 @@ void concat_Files(char* file1, char* file2){
         printf("Error opening file\n");
         exit(1);
     }
-    char ligne1[20];
-    char ligne2[20];
-    while(fgets(ligne1,19,f1) != NULL){
-        fgets(ligne2,19,f2);
+    char ligne1[21];
+    char ligne2[21];
+    while(fgets(ligne1,20,f1) != NULL){
+        fgets(ligne2,20,f2);
         normalize_line(ligne1);
         fprintf(f3,"%s%s",ligne1,ligne2);
     }
