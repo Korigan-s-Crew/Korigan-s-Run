@@ -77,19 +77,6 @@ void concat_Files(char* file1, char* file2){
     fclose(f3);
 }
 
-// char* parcours_graphe(struct Graphe* graphe){
-//     // parcours du graphe pour obtenir les patterns dans l'ordre
-//     char* parcours = (char*)malloc(T*sizeof(char));
-//     for (int i = 0; i < T+1; i++){
-//         struct Noeuds* noeud = graphe->noeud[i];
-//         while (noeud != NULL){
-//             sprintf(parcours, "%d %d %d\n", i, noeud->destination, noeud->poids);
-//             noeud = noeud->suivant; // Correction: mise à jour de noeud->suivant au lieu de noeud->destination
-//         }
-//     }
-//     return parcours;
-// }
-
 char* parcours_graphe(struct Graphe* graphe, int debut) {
     int noeud_actuel = debut;
     char* parcours = (char*)malloc(T*sizeof(char));
@@ -122,8 +109,48 @@ FILE* create_map_txt(char* parcours){
     FILE* f10 = fopen("../Patterns/pattern10.txt","r");
     FILE* f = fopen("../test.txt", "w");
 
-    if (f1 == NULL || f2 == NULL || f3 == NULL || f4 == NULL || f5 == NULL || f6 == NULL || f7 == NULL || f8 == NULL || f9 == NULL || f10 == NULL || f == NULL){
-        printf("Error opening file\n");
+    if (f1 == NULL){
+        printf("file 1\n");
+        exit(1);
+    }
+    if (f2 == NULL){
+        printf("file 2\n");
+        exit(1);
+    }
+    if (f3 == NULL){
+        printf("file 3\n");
+        exit(1);
+    }
+    if (f4 == NULL){
+        printf("file 4\n");
+        exit(1);
+    }
+    if (f5 == NULL){
+        printf("file 5\n");
+        exit(1);
+    }
+    if (f6 == NULL){
+        printf("file 6\n");
+        exit(1);
+    }
+    if (f7 == NULL){
+        printf("file 7\n");
+        exit(1);
+    }
+    if (f8 == NULL){
+        printf("file 8\n");
+        exit(1);
+    }
+    if (f9 == NULL){
+        printf("file 9\n");
+        exit(1);
+    }
+    if (f10 == NULL){
+        printf("file 10\n");
+        exit(1);
+    }
+    if (f == NULL){
+        printf(" file\n");
         exit(1);
     }
 
@@ -162,17 +189,22 @@ FILE* create_map_txt(char* parcours){
     return f;
 }
 
+int random_number(int min, int max){
+    // génère un nombre aléatoire entre min et max
+    srand(time(NULL));
+    return rand() % (max - min + 1) + min;
+}
+
 int main(){
     struct Graphe* graphe = create_graph();
-    int debut = rand()%10;
+    int debut = random_number(1,10);
+    printf("Début : %d\n", debut);
     printf("Graphe créé\n");
     char* parcours = parcours_graphe(graphe,debut);
-    //affiche_parcours(graphe, debut);
     printf("%s\n", parcours);
-    //FILE* f = create_map_txt(parcours);
+    FILE* f = create_map_txt(parcours);
     free_graph(graphe);
     free(parcours);
-    //fclose(f);
-    //concat_Files("../Patterns/pattern1.txt", "../Patterns/pattern2.txt");
+    fclose(f);
     return 0;
 }

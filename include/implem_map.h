@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #define N 10 //nbre de sommets du graphe
 #define T 5 //nbre de patterns dans la map
 
@@ -29,3 +30,5 @@ void concat_Files(char* file1, char* file2);
 char* parcours_graphe(struct Graphe* graphe, int debut);
 
 FILE* create_map_txt(char* parcours);
+
+int random_number(int min, int max);
