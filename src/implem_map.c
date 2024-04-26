@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "../include/implem_map.h"
 
 void normalize_line(char ligne[20]){
@@ -16,8 +14,16 @@ struct Graphe* create_graph(){
     // construit un graphe dont les sommets sont les patterns 
     // ce graphe est orienté et pondéré de manière à créer des maps différentes
     struct Arete aretes[] = {
-        // à modifier suivant les patterns qu'on aura créé
-        {0, 1, 6}, {0, 2, 3}, {1, 2, 2}, {1, 3, 5}, {2, 3, 3}
+        {1, 2, 1}, {1, 9, 1}, //sommet 1
+        {2, 4, 2}, {2, 10, 1}, //sommet 2
+        {3, 5, 1}, {3, 8, 2}, //sommet 3 
+        {4, 3, 2}, {4, 8, 1}, //sommet 4
+        {5, 6, 2}, {5, 1, 1}, //sommet 5
+        {6, 2, 3}, {6, 9, 3}, //sommet 6
+        {7, 6, 2}, {7, 3, 1}, //sommet 7 
+        {8, 1, 2}, {8, 10, 1}, //sommet 8
+        {9, 7, 1}, {9, 5, 1}, //sommet 9 
+        {10, 4, 1}, {10, 7, 4} //sommet 10
     };
     int n = sizeof(aretes)/sizeof(aretes[0]);
     struct Graphe* graphe = (struct Graphe*)malloc(sizeof(struct Graphe));
@@ -71,18 +77,35 @@ void concat_Files(char* file1, char* file2){
     fclose(f3);
 }
 
-char* parcours_graphe(struct Graphe* graphe){
-    // parcours du graphe pour obtenir les patterns dans l'ordre
+// char* parcours_graphe(struct Graphe* graphe){
+//     // parcours du graphe pour obtenir les patterns dans l'ordre
+//     char* parcours = (char*)malloc(T*sizeof(char));
+//     for (int i = 0; i < T+1; i++){
+//         struct Noeuds* noeud = graphe->noeud[i];
+//         while (noeud != NULL){
+//             sprintf(parcours, "%d %d %d\n", i, noeud->destination, noeud->poids);
+//             noeud = noeud->suivant; // Correction: mise à jour de noeud->suivant au lieu de noeud->destination
+//         }
+//     }
+//     return parcours;
+// }
+
+char* parcours_graphe(struct Graphe* graphe, int debut) {
+    int noeud_actuel = debut;
     char* parcours = (char*)malloc(T*sizeof(char));
-    for (int i = 0; i < T; i++){
-        struct Noeuds* noeud = graphe->noeud[i];
-        while (noeud != NULL){
-            sprintf(parcours, "%d %d %d\n", i, noeud->destination, noeud->poids);
-            noeud = noeud->suivant;
+    char temp[10];
+
+    for (int i = 0; i < 5; i++) {
+        struct Noeuds* noeud = graphe->noeud[noeud_actuel];
+        if (noeud != NULL) {
+            sprintf(temp, "%d", noeud_actuel);
+            strcat(parcours, temp);
+            noeud_actuel = noeud->destination;
+        } else {
+            break;
         }
     }
     return parcours;
-
 }
 
 FILE* create_map_txt(char* parcours){
@@ -141,13 +164,15 @@ FILE* create_map_txt(char* parcours){
 
 int main(){
     struct Graphe* graphe = create_graph();
+    int debut = rand()%10;
     printf("Graphe créé\n");
-    char* parcours = parcours_graphe(graphe);
+    char* parcours = parcours_graphe(graphe,debut);
+    //affiche_parcours(graphe, debut);
     printf("%s\n", parcours);
-    FILE* f = create_map_txt(parcours);
+    //FILE* f = create_map_txt(parcours);
     free_graph(graphe);
     free(parcours);
-    fclose(f);
+    //fclose(f);
     //concat_Files("../Patterns/pattern1.txt", "../Patterns/pattern2.txt");
     return 0;
 }
