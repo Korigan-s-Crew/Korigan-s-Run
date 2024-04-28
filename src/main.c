@@ -1241,6 +1241,10 @@ void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, M
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
+    SDL_Rect dst_n1 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[1], NULL, &dst_n1);
+    SDL_Rect dst_n2 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[0], NULL, &dst_n2);
     SDL_Rect dst_bouton_start = {(camera->width * 100 / 2) - 500, camera->height * 100 / 5, 1000, 250};
     SDL_Rect dst_bouton_tutorial = {(camera->width * 100 / 2) - 500, camera->height * 200 / 3, 1000, 250};
     SDL_RenderCopy(renderer, texture->bouttons[0], NULL, &dst_bouton_start);
