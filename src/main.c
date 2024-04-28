@@ -1002,8 +1002,10 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
             draw_character_animationEx(renderer, character, texture, &dst, camera, 6 + offset, SDL_FLIP_HORIZONTAL, character->speed,3);
         }
     } else if (character->wall_jump_right == SDL_TRUE){
+        dst.x +=5;
         SDL_RenderCopy(renderer, texture->main_character[5 + offset], NULL, &dst);
     } else if (character->wall_jump_left == SDL_TRUE){
+        dst.x -=5;
         SDL_RenderCopyEx(renderer, texture->main_character[5 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
     } else if (character->right == SDL_TRUE && character->dx != 0) {
         if (character->dy > 0 && character->on_ground == SDL_FALSE) {
