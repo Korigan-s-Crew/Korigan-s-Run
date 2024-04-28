@@ -74,14 +74,14 @@ int main(void) {
     // DEBUG Character
     //print_character(character);
     // DEBUG MAP
-    //print_map(map);
+    print_map(map);
     // Initialise la seed pour le random
     srand(time(NULL));  // srand(8675612346585);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     // Affiche la première image
     //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-    draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+    draw_homepage(renderer, bleu, texture, &camera, mouse);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
@@ -223,7 +223,7 @@ int main(void) {
 
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                            draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+                            draw_homepage(renderer, bleu, texture, &camera, mouse);
                         }
                         break;
                         // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
@@ -320,7 +320,7 @@ int main(void) {
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
                 //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+                draw_homepage(renderer, bleu, texture, &camera, mouse);
                 camera.fps++;
             }
         }
@@ -651,6 +651,14 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/ss1_droite_p.png",
             "Textures/Terrain/ss2_droite_p.png",
             "Textures/Terrain/ss3_droite_p.png",   // 200-209
+            "Textures/Terrain/sol_gauche_p2.png",
+            "Textures/Terrain/ss1_gauche_p.png",
+            "Textures/Terrain/ss2_gauche_p.png",
+            "Textures/Terrain/ss3_gauche_p.png",
+            "Textures/Terrain/sol_droite_p2.png",
+            "Textures/Terrain/ss1_droite_p.png",
+            "Textures/Terrain/ss2_droite_p.png",
+            "Textures/Terrain/ss3_droite_p.png",
             "Textures/Terrain/nuage_bas",// 210-219
             "Textures/Terrain/nuage_g.png",
             "Textures/Terrain/nuage_ge.png",
@@ -760,8 +768,6 @@ Texture *create_texture(SDL_Renderer *renderer) {
         printf("i : %d\n", i);
         addcat(imagePath, "Textures/fond", background_images[i]);
         texture->background[i] = loadImage(imagePath, renderer);
-        texture->background_x[i]=0;
-        texture->background_x[i]=0;
     }
 
 
@@ -1215,7 +1221,6 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
 
 void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map ){
     int tile_width = SCREEN_WIDTH / camera->width;
-    int tile_height = SCREEN_HEIGHT / camera->height;
     int max_size=map->width * tile_width - (camera->width * tile_width);
     int width=1024*2;
     int height= 512 *2;
@@ -1233,7 +1238,7 @@ void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, M
     }
 }
 
-void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse) {
+void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
     SDL_Rect dst_bouton_start = {(camera->width * 100 / 2) - 500, camera->height * 100 / 5, 1000, 250};
