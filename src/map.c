@@ -146,13 +146,21 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                     } else {
                         map->tiles[j - 1][i].type = -20-(map->tiles[j][i].type)%10;//Herbe
                     }
-                } else if (map->tiles[j - 1][i - 1].type < 10 && map->tiles[j - 1][i].type >= 10 &&  map->tiles[j - 1][i].type < 290) {//coin interieur gauche
+                } else if (map->tiles[j - 1][i - 1].type < 10 &&
+                            map->tiles[j - 1][i].type >= 10 &&
+                            map->tiles[j - 1][i].type < 290 &&
+                            map->tiles[j][i - 1].type >= 10 &&
+                            map->tiles[j][i - 1].type < 290 ) {//coin interieur gauche
                     if (j > 1 && (map->tiles[j - 2][i].type < 10 || map->tiles[j - 2][i].type >= 290)) {
                         map->tiles[j][i].type += 160;
                     } else {
                         map->tiles[j][i].type += 240;
                     }
-                } else if ( i < map->width && (map->tiles[j - 1][i + 1].type < 10 || map->tiles[j - 1][i + 1].type >= 290) && map->tiles[j - 1][i].type >= 10 &&  map->tiles[j - 1][i].type < 290){// coin interieur droit
+                } else if ( i < map->width && (map->tiles[j - 1][i + 1].type < 10 || map->tiles[j - 1][i + 1].type >= 290) &&
+                            map->tiles[j - 1][i].type >= 10 &&
+                            map->tiles[j - 1][i].type < 290 &&
+                            map->tiles[j][i + 1].type >= 10 &&
+                            map->tiles[j][i + 1].type < 290 ){// coin interieur droit
                     if (j > 1 && (map->tiles[j - 2][i].type < 10 || map->tiles[j - 2][i].type >= 290)) {
                         map->tiles[j][i].type += 120;
                     } else {
