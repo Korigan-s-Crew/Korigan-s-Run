@@ -9,6 +9,7 @@
 #define L 14 //nbre de lignes dans un pattern
 #define C 20 //nbre de colonnes dans un pattern
 
+// Structures
 struct Graphe {
     struct Noeuds* noeud[N];
 }; 
@@ -25,30 +26,16 @@ struct Arete{
     int poids;
 }; 
 
-// struct _Matrice{
-//     char matrice[L][C];
-// };
-
-// typedef struct _Matrice Matrice;
-
-// struct _MapTrice{
-//     char matrice[L][MAX_LENGTH];
-// };
-
-typedef struct _MapTrice MapTrice;
-
-// Structure pour représenter une matrice
 typedef struct {
     int **data;  // Tableau 2D de données
     int rows;    // Nombre de lignes
     int cols;    // Nombre de colonnes
 } Matrice;
 
+// Fonctions
 struct Graphe* create_graph();
 
 void free_graph(struct Graphe* graphe);
-
-//void concat_Files(char* file1, char* file2);
 
 char* parcours_graphe(struct Graphe* graphe);
 
@@ -56,8 +43,16 @@ void create_map_txt(char* parcours);
 
 int random_number(int min, int max);
 
-Matrice recup_matrice(char* pattern);
+Matrice recup_matrice(char* file);
 
-void print_matrice(Matrice matrice);
+void normalize_line(char* line[20]);
 
-MapTrice matrice_bloc(Matrice M1, Matrice M2); 
+void matrice_vers_file(Matrice matrice, char* file);
+
+Matrice creerMatrice(int rows, int cols);
+
+void libererMatrice(Matrice matrice);
+
+Matrice concatenerMatrice(Matrice M1, Matrice M2);
+
+void afficherMatrice(Matrice mat);
