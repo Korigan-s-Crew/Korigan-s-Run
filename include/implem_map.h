@@ -45,7 +45,7 @@ int random_number(int min, int max);
 
 Matrice recup_matrice(char* file);
 
-void normalize_line(char* line[20]);
+void normalize_line(char ligne[20]);
 
 void matrice_vers_file(Matrice matrice, char* file);
 
