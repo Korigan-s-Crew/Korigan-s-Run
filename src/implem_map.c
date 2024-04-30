@@ -344,14 +344,14 @@ void create_map_txt(char* parcours){
     libererMatrice(M);
 }
 
-int main(){
+// int main(){
 
-    struct Graphe* graphe = create_graph();
-    char* parcours = parcours_graphe(graphe);
-    printf("%s\n", parcours);
-    create_map_txt(parcours);
-    free(graphe);
-    free(parcours); 
+//     struct Graphe* graphe = create_graph();
+//     char* parcours = parcours_graphe(graphe);
+//     printf("%s\n", parcours);
+//     create_map_txt(parcours);
+//     free(graphe);
+//     free(parcours); 
 
-    return 0;
-}
+//     return 0;
+// }
