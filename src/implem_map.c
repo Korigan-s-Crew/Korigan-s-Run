@@ -45,8 +45,6 @@ struct Graphe* create_graph(){
         exit(1);
     }
 
-    //graphe->noeud = malloc(N * sizeof(struct Noeuds*)); //utiliser cette ligne et ça devrait le faire d'après copilot
-
     for (int i = 0; i < N; i++){
         graphe->noeud[i] = NULL;
     }
@@ -64,7 +62,7 @@ struct Graphe* create_graph(){
 
         nouveau_noeud->destination = destination;
         nouveau_noeud->poids = poids;
-        nouveau_noeud->suivant = graphe->noeud[source]; //erreur ici : voir le commentaire en fin de code
+        nouveau_noeud->suivant = graphe->noeud[source]; 
         graphe->noeud[source] = nouveau_noeud;
     }
     
@@ -96,7 +94,7 @@ void matrice_vers_file(Matrice matrice, char* file){
     FILE* f = fopen(file, "w");
 
     if (f == NULL){
-        printf("Error opening file matrice_vers_file\n");
+        printf("Error opening file in : matrice_vers_file\n");
         exit(1);
     }
 
@@ -115,7 +113,6 @@ void matrice_vers_file(Matrice matrice, char* file){
 char* parcours_graphe(struct Graphe* graphe) {
 
     int debut = random_number(1,N-1);
-    // printf("Début: %d\n", debut);
     int noeud_actuel = debut;
     char* parcours = (char*)malloc(T*sizeof(char));
 
@@ -126,16 +123,11 @@ char* parcours_graphe(struct Graphe* graphe) {
 
     parcours[0] = '\0';
 
-    char temp[10]; // ouuuuuu char temp[T*sizeof(char)]
-
     for (int i = 0; i < 5; i++) {
-        //printf("i: %d\n", i);
-        //printf("noeud_actuel: %d\n", noeud_actuel);
         struct Noeuds* noeud = graphe->noeud[noeud_actuel];
         if (noeud != NULL) {
             sprintf(parcours, "%d", noeud_actuel);
             parcours+='\0';
-            // strcat(parcours, temp);
             noeud_actuel = noeud->destination;
         } else {
             break;
@@ -191,7 +183,7 @@ Matrice recup_matrice(char* file){
 
     FILE* f = fopen(file, "r");
     if (f == NULL){
-        printf("Error opening file recup_matrice\n");
+        printf("Error opening file in : recup_matrice\n");
         exit(1);
     }
 
@@ -256,19 +248,19 @@ void afficherMatrice(Matrice mat) {
 // Fonction pour créer un fichier .txt à partir des fichiers patterns concaténés selon le parcours du graphe
 void create_map_txt(char* parcours){
 
-    char* start = "../Patterns/first_pattern.txt";
-    char* f1 = "../Patterns/pattern1.txt";
-    char* f2 = "../Patterns/pattern2.txt";
-    char* f3 = "../Patterns/pattern3.txt";
-    char* f4 = "../Patterns/pattern4.txt";
-    char* f5 = "../Patterns/pattern5.txt";
-    char* f6 = "../Patterns/pattern6.txt";
-    char* f7 = "../Patterns/pattern7.txt";
-    char* f8 = "../Patterns/pattern8.txt";
-    char* f9 = "../Patterns/pattern9.txt";
-    char* f0 = "../Patterns/pattern0.txt";
-    char* end = "../Patterns/last_pattern.txt";
-    char* f = "../test.txt";
+    char* start = "./Patterns/first_pattern.txt";
+    char* f1 = "./Patterns/pattern1.txt";
+    char* f2 = "./Patterns/pattern2.txt";
+    char* f3 = "./Patterns/pattern3.txt";
+    char* f4 = "./Patterns/pattern4.txt";
+    char* f5 = "./Patterns/pattern5.txt";
+    char* f6 = "./Patterns/pattern6.txt";
+    char* f7 = "./Patterns/pattern7.txt";
+    char* f8 = "./Patterns/pattern8.txt";
+    char* f9 = "./Patterns/pattern9.txt";
+    char* f0 = "./Patterns/pattern0.txt";
+    char* end = "./Patterns/last_pattern.txt";
+    char* f = "./test.txt";
 
     // récupération des matrices liées aux patterns
     Matrice Start = recup_matrice(start);
@@ -290,47 +282,35 @@ void create_map_txt(char* parcours){
     for(int i = 0; parcours[i] != '\0'; i++){
         if (parcours[i] == '1'){
             M = concatenerMatrices(M, M1);
-            printf("f1 concatené\n");
         }
         if (parcours[i] == '2'){
             M = concatenerMatrices(M, M2);
-            printf("f2 concatené\n");
         }
         if (parcours[i] == '3'){
             M = concatenerMatrices(M, M3);
-            printf("f3 concatené\n");
         }
         if (parcours[i] == '4'){
             M = concatenerMatrices(M, M4);
-            printf("f4 concatené\n");
         }
         if (parcours[i] == '5'){
             M = concatenerMatrices(M, M5);
-            printf("f5 concatené\n");
         }
         if (parcours[i] == '6'){
             M = concatenerMatrices(M, M6);
-            printf("f6 concatené\n");
         }
         if (parcours[i] == '7'){
             M = concatenerMatrices(M, M7);
-            printf("f7 concatené\n");
         }
         if (parcours[i] == '8'){
             M = concatenerMatrices(M, M8);
-            printf("f8 concatené\n");
         }
         if (parcours[i] == '9'){
             M = concatenerMatrices(M, M9);
-            printf("f9 concatené\n");
         }
         if (parcours[i] == '0'){
             M = concatenerMatrices(M, M0);
-            printf("f10 concatené\n");
         }
     }
-
-    //afficherMatrice(M);
 
     M = concatenerMatrices(M, End);
 
@@ -363,59 +343,3 @@ void create_map_txt(char* parcours){
 //     return 0;
 // }
 
-
-///////////////////////////
-// Error:
-
-// ==72036==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x00010546feb0 at pc 0x000100358b38 bp 0x00016faba7d0 sp 0x00016faba7c8
-// READ of size 8 at 0x00010546feb0 thread T0
-//     #0 0x100358b34 in create_graph implem_map.c:65
-//     #1 0x1003522e4 in generated_pattern procedural_generation.c:8
-//     #2 0x10034d07c in move_camera main.c:727
-//     #3 0x10034a210 in draw main.c:689
-//     #4 0x1003483c4 in main main.c:267
-//     #5 0x192f920dc  (<unknown module>)
-
-// 0x00010546feb0 is located 0 bytes after 80-byte region [0x00010546fe60,0x00010546feb0)
-// allocated by thread T0 here:
-//     #0 0x100f0b124 in wrap_malloc+0x94 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x53124)
-//     #1 0x1003582b0 in create_graph implem_map.c:41
-//     #2 0x1003522e4 in generated_pattern procedural_generation.c:8
-//     #3 0x10034d07c in move_camera main.c:727
-//     #4 0x10034a210 in draw main.c:689
-//     #5 0x1003483c4 in main main.c:267
-//     #6 0x192f920dc  (<unknown module>)
-
-// SUMMARY: AddressSanitizer: heap-buffer-overflow implem_map.c:65 in create_graph
-// Shadow bytes around the buggy address:
-//   0x00010546fc00: fd fd fa fa fa fa 00 00 00 00 00 00 00 00 00 00
-//   0x00010546fc80: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 fa fa
-//   0x00010546fd00: fa fa 00 00 00 00 00 00 00 00 00 fa fa fa fa fa
-//   0x00010546fd80: 00 00 00 00 00 00 00 00 00 fa fa fa fa fa fd fd
-//   0x00010546fe00: fd fd fd fd fd fd fd fd fa fa fa fa 00 00 00 00
-// =>0x00010546fe80: 00 00 00 00 00 00[fa]fa fa fa fa fa fa fa fa fa
-//   0x00010546ff00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-//   0x00010546ff80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-//   0x000105470000: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-//   0x000105470080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-//   0x000105470100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-// Shadow byte legend (one shadow byte represents 8 application bytes):
-//   Addressable:           00
-//   Partially addressable: 01 02 03 04 05 06 07 
-//   Heap left redzone:       fa
-//   Freed heap region:       fd
-//   Stack left redzone:      f1
-//   Stack mid redzone:       f2
-//   Stack right redzone:     f3
-//   Stack after return:      f5
-//   Stack use after scope:   f8
-//   Global redzone:          f9
-//   Global init order:       f6
-//   Poisoned by user:        f7
-//   Container overflow:      fc
-//   Array cookie:            ac
-//   Intra object redzone:    bb
-//   ASan internal:           fe
-//   Left alloca redzone:     ca
-//   Right alloca redzone:    cb
-// ==72036==ABORTING
