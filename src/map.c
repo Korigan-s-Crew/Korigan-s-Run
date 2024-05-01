@@ -891,13 +891,13 @@ void add_right_pattern_to_map(Map *pattern, Map *map) {
     }
 }
 
-Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height) {
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, Graphe *graphe, int tile_width, int tile_height) {
     // Change la map et remet le personnage à la position de départ de la nouvelle map et déplace la camera
     free(map);
     map = create_map(map_name, tile_width, tile_height);
     character->x = map->tile_start_x * tile_width;
     character->y = map->tile_start_y * tile_height;
-    move_camera(camera, character, map);
+    move_camera(camera, character, map, graphe);
     collision(character, map);
     character->next_map = SDL_FALSE;
     return map;

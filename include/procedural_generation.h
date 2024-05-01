@@ -3,6 +3,6 @@
 #include "implem_map.h"
 #include "main.h"
 #include "map.h"
-Map *generated_pattern(Camera *camera, Character *character, Map *map);
+Map *generated_pattern(Camera *camera, Character *character, Map *map, Graphe *graphe);
 int seeded_random_number(int max);
 #endif
