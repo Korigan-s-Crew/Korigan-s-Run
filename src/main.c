@@ -706,6 +706,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         "wall_cooldown.png",
         "walk_crouch_cooldown.png",
         "crouch_cooldown.png",
+        "slide_cooldown.png",
         "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(imageNames[i], "END"); i++) {
@@ -922,6 +923,8 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->timer = 543.21;
     return character;
 }
+
+
 
 void print_character(Character *character) {
     // Affiche les informations du personnage dans la console
