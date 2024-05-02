@@ -183,7 +183,7 @@ Matrice recup_matrice(char* file){
 
     FILE* f = fopen(file, "r");
     if (f == NULL){
-        printf("Error opening file in : recup_matrice\n");
+        printf("Error opening %s in : recup_matrice\n", file);
         exit(1);
     }
 
@@ -248,19 +248,19 @@ void afficherMatrice(Matrice mat) {
 // Fonction pour créer un fichier .txt à partir des fichiers patterns concaténés selon le parcours du graphe
 void create_map_txt(char* parcours){
 
-    char* start = "./Patterns/first_pattern.txt";
-    char* f1 = "./Patterns/pattern1.txt";
-    char* f2 = "./Patterns/pattern2.txt";
-    char* f3 = "./Patterns/pattern3.txt";
-    char* f4 = "./Patterns/pattern4.txt";
-    char* f5 = "./Patterns/pattern5.txt";
-    char* f6 = "./Patterns/pattern6.txt";
-    char* f7 = "./Patterns/pattern7.txt";
-    char* f8 = "./Patterns/pattern8.txt";
-    char* f9 = "./Patterns/pattern9.txt";
-    char* f0 = "./Patterns/pattern0.txt";
-    char* end = "./Patterns/last_pattern.txt";
-    char* f = "./test.txt";
+    char* start = "Patterns/first_pattern.txt";
+    char* f1 = "Patterns/pattern1.txt";
+    char* f2 = "Patterns/pattern2.txt";
+    char* f3 = "Patterns/pattern3.txt";
+    char* f4 = "Patterns/pattern4.txt";
+    char* f5 = "Patterns/pattern5.txt";
+    char* f6 = "Patterns/pattern6.txt";
+    char* f7 = "Patterns/pattern7.txt";
+    char* f8 = "Patterns/pattern8.txt";
+    char* f9 = "Patterns/pattern9.txt";
+    char* f0 = "Patterns/pattern0.txt";
+    char* end = "Patterns/last_pattern.txt";
+    char* f = "test.txt";
 
     // récupération des matrices liées aux patterns
     Matrice Start = recup_matrice(start);

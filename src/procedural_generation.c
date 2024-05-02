@@ -12,11 +12,3 @@ Map *generated_pattern(Camera *camera, Character *character, Map *map, Graphe *g
 	free(parcours);
 	return Pattern1;
 }
-
-int seeded_random_number(int max) {
-	// Cette fonction donne un nombre aléatoire entre 0 et max
-	// en partant d'une seed choisie à la ligne 57 de main.c avec srand(time(NULL))
-	int nb = rand() % max;
-	srand(rand());
-	return nb;
-}
