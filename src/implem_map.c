@@ -260,7 +260,7 @@ void create_map_txt(char* parcours){
     char* f9 = "./Patterns/pattern9.txt";
     char* f0 = "./Patterns/pattern0.txt";
     char* end = "./Patterns/last_pattern.txt";
-    char* f = "./test.txt";
+    char* f = "./Patterns/pattern.txt";
 
     // récupération des matrices liées aux patterns
     Matrice Start = recup_matrice(start);
@@ -337,7 +337,7 @@ void create_map_txt(char* parcours){
 //     char* parcours = parcours_graphe(graphe);
 //     printf("%s\n", parcours);
 //     create_map_txt(parcours);
-//     free(graphe);
+//     free_graph(graphe);
 //     free(parcours); 
 
 //     return 0;

@@ -278,7 +278,7 @@ int main(void) {
     free(character->slide);
     free(character);
     free_texture(texture);
-	free(graphe);
+	free_graph(graphe);
 Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
