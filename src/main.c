@@ -736,7 +736,7 @@ void move_camera(Camera *camera, Character *character, Map *map, Graphe *graphe)
             camera->x = map->width * tile_width - (camera->width * tile_width);
             free(pattern);
         }
-        // camera->x = map->width * tile_width - SCREEN_WIDTH;
+		// camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
     // Sinon la camera est centré en x par rapport au personnage
     else {

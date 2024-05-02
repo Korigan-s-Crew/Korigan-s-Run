@@ -183,7 +183,7 @@ Matrice recup_matrice(char* file){
 
     FILE* f = fopen(file, "r");
     if (f == NULL){
-        printf("Error opening file in : recup_matrice\n");
+        printf("Error opening %s in : recup_matrice\n", file);
         exit(1);
     }
 
