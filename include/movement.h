@@ -67,6 +67,8 @@ void move_character_left(Character *character, int tile_width);
 
 void move_character_right(Character *character, int tile_width);
 
+void reset_character_move(Character *character);
+
 void mouvement(Map *map, Character *character);
 
 
