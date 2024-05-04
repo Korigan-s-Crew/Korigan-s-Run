@@ -1,6 +1,7 @@
 #include "../include/movement.h"
 #include "../include/main.h"
 #include "../include/map.h"
+#include "../include/dash_effect.h"
 
 void mouvement(Map *map, Character *character) {
 //    printf("character x: %d y: %d\n", character->x, character->y);
@@ -205,29 +206,30 @@ void action_dash(Character *character, Controls *controls) {
     Dash *dash = character->dash;
     if (dash->cooldown == 0) {
         if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
+
             dash->duration = 25;
             dash->cooldown = 200;
             if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
-                character->dash->direction.x = 1;
+                dash->direction.x = 1;
             } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
-                character->dash->direction.x = -1;
+                dash->direction.x = -1;
             } else if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
                 if (character->dx > 0) {
-                    character->dash->direction.x = 1;
+                    dash->direction.x = 1;
                 } else if (character->dx < 0) {
-                    character->dash->direction.x = -1;
+                    dash->direction.x = -1;
                 } else {
-                    character->dash->direction.x = 0;
+                    dash->direction.x = 0;
                 }
             } else {
-                character->dash->direction.x = 0;
+                dash->direction.x = 0;
             }
             if (character->up == SDL_TRUE) {
-                character->dash->direction.y = -1;
+                dash->direction.y = -1;
             } else if (character->down == SDL_TRUE) {
-                character->dash->direction.y = 1;
+                dash->direction.y = 1;
             } else {
-                character->dash->direction.y = 0;
+                dash->direction.y = 0;
             }
         }
     }
@@ -416,4 +418,8 @@ void reset_character_move(Character *character) {
     character->wall_left = SDL_FALSE;
     character->wall_jump_right = SDL_FALSE;
     character->wall_jump_left = SDL_FALSE;
+}
+
+void cancel_animations(Character *character) {
+    slide_cancel(character, NULL);
 }

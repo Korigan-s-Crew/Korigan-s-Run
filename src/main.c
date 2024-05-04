@@ -7,6 +7,9 @@
 #include "../include/map.h"
 #include "../include/movement.h"
 #include "../include/procedural_generation.h"
+#include "../include/dash_effect.h"
+#include "../include/animation.h"
+
 
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
@@ -50,8 +53,8 @@ int main(void) {
     // Crée la camera
     Camera camera;
     // Crée la caméra en fonction de la taille de la fenêtre
-    int camera_width = (int)(SCREEN_WIDTH / 100);
-    int camera_height = (int)(SCREEN_HEIGHT / 100);
+    int camera_width = (int) (SCREEN_WIDTH / 100);
+    int camera_height = (int) (SCREEN_HEIGHT / 100);
     // Crée la caméra en position 0, 0 et de taille camera_width, camera_height
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
@@ -62,7 +65,7 @@ int main(void) {
 
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
-                                            (int)(tile_width * 0.9), (int)(tile_height * 1.5), 2, renderer);
+                                            (int) (tile_width * 0.9), (int) (tile_height * 1.5), 2, renderer);
     //réccupere les coordonnées de la souris
     Mouse *mouse = malloc(sizeof(Mouse));
     int mouseX, mouseY;
@@ -70,7 +73,7 @@ int main(void) {
     mouse->x = mouseX;
     mouse->y = mouseY;
     mouse->on_boutton = SDL_FALSE;
-    mouse->num_boutton=0;
+    mouse->num_boutton = 0;
     // DEBUG Character
     //print_character(character);
     // DEBUG MAP
@@ -79,6 +82,7 @@ int main(void) {
     srand(time(NULL));  // srand(8675612346585);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
+    init_character_animations_buffer();
     // Affiche la première image
     //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
@@ -89,7 +93,7 @@ int main(void) {
     long long last_time_sec = 0;
     //  Initialise le tutoriel
     int tutorial_step = 0;
-    SDL_Keycode key_for_tuto[]={
+    SDL_Keycode key_for_tuto[] = {
             SDLK_F15,
             SDLK_q,
             SDLK_d,
@@ -104,7 +108,7 @@ int main(void) {
             SDLK_e,
             SDLK_F15
     };
-    char *text_for_tuto[50]={
+    char *text_for_tuto[50] = {
             "",
             "appuyez sur q et d pour vous deplacer",
             "appuyez sur q et d pour vous deplacer",
@@ -154,12 +158,14 @@ int main(void) {
 (tutorial_step == 10 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
-    int game_playing=0;
+    int game_playing = 0;
     double timer_start;
-
+    int nb_animation = 0;
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
-    while (running==1){
+    while (running == 1) {
         if (game_playing == 0) {
+
+            nb_animation = print_nb_animation(nb_animation);
             // Boucle de gestion des événements
             if (SDL_PollEvent(&event)) {
                 switch (event.type) {
@@ -202,7 +208,8 @@ int main(void) {
                             int sub_tile_y = character->y % old_tile_height;
                             // On met à jour la position du personnage en x
                             character->x =
-                                    tile_x * tile_width + (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
+                                    tile_x * tile_width +
+                                    (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
                             // On met à jour la position du personnage en y
                             character->y = tile_y * tile_height +
                                            (int) (sub_tile_y * (float) tile_height / (float) old_tile_height);
@@ -233,7 +240,8 @@ int main(void) {
                                 tutorial_step = 1;
                                 character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
-                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width,
+                                                 map->tile_height);
                                 camera.show_timer = SDL_FALSE;
                                 break;
                             case SDLK_e:
@@ -244,30 +252,31 @@ int main(void) {
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
-                                timer_start = (double)getCurrentTimeInMicroseconds() ;
+                                timer_start = (double) getCurrentTimeInMicroseconds();
                                 break;
 
                         }
                         break;
                     case SDL_MOUSEBUTTONDOWN:
-                        if (mouse->on_boutton == SDL_TRUE ) {
+                        if (mouse->on_boutton == SDL_TRUE) {
                             if (mouse->num_boutton == 0) {
                                 game_playing = 1;
-                                nb_map=1;
-                                tutorial_step=0;
+                                nb_map = 1;
+                                tutorial_step = 0;
                                 character->text_suggestion = NULL;
-                                character->key_suggestion=SDLK_F15;
+                                character->key_suggestion = SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
                                 map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
-                                timer_start = (double)getCurrentTimeInMicroseconds() ;
+                                timer_start = (double) getCurrentTimeInMicroseconds();
                                 break;
                             } else if (mouse->num_boutton == 1) {
                                 game_playing = 1;
-                                nb_map=1;
+                                nb_map = 1;
                                 tutorial_step = 1;
-                                character->key_suggestion=key_for_tuto[tutorial_step];
+                                character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
-                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width,
+                                                 map->tile_height);
                                 camera.show_timer = SDL_FALSE;
                                 break;
                             }
@@ -320,7 +329,7 @@ int main(void) {
         }
         //boucle de jeu
         if (game_playing == 1) {
-            if (tutorial_step != 0){
+            if (tutorial_step != 0) {
                 if next_step_tuto() {
                     character->key_suggestion = key_for_tuto[tutorial_step + 1];
                     character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
@@ -372,7 +381,8 @@ int main(void) {
                             int sub_tile_y = character->y % old_tile_height;
                             // On met à jour la position du personnage en x
                             character->x =
-                                    tile_x * tile_width + (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
+                                    tile_x * tile_width +
+                                    (int) (sub_tile_x * (float) tile_width / (float) old_tile_width);
                             // On met à jour la position du personnage en y
                             character->y = tile_y * tile_height +
                                            (int) (sub_tile_y * (float) tile_height / (float) old_tile_height);
@@ -384,14 +394,15 @@ int main(void) {
                             character->original_height = tile_height * 1.5;
                             // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                             collision(character, map);
-                            character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                            character->timer = ((double) getCurrentTimeInMicroseconds() - timer_start) / 1000000.0;
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                         }
                         break;
                         // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
                     case SDL_KEYDOWN:
-                        if (tutorial_step !=0 && (event.key.keysym.sym == key_for_tuto[tutorial_step] || event.key.keysym.sym == SDLK_k)) {
+                        if (tutorial_step != 0 &&
+                            (event.key.keysym.sym == key_for_tuto[tutorial_step] || event.key.keysym.sym == SDLK_k)) {
                             character->key_suggestion = key_for_tuto[tutorial_step + 1];
                             character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                             tutorial_step += 1;
@@ -399,8 +410,8 @@ int main(void) {
                                 tutorial_step = 0;
                             }
                         }
-                        if (event.key.keysym.sym == SDLK_e && character->on_portal==SDL_TRUE) {
-                            character->next_map=SDL_TRUE;
+                        if (event.key.keysym.sym == SDLK_e && character->on_portal == SDL_TRUE) {
+                            character->next_map = SDL_TRUE;
                         }
                         if (event.key.keysym.sym == controls->down) {
 //                        printf("down\n");
@@ -429,6 +440,7 @@ int main(void) {
                                     break;
                                 case SDLK_LSHIFT:
                                     action_dash(character, controls);
+//                                    apply_dash_effect(renderer,character,texture,10,25,5);
                                     break;
                                 case SDLK_KP_5:
                                     character->dash->on_air = SDL_TRUE;
@@ -532,7 +544,7 @@ int main(void) {
             // C'est la condition qui donne le FPS
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
-                character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                character->timer = ((double) getCurrentTimeInMicroseconds() - timer_start) / 1000000.0;
                 draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                 camera.fps++;
             }
@@ -549,7 +561,7 @@ int main(void) {
     free(mouse);
     free_texture(texture);
 
-Quit:
+    Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
     if (NULL != window)
@@ -563,7 +575,7 @@ Quit:
 long long getCurrentTimeInMicroseconds() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (long long)tv.tv_sec * 1000000 + tv.tv_usec;
+    return (long long) tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
@@ -578,7 +590,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         Rdmtexture->Data[0] = loadImage(dir_path, renderer);
         Rdmtexture->size = 1;
     }
-    // Cas dossier
+        // Cas dossier
     else {
         DIR *dir;
         struct dirent *entry;
@@ -673,13 +685,13 @@ Texture *create_texture(SDL_Renderer *renderer) {
 
     // Liste des noms des images de la map (transparentes)
     char *list_strings_bis[] = {
-        "Textures/Terrain/nuage",
-        "Textures/Terrain/nuage",
-        "Textures/Terrain/herbe",
-        "Textures/Terrain/herbe_gauche.png",
-        "Textures/Terrain/herbe_droite.png",
-        "Textures/transparents/end_portal.png",
-        "END"};
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/nuage",
+            "Textures/Terrain/herbe",
+            "Textures/Terrain/herbe_gauche.png",
+            "Textures/Terrain/herbe_droite.png",
+            "Textures/transparents/end_portal.png",
+            "END"};
     // Charge les textures des images de la map (transparentes)
     for (int i = 0; strcmp(list_strings_bis[i], "END"); i++) {
         texture->transparent[i] = load_from_dir(list_strings_bis[i], renderer);
@@ -689,30 +701,53 @@ Texture *create_texture(SDL_Renderer *renderer) {
         texture->main_character[i] = NULL;
     // Liste des noms des images du personnage
     char *imageNames[] = {
-        "character.png",
-        "character_run.png",
-        "jump.png",
-        "jump_right.png",
-        "jump_right_fall.png",
-        "wall.png",
-        "walk_crouch.png",
-        "crouch.png",
-        "slide.png",
-        "character_cooldown.png",
-        "character_run_cooldown.png",
-        "jump_cooldown.png",
-        "jump_right_cooldown.png",
-        "jump_right_fall_cooldown.png",
-        "wall_cooldown.png",
-        "walk_crouch_cooldown.png",
-        "crouch_cooldown.png",
-        "slide_cooldown.png",
-        "END"};
+            "character.png",
+            "character_run.png",
+            "jump.png",
+            "jump_right.png",
+            "jump_right_fall.png",
+            "wall.png",
+            "walk_crouch.png",
+            "crouch.png",
+            "slide.png",
+            "character_cooldown.png",
+            "character_run_cooldown.png",
+            "jump_cooldown.png",
+            "jump_right_cooldown.png",
+            "jump_right_fall_cooldown.png",
+            "wall_cooldown.png",
+            "walk_crouch_cooldown.png",
+            "crouch_cooldown.png",
+            "slide_cooldown.png",
+            "END"};
     // Chargement des textures du personnage
     for (int i = 0; strcmp(imageNames[i], "END"); i++) {
         char imagePath[100];
         addcat(imagePath, "Textures/korigan", imageNames[i]);
         texture->main_character[i] = loadImage(imagePath, renderer);
+    }
+    // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
+    for (int i = 0; i < 100; i++)
+        texture->trail_frames[i] = NULL;
+    // Liste des noms des images du personnage
+    char *trailNames[] = {
+            "dash/dash_000.png",
+            "dash/dash_001.png",
+            "dash/dash_002.png",
+            "dash/dash_003.png",
+            "dash/dash_004.png",
+            "dash/dash_005.png",
+            "dash/dash_006.png",
+            "dash/dash_007.png",
+            "dash/dash_008.png",
+            "dash/dash_009.png",
+            "END"};
+    // Chargement des textures du personnage
+    for (int i = 0; strcmp(trailNames[i], "END"); i++) {
+        char imagePath[100];
+        addcat(imagePath, "Textures/korigan", trailNames[i]);
+        texture->trail_frames[i] = loadImage(imagePath, renderer);
+        printf("%s\n", imagePath);
     }
     // Liste des noms des images de suggestion de touche
     char *key_images[] = {
@@ -757,7 +792,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         SDL_Texture *num_texture = SDL_CreateTextureFromSurface(renderer, surface);
         texture->timer[i] = num_texture;
         SDL_FreeSurface(surface);
-        }
+    }
     TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
     SDL_Color color = {192, 190, 193, 255};
     SDL_Surface *surface = TTF_RenderText_Solid(texture->font, ".", color);
@@ -788,6 +823,9 @@ void free_texture(Texture *texture) {
         }
         if (NULL != texture->main_character[i]) {
             SDL_DestroyTexture(texture->main_character[i]);
+        }
+        if (NULL != texture->trail_frames[i]) {
+            SDL_DestroyTexture(texture->trail_frames[i]);
         }
         if (NULL != texture->key_suggestion[i]) {
             SDL_DestroyTexture(texture->key_suggestion[i]);
@@ -918,12 +956,11 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->on_portal = SDL_FALSE;
     character->dash = init_dash();
     character->slide = init_slide();
-    character->key_suggestion=SDLK_F15;
+    character->key_suggestion = SDLK_F15;
     character->text_suggestion = NULL;
     character->timer = 543.21;
     return character;
 }
-
 
 
 void print_character(Character *character) {
@@ -946,34 +983,46 @@ char *addcat(char *result, char *path, char *name) {
 
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst,
                            int offset) {
-    if (character->slide->duration > 0){
+    if (character->slide->duration > 0) {
         if (character->slide->go_right) {
             SDL_RenderCopy(renderer, texture->main_character[8 + offset], NULL, &dst);
         } else {
             SDL_RenderCopyEx(renderer, texture->main_character[8 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
+    } else if (character->dash->duration > 0) {
+        if (character->dash->direction.x == 1) {
+            SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
+            add_character_animation(character, texture->trail_frames, dst, 10, 1000);
+//            draw_dash_trail(renderer, character, texture, &dst, camera,10);
+        } else {
+            SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
+            add_character_animation(character, texture->trail_frames, dst, 10, 1000);
+//            draw_dash_trail(renderer, character, texture, &dst, camera,10);
+        }
     } else if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
-        if (character->crouch == SDL_FALSE){
+        if (character->crouch == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
         } else {
             SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
         }
-    }else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
+    } else if (character->right == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
         //marche à droite
-        if (character->crouch == SDL_FALSE){
+        if (character->crouch == SDL_FALSE) {
             draw_character_animation(renderer, character, texture, &dst, camera, 1 + offset, character->speed, 7);
         } else {
             draw_character_animation(renderer, character, texture, &dst, camera, 6 + offset, character->speed, 3);
         }
     } else if (character->left == SDL_TRUE && character->on_ground == SDL_TRUE && character->dx != 0) {
-        if (character->crouch == SDL_FALSE){
-            draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL, character->speed,7);
+        if (character->crouch == SDL_FALSE) {
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 1 + offset, SDL_FLIP_HORIZONTAL,
+                                       character->speed, 7);
         } else {
-            draw_character_animationEx(renderer, character, texture, &dst, camera, 6 + offset, SDL_FLIP_HORIZONTAL, character->speed,3);
+            draw_character_animationEx(renderer, character, texture, &dst, camera, 6 + offset, SDL_FLIP_HORIZONTAL,
+                                       character->speed, 3);
         }
-    } else if (character->wall_jump_right == SDL_TRUE){
+    } else if (character->wall_jump_right == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[5 + offset], NULL, &dst);
-    } else if (character->wall_jump_left == SDL_TRUE){
+    } else if (character->wall_jump_left == SDL_TRUE) {
         SDL_RenderCopyEx(renderer, texture->main_character[5 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
     } else if (character->right == SDL_TRUE && character->dx != 0) {
         if (character->dy > 0 && character->on_ground == SDL_FALSE) {
@@ -990,19 +1039,13 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
     } else if (character->on_ground == SDL_FALSE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else if (character->down == SDL_TRUE) {
-        if (character->crouch == SDL_FALSE){
-            SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
-        } else {
-            SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
-        }
-    } else if (character->dash->duration > 0) {
-        if (character->crouch == SDL_FALSE){
+        if (character->crouch == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
         } else {
             SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
         }
     } else if (character->on_ground == SDL_TRUE) {
-        if (character->crouch == SDL_FALSE){
+        if (character->crouch == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
         } else {
             SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
@@ -1010,7 +1053,7 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
     } else if (character->up == SDL_TRUE) {
         SDL_RenderCopy(renderer, texture->main_character[2 + offset], NULL, &dst);
     } else {
-        if (character->crouch == SDL_FALSE){
+        if (character->crouch == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
         } else {
             SDL_RenderCopy(renderer, texture->main_character[7 + offset], NULL, &dst);
@@ -1021,7 +1064,7 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera) {
     // Affiche le personnage dans la fenêtre
     SDL_Rect dst = {character->x - camera->x, character->y - camera->y, character->width, character->height};
-    SDL_Rect dst_indication_key = {character->x - camera->x, character->y - camera->y-50,100, 25};
+    SDL_Rect dst_indication_key = {character->x - camera->x, character->y - camera->y - 50, 100, 25};
     if (character->dash->cooldown > 0) {
         // for (int i = 0; i < 5; i++) {
         //     SDL_SetTextureColorMod(texture->main_character[i], 255, 0, 0);
@@ -1039,20 +1082,22 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
     }
 }
 
-void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
-                              int index, float speed, int nb_frame) {
+void
+draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
+                         int index, float speed, int nb_frame) {
     // Affiche une animation du personnage dans la fenêtre (déplacement vers la droite)
     SDL_Rect src = {0, 0, 0, 0};
     SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++) {
-        if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
+        if (camera->fps % (int) (MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
             src.x = i * src.w;
             SDL_RenderCopy(renderer, texture->main_character[index], &src, dst);
             break;
         }
     }
 }
+
 
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst,
                                 Camera *camera, int index, int SDL_angle, float speed, int nb_frame) {
@@ -1061,7 +1106,7 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     SDL_QueryTexture(texture->main_character[index], NULL, NULL, &src.w, &src.h);
     src.w /= nb_frame;
     for (int i = 0; i < nb_frame; i++) {
-        if (camera->fps % (int)(MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
+        if (camera->fps % (int) (MAX_FPS / speed) < (MAX_FPS * (i + 1)) / (nb_frame * speed)) {
             src.x = i * src.w;
             SDL_RenderCopyEx(renderer, texture->main_character[index], &src, dst, 0, NULL, SDL_angle);
             break;
@@ -1069,7 +1114,7 @@ void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Te
     }
 }
 
-void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key){
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key) {
     if (character->key_suggestion != SDLK_F15) {
         if (character->key_suggestion == SDLK_q) {
             SDL_RenderCopy(renderer, texture->key_suggestion[0], NULL, &dst_key);
@@ -1086,9 +1131,9 @@ void draw_indication(SDL_Renderer *renderer, Character *character, Texture *text
     if (character->text_suggestion != NULL) {
         int textureWidth, textureHeight;
         SDL_QueryTexture(character->text_suggestion, NULL, NULL, &textureWidth, &textureHeight);
-        SDL_Rect dst_text = {camera->width * 100 /2,camera->height * 100 /3, textureWidth, textureHeight};
-        dst_text.x -= textureWidth/2;
-        dst_text.y -= textureHeight/2;
+        SDL_Rect dst_text = {camera->width * 100 / 2, camera->height * 100 / 3, textureWidth, textureHeight};
+        dst_text.x -= textureWidth / 2;
+        dst_text.y -= textureHeight / 2;
 
         SDL_RenderCopy(renderer, character->text_suggestion, NULL, &dst_text);
     }
@@ -1116,25 +1161,25 @@ void draw_time(SDL_Renderer *renderer, Character *character, Camera *camera, Tex
             int secondes = (int) character->timer;
             int minutes = secondes / 60;
             secondes = secondes % 60;
-            m1 = minutes %10;
+            m1 = minutes % 10;
             m2 = (minutes / 10) % 10;
             s1 = (secondes) % 10;
             s2 = (secondes / 10) % 10;
-            d1 = ((int)(character->timer * 100)) % 10;
-            d2 = ((int)(character->timer * 100)) / 10 % 10;
+            d1 = ((int) (character->timer * 100)) % 10;
+            d2 = ((int) (character->timer * 100)) / 10 % 10;
         }
         int numWidth, numHeight;
         int comaWidth, comaHeight;
         SDL_QueryTexture(texture->timer[8], NULL, NULL, &numWidth, &numHeight);
         SDL_QueryTexture(texture->timer[10], NULL, NULL, &comaWidth, &comaHeight);
-        SDL_Rect dst = {camera->width *100 - numWidth * 2, 0, 100, 100};
+        SDL_Rect dst = {camera->width * 100 - numWidth * 2, 0, 100, 100};
         dst.w = numWidth * 2;
         dst.h = numHeight * 2;
         SDL_RenderCopy(renderer, texture->timer[d2], NULL, &dst);
         dst.x -= numWidth * 2;
         SDL_RenderCopy(renderer, texture->timer[d1], NULL, &dst);
         dst.x -= comaWidth * 2;
-        dst.w = comaWidth *2;
+        dst.w = comaWidth * 2;
         SDL_RenderCopy(renderer, texture->timer[10], NULL, &dst);
         dst.w = numWidth * 2;
         dst.x -= numWidth * 2;
@@ -1142,7 +1187,7 @@ void draw_time(SDL_Renderer *renderer, Character *character, Camera *camera, Tex
         dst.x -= numWidth * 2;
         SDL_RenderCopy(renderer, texture->timer[s2], NULL, &dst);
         dst.x -= comaWidth * 2;
-        dst.w = comaWidth *2;
+        dst.w = comaWidth * 2;
         SDL_RenderCopy(renderer, texture->timer[10], NULL, &dst);
         dst.w = numWidth * 2;
         dst.x -= numWidth * 2;
@@ -1176,11 +1221,13 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
 }
 
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height,
-          Character *character, Camera *camera) {
+                 Character *character, Camera *camera) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
+    render_character_animations(renderer);
+    update_character_animations();
     draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera, texture);
     draw_time(renderer, character, camera, texture);
@@ -1188,7 +1235,9 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
 }
 
 
-void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse) {
+void
+draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera,
+              Mouse *mouse) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
     SDL_Rect dst_bouton_start = {(camera->width * 100 / 2) - 500, camera->height * 100 / 5, 1000, 250};
@@ -1247,7 +1296,7 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     if (character->x < pixel_width - (character->width / 2)) {
         camera->x = 0;
     }
-    // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
+        // Si le personnage est à droite de l'écran alors la camera est à la fin de la map
     else if (character->x + pixel_width + (character->width / 2) > map->width * tile_width) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
@@ -1264,7 +1313,7 @@ void move_camera(Camera *camera, Character *character, Map *map) {
         }
         // camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
-    // Sinon la camera est centré en x par rapport au personnage
+        // Sinon la camera est centré en x par rapport au personnage
     else {
         camera->x = character->x - pixel_width + (character->width / 2);
     }
@@ -1273,11 +1322,11 @@ void move_camera(Camera *camera, Character *character, Map *map) {
     if (character->y < pixel_height - (character->height / 2)) {
         camera->y = 0;
     }
-    // Si le personnage est en bas de l'écran alors la camera est en bas de la map
+        // Si le personnage est en bas de l'écran alors la camera est en bas de la map
     else if (character->y + pixel_height + (character->height / 2) > map->height * tile_height) {
         camera->y = map->height * tile_height - camera->height * tile_height;
     }
-    // Sinon la camera est centré en y par rapport au personnage
+        // Sinon la camera est centré en y par rapport au personnage
     else {
         camera->y = character->y - pixel_height + (character->height / 2);
     }
