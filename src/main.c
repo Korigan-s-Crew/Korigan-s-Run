@@ -160,12 +160,12 @@ int main(void) {
     int running = 1;
     int game_playing = 0;
     double timer_start;
-    int nb_animation = 0;
+//    int nb_animation = 0;
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
     while (running == 1) {
         if (game_playing == 0) {
 
-            nb_animation = print_nb_animation(nb_animation);
+//            nb_animation = print_nb_animation(nb_animation);
             // Boucle de gestion des événements
             if (SDL_PollEvent(&event)) {
                 switch (event.type) {
@@ -990,15 +990,7 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
             SDL_RenderCopyEx(renderer, texture->main_character[8 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
     } else if (character->dash->duration > 0) {
-        if (character->dash->direction.x == 1) {
-            SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
-            add_character_animation(character, texture->trail_frames, dst, 10, 1000);
-//            draw_dash_trail(renderer, character, texture, &dst, camera,10);
-        } else {
-            SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
-            add_character_animation(character, texture->trail_frames, dst, 10, 1000);
-//            draw_dash_trail(renderer, character, texture, &dst, camera,10);
-        }
+        dash_display(character, texture, renderer, camera, dst);
     } else if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
         if (character->crouch == SDL_FALSE) {
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
@@ -1226,7 +1218,7 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
     setWindowColor(renderer, bleu);
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
-    render_character_animations(renderer);
+    render_character_animations(renderer, camera);
     update_character_animations();
     draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera, texture);

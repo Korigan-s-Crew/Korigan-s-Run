@@ -208,7 +208,7 @@ void action_dash(Character *character, Controls *controls) {
         if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
 
             dash->duration = 25;
-            dash->cooldown = 200;
+            dash->cooldown = 26;
             if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                 dash->direction.x = 1;
             } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {

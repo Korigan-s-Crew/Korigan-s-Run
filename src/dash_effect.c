@@ -5,6 +5,7 @@
 #include "../include/stb_image_write.h"
 
 #include "../include/dash_effect.h"
+#include "../include/animation.h"
 
 void apply_box_blur(unsigned char* data, int width, int height, int channels, int radius) {
     unsigned char* temp = (unsigned char*)malloc(width * height * channels);
@@ -90,48 +91,28 @@ void apply_ghostly_effect(const char* input_file, const char* output_file_prefix
     free(prev_frame);
     stbi_image_free(image_data);
 }
-//
-//void apply_dash_effect(SDL_Renderer* renderer, Character* character, Texture* textures, int num_frames, float dash_duration, float fade_duration) {
-//    int frame_index = 0;
-//    float elapsed_time = 0.0f;
-//    float total_duration = dash_duration + fade_duration;
-//    float frame_duration = dash_duration / (float)num_frames;
-//
-//    SDL_Rect src_rect = {0};
-//    SDL_Rect dst_rect = {
-//            character->x - character->width / 2,
-//            character->y - character->height / 2,
-//            character->width,
-//            character->height
-//    };
-//
-//    Uint32 start_time = SDL_GetTicks();
-//
-//    while (elapsed_time < total_duration) {
-//        Uint32 current_time = SDL_GetTicks();
-//        elapsed_time = (current_time - start_time) / 1000.0f;
-//
-//        float alpha = 1.0f;
-//
-//        if (elapsed_time < dash_duration) {
-//            // During the dash, update the frame index
-//            frame_index = (int)((elapsed_time / frame_duration) + 0.5f);
-//            if (frame_index >= num_frames) {
-//                frame_index = num_frames - 1;
-//            }
-//        } else {
-//            // After the dash, fade out the trail
-//            float fade_progress = (elapsed_time - dash_duration) / fade_duration;
-//            alpha = 1.0f - fade_progress;
-//            frame_index = num_frames - 1;
-//        }
-//
-//        SDL_SetTextureAlphaMod(textures->trail_frames[frame_index], (Uint8)(alpha * 255));
-//        SDL_RenderCopy(renderer, textures->trail_frames[frame_index], &src_rect, &dst_rect);
-//
-//        // Update the character's position or draw the character here
-//        // ...
-//
-//        SDL_RenderPresent(renderer);
-//    }
-//}
+
+
+void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer, Camera *camera, SDL_Rect dst) {
+    // Calculate angle of dash direction vector
+    double angle = atan2(character->dash->direction.y, character->dash->direction.x) * 180 / M_PI;
+
+    if (angle < 0) {
+        angle += 360; // Ensure angle is in the range [0, 360)
+    }
+    printf("direction: %d %d, angle: %f\n", character->dash->direction.x, character->dash->direction.y, angle);
+    // Choose the appropriate frame based on the angle
+
+    // Render the dash sprite at the correct angle
+    if (character->dash->direction.x == 1) {
+        SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, SDL_FLIP_NONE);
+    } else {
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (angle >= 90 && angle <= 270) {
+            flip = SDL_FLIP_VERTICAL; // Flip if angle is between 90 and 270 degrees
+        }
+        SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, angle, NULL, flip);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, flip);
+    }
+}
