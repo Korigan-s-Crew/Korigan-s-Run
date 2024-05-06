@@ -111,40 +111,39 @@ Slide *init_slide() {
 void action_slide(Character *character, Map *map) {
     // Handle slide key pressed
     Slide *slide = character->slide;
-    if (character->just_landed && character->on_ground && character->down) {
-        character->just_landed = SDL_FALSE;
-        character->crouch = SDL_FALSE;
-        printf("right: %d left: %d\n", character->right, character->left);
-        if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
-            if (change_size_collision(character, map, character->original_height, character->original_width)) {
-                character->height = character->original_width;
-                character->width = character->original_height;
-                slide->duration = 50;
-                slide->go_right = SDL_TRUE;
-            } else {
-                printf("can't slide here\n");
+    if (!in_action(character)) {
+        if (character->just_landed && character->on_ground && character->down) {
+            character->just_landed = SDL_FALSE;
+            character->crouch = SDL_FALSE;
+            printf("right: %d left: %d\n", character->right, character->left);
+            if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
+                if (change_size_collision(character, map, character->original_height, character->original_width)) {
+                    character->height = character->original_width;
+                    character->width = character->original_height;
+                    slide->duration = 50;
+                    slide->go_right = SDL_TRUE;
+                } else {
+                    printf("can't slide here\n");
+                }
+            } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
+                if (change_size_collision(character, map, character->original_height, character->original_width)) {
+                    character->height = character->original_width;
+                    character->width = character->original_height;
+                    slide->duration = 50;
+                    slide->go_left = SDL_TRUE;
+                } else {
+                    printf("can't slide here\n");
+                }
             }
-        } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
-            if (change_size_collision(character, map, character->original_height, character->original_width)) {
-                character->height = character->original_width;
-                character->width = character->original_height;
-                slide->duration = 50;
-                slide->go_left = SDL_TRUE;
-            } else {
-                printf("can't slide here\n");
-            }
+            printf("slide duration: %d %d %d \n", slide->duration, slide->go_right, slide->go_left);
+
+            character->just_landed = SDL_FALSE;
         }
-        printf("slide duration: %d %d %d \n", slide->duration, slide->go_right, slide->go_left);
     }
-    character->just_landed = SDL_FALSE;
 }
 
 void handle_slide(Character *character, Map *map) {
     if (character->slide->duration > 0) {
-
-//        reset_character_move(character);
-//        gravity(character);
-
         if (character->slide->go_right) {
             character->dx = (map->tile_width / 1.2) * character->speed;
         } else if (character->slide->go_left) {
@@ -163,7 +162,6 @@ void handle_slide(Character *character, Map *map) {
     } else {
         action_slide(character, map);
     }
-
 }
 
 void slide_cancel(Character *character, Map *map) {
@@ -204,37 +202,38 @@ Dash *init_dash() {
 void action_dash(Character *character, Controls *controls) {
     // Handle dash key pressed
     Dash *dash = character->dash;
-    if (dash->cooldown == 0) {
-        if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
+    if (!in_action(character)) {
+        if (dash->cooldown == 0 && character->crouch == SDL_FALSE) {
+            if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
 
-            dash->duration = 25;
-            dash->cooldown = 26;
-            if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
-                dash->direction.x = 1;
-            } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
-                dash->direction.x = -1;
-            } else if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
-                if (character->dx > 0) {
+                dash->duration = 25;
+                dash->cooldown = 26;
+                if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                     dash->direction.x = 1;
-                } else if (character->dx < 0) {
+                } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
                     dash->direction.x = -1;
+                } else if (character->right == SDL_TRUE && character->left == SDL_TRUE) {
+                    if (character->dx > 0) {
+                        dash->direction.x = 1;
+                    } else if (character->dx < 0) {
+                        dash->direction.x = -1;
+                    } else {
+                        dash->direction.x = 0;
+                    }
                 } else {
                     dash->direction.x = 0;
                 }
-            } else {
-                dash->direction.x = 0;
-            }
-            if (character->up == SDL_TRUE) {
-                dash->direction.y = -1;
-            } else if (character->down == SDL_TRUE) {
-                dash->direction.y = 1;
-            } else {
-                dash->direction.y = 0;
+                if (character->up == SDL_TRUE) {
+                    dash->direction.y = -1;
+                } else if (character->down == SDL_TRUE) {
+                    dash->direction.y = 1;
+                } else {
+                    dash->direction.y = 0;
+                }
             }
         }
+        printf("dash duration: %d %d %d \n", dash->duration, dash->direction.x, dash->direction.y);
     }
-    printf("dash duration: %d %d %d \n", dash->duration, dash->direction.x, dash->direction.y);
-
 }
 
 
