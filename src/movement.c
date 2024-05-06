@@ -21,10 +21,10 @@ void mouvement(Map *map, Character *character) {
             move_character_left(character, map->tile_width);
         }
         if (character->down == SDL_TRUE && character->up == SDL_TRUE) {
-            move_character_up(character, map->tile_width, map->tile_height, 0);
+            move_character_up(character, map, map->tile_width, map->tile_height, 0);
         } else {
             if (character->up == SDL_TRUE) {
-                move_character_up(character, map->tile_width, map->tile_height, 0);
+                move_character_up(character, map, map->tile_width, map->tile_height, 0);
             }
             if (character->down == SDL_TRUE && character->height == character->original_height) {
                 move_character_down(character, map->tile_height);
@@ -151,9 +151,9 @@ void handle_slide(Character *character, Map *map) {
         } else {
             slide_cancel(character, map);
         }
-        if (character->up && character->slide->duration < 30) {
+        if (character->up && character->slide->duration < 20) {
             slide_cancel(character, map);
-            move_character_up(character, map->tile_width, map->tile_height, 25);
+            move_character_up(character, map, map->tile_width, map->tile_height, 25);
         }
         character->slide->duration -= 1;
         if (character->slide->duration == 0) {
@@ -347,15 +347,13 @@ void slow_down(Character *character) {
     }
 }
 
-void move_character_up(Character *character, int tile_width, int tile_height, int bonus) {
+void move_character_up(Character *character, Map *map, int tile_width, int tile_height, int bonus) {
     if (character->on_ground == SDL_TRUE) {// classic jump
-        if (character->slide->duration < 20) {
+        if (character->slide->duration < 20 && change_size_collision(character, map, character->original_width, character->original_height)) {
             character->dy = -(tile_height * 2) - bonus;
             character->on_ground = SDL_FALSE;
             character->just_landed = SDL_FALSE;
         }
-//        character->dy = -(tile_height * 2);
-//        character->on_ground = SDL_FALSE;
     } else if (character->wall_jump_right == SDL_TRUE) {
         if (!character->right) {//right wall jump (jump to the left)
             character->dy = -(tile_height * 2);
