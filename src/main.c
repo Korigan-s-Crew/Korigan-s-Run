@@ -631,26 +631,26 @@ Texture *create_texture(SDL_Renderer *renderer) {
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
             "Textures/Terrain/nuage",
-            "Textures/Terrain/sol",  // 19
-            "Textures/Terrain/ss1",  // 29
-            "Textures/Terrain/ss2",  // 39
+            "Textures/Terrain/sol",
+            "Textures/Terrain/ss1",
+            "Textures/Terrain/ss2",
             "Textures/Terrain/marron_cave.png",
             "Textures/Terrain/sol_gauche.png",
             "Textures/Terrain/ss1_gauche.png",
             "Textures/Terrain/ss2_gauche.png",
-            "Textures/Terrain/ss3_gauche.png",  // 80-89
+            "Textures/Terrain/ss3_gauche.png",
             "Textures/Terrain/sol_droite.png",
             "Textures/Terrain/ss1_droite.png",
             "Textures/Terrain/ss2_droite.png",
-            "Textures/Terrain/ss3_droite.png",  // 120-129
+            "Textures/Terrain/ss3_droite.png",
             "Textures/Terrain/sol_gauche_p_ss1",
             "Textures/Terrain/ss1_gauche_p.png",
             "Textures/Terrain/ss2_gauche_p.png",
-            "Textures/Terrain/ss3_gauche_p.png",  // 160-169
+            "Textures/Terrain/ss3_gauche_p.png",
             "Textures/Terrain/sol_droite_p_ss1",
             "Textures/Terrain/ss1_droite_p.png",
             "Textures/Terrain/ss2_droite_p.png",
-            "Textures/Terrain/ss3_droite_p.png",   // 200-209
+            "Textures/Terrain/ss3_droite_p.png",
             "Textures/Terrain/sol_gauche_p2.png",
             "Textures/Terrain/ss1_gauche_p.png",
             "Textures/Terrain/ss2_gauche_p.png",
@@ -659,7 +659,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/ss1_droite_p.png",
             "Textures/Terrain/ss2_droite_p.png",
             "Textures/Terrain/ss3_droite_p.png",
-            "Textures/Terrain/nuage_bas",// 210-219
+            "Textures/Terrain/nuage_bas",
             "Textures/Terrain/nuage_g.png",
             "Textures/Terrain/nuage_ge.png",
             "Textures/Terrain/nuage_gi.png",
@@ -675,12 +675,12 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
             "Textures/Terrain/nuage_seult.png",
-            "Textures/Terrain/wall_1",//370-379
+            "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
             "Textures/Terrain/wall_bot",
-            "Textures/Terrain/gate/gate.png",      // 220-229
-            "Textures/Terrain/gate/gate_top.png",  // 230-239
+            "Textures/Terrain/gate/gate.png",
+            "Textures/Terrain/gate/gate_top.png",
             "END"};
 
     // Charge les textures des images de la map (collisables)
