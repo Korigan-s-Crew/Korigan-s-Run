@@ -74,14 +74,14 @@ int main(void) {
     // DEBUG Character
     //print_character(character);
     // DEBUG MAP
-    //print_map(map);
+    print_map(map);
     // Initialise la seed pour le random
     srand(time(NULL));  // srand(8675612346585);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     // Affiche la première image
     //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-    draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+    draw_homepage(renderer, bleu, texture, &camera, mouse);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
@@ -223,7 +223,7 @@ int main(void) {
 
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                            draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+                            draw_homepage(renderer, bleu, texture, &camera, mouse);
                         }
                         break;
                         // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
@@ -320,7 +320,7 @@ int main(void) {
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
                 //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                draw_homepage(renderer, bleu, texture, tile_width, tile_height, &camera, mouse);
+                draw_homepage(renderer, bleu, texture, &camera, mouse);
                 camera.fps++;
             }
         }
@@ -625,32 +625,41 @@ Texture *create_texture(SDL_Renderer *renderer) {
     }
     for (int i = 0; i < 11; i++) {
         texture->timer[i] = NULL;
+        texture->background[i] = NULL;
     }
 
     // Liste des noms des images de la map (collisables) avec "END" A la fin
     char *list_strings[] = {
             "Textures/Terrain/nuage",
-            "Textures/Terrain/sol",  // 19
-            "Textures/Terrain/ss1",  // 29
-            "Textures/Terrain/ss2",  // 39
+            "Textures/Terrain/sol",
+            "Textures/Terrain/ss1",
+            "Textures/Terrain/ss2",
             "Textures/Terrain/marron_cave.png",
             "Textures/Terrain/sol_gauche.png",
             "Textures/Terrain/ss1_gauche.png",
             "Textures/Terrain/ss2_gauche.png",
-            "Textures/Terrain/ss3_gauche.png",  // 80-89
+            "Textures/Terrain/ss3_gauche.png",
             "Textures/Terrain/sol_droite.png",
             "Textures/Terrain/ss1_droite.png",
             "Textures/Terrain/ss2_droite.png",
-            "Textures/Terrain/ss3_droite.png",  // 120-129
+            "Textures/Terrain/ss3_droite.png",
             "Textures/Terrain/sol_gauche_p_ss1",
             "Textures/Terrain/ss1_gauche_p.png",
             "Textures/Terrain/ss2_gauche_p.png",
-            "Textures/Terrain/ss3_gauche_p.png",  // 160-169
+            "Textures/Terrain/ss3_gauche_p.png",
             "Textures/Terrain/sol_droite_p_ss1",
             "Textures/Terrain/ss1_droite_p.png",
             "Textures/Terrain/ss2_droite_p.png",
-            "Textures/Terrain/ss3_droite_p.png",   // 200-209
-            "Textures/Terrain/nuage_bas",// 210-219
+            "Textures/Terrain/ss3_droite_p.png",
+            "Textures/Terrain/sol_gauche_p2.png",
+            "Textures/Terrain/ss1_gauche_p.png",
+            "Textures/Terrain/ss2_gauche_p.png",
+            "Textures/Terrain/ss3_gauche_p.png",
+            "Textures/Terrain/sol_droite_p2.png",
+            "Textures/Terrain/ss1_droite_p.png",
+            "Textures/Terrain/ss2_droite_p.png",
+            "Textures/Terrain/ss3_droite_p.png",
+            "Textures/Terrain/nuage_bas",
             "Textures/Terrain/nuage_g.png",
             "Textures/Terrain/nuage_ge.png",
             "Textures/Terrain/nuage_gi.png",
@@ -666,12 +675,12 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
             "Textures/Terrain/nuage_seult.png",
-            "Textures/Terrain/wall_1",//370-379
+            "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
             "Textures/Terrain/wall_bot",
-            "Textures/Terrain/gate/gate.png",      // 220-229
-            "Textures/Terrain/gate/gate_top.png",  // 230-239
+            "Textures/Terrain/gate/gate.png",
+            "Textures/Terrain/gate/gate_top.png",
             "END"};
 
     // Charge les textures des images de la map (collisables)
@@ -747,6 +756,21 @@ Texture *create_texture(SDL_Renderer *renderer) {
         addcat(imagePath, "Textures/bouttons", bouttons_images[i]);
         texture->bouttons[i] = loadImage(imagePath, renderer);
     }
+
+    char *background_images[] = {
+            "blured_foreground.png",
+            "blured_midground.png",
+            "background.png",
+            "END"};
+    // Chargement des textures de bouttons
+    for (int i = 0; strcmp(background_images[i], "END"); i++) {
+        char imagePath[100];
+        printf("i : %d\n", i);
+        addcat(imagePath, "Textures/fond", background_images[i]);
+        texture->background[i] = loadImage(imagePath, renderer);
+    }
+
+
     // Crée une police de caractère avec le fichier arial.ttf de taille 28
     texture->font = TTF_OpenFont("Fonts/Pixel_Sans_Serif.ttf", 28);
     if (texture->font == NULL)
@@ -978,8 +1002,10 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
             draw_character_animationEx(renderer, character, texture, &dst, camera, 6 + offset, SDL_FLIP_HORIZONTAL, character->speed,3);
         }
     } else if (character->wall_jump_right == SDL_TRUE){
+        dst.x +=5;
         SDL_RenderCopy(renderer, texture->main_character[5 + offset], NULL, &dst);
     } else if (character->wall_jump_left == SDL_TRUE){
+        dst.x -=5;
         SDL_RenderCopyEx(renderer, texture->main_character[5 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
     } else if (character->right == SDL_TRUE && character->dx != 0) {
         if (character->dy > 0 && character->on_ground == SDL_FALSE) {
@@ -1186,6 +1212,7 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
           Character *character, Camera *camera) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
+    draw_background(renderer, texture, camera, map);
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
     draw_character(renderer, character, texture, camera);
@@ -1194,10 +1221,32 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
     SDL_RenderPresent(renderer);
 }
 
+void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map ){
+    int tile_width = SCREEN_WIDTH / camera->width;
+    int max_size=map->width * tile_width - (camera->width * tile_width);
+    int width=1024*2;
+    int height= 512 *2;
+    int total_width_midground=0;
+    int total_width_foreground=0;
+    while (total_width_midground <= max_size/3 + width){
+        SDL_Rect dst = {-camera->x /3 + total_width_midground, (camera->height +1)*100-1024, width, height};
+        SDL_RenderCopy(renderer, texture->background[1], NULL, &dst);
+        total_width_midground += width;
+    }
+    while (total_width_foreground <= max_size/2 + width){
+        SDL_Rect dst = {-camera->x /2 + total_width_foreground, (camera->height +1)*100-1024, width, height};
+        SDL_RenderCopy(renderer, texture->background[0], NULL, &dst);
+        total_width_foreground += width;
+    }
+}
 
-void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse) {
+void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse) {
     // Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
+    SDL_Rect dst_n1 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[1], NULL, &dst_n1);
+    SDL_Rect dst_n2 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[0], NULL, &dst_n2);
     SDL_Rect dst_bouton_start = {(camera->width * 100 / 2) - 500, camera->height * 100 / 5, 1000, 250};
     SDL_Rect dst_bouton_tutorial = {(camera->width * 100 / 2) - 500, camera->height * 200 / 3, 1000, 250};
     SDL_RenderCopy(renderer, texture->bouttons[0], NULL, &dst_bouton_start);

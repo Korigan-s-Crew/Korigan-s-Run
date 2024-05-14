@@ -25,14 +25,14 @@ Collision gen_tile_collision(int type) {
                 collision.left = SDL_FALSE;
                 collision.right = SDL_FALSE;
                 break;
-            case 21:
+            case 29:
                 collision.up = SDL_TRUE;
                 collision.down = SDL_FALSE;
                 collision.left = SDL_FALSE;
                 collision.right = SDL_FALSE;
                 collision.traversableUp = SDL_TRUE;
                 break;
-            case 37:
+            case 45:
                 collision.WallJumpable = SDL_TRUE;
                 break;
         }
@@ -83,7 +83,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
         ch = fgetc(file);
         // printf("%c", ch);
         // Remplit le tableau avec les valeurs correspondantes aux caractères du fichier texte (voir map.txt pour plus d'infos)
-        char tile_mapping[] = " #-------------------@---------------|";
+        char tile_mapping[] = " #---------------------------@---------------|";
         if (ch == 'S') {
             map->tiles[height][width] = create_tile(height, width, tile_width, tile_height,
                                                     -50, 0);
@@ -147,24 +147,34 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                         map->tiles[j - 1][i].type = -20-(map->tiles[j][i].type)%10;//Herbe
                     }
                 } else if (map->tiles[j - 1][i - 1].type < 10 &&
-                           map->tiles[j][i - 1].type >= 10) {//coin interieur gauche
-                    if (j > 1 && map->tiles[j - 2][i - 1].type < 10) {
+                            map->tiles[j - 1][i].type >= 10 &&
+                            map->tiles[j - 1][i].type < 290 &&
+                            map->tiles[j][i - 1].type >= 10 &&
+                            map->tiles[j][i - 1].type < 290 ) {//coin interieur gauche
+                    if (j > 1 && (map->tiles[j - 2][i].type < 10 || map->tiles[j - 2][i].type >= 290)) {
                         map->tiles[j][i].type += 160;
                     } else {
-
+                        map->tiles[j][i].type += 240;
                     }
-                } else if (j < map->height && i < map->width && map->tiles[j - 1][i + 1].type < 10 &&
-                           map->tiles[j][i + 1].type >= 10) {  // coin interieur droit
-                    map->tiles[j][i].type += 120;
+                } else if ( i < map->width && (map->tiles[j - 1][i + 1].type < 10 || map->tiles[j - 1][i + 1].type >= 290) &&
+                            map->tiles[j - 1][i].type >= 10 &&
+                            map->tiles[j - 1][i].type < 290 &&
+                            map->tiles[j][i + 1].type >= 10 &&
+                            map->tiles[j][i + 1].type < 290 ){// coin interieur droit
+                    if (j > 1 && (map->tiles[j - 2][i].type < 10 || map->tiles[j - 2][i].type >= 290)) {
+                        map->tiles[j][i].type += 120;
+                    } else {
+                        map->tiles[j][i].type += 200;
+                    }
                 }
             }
             //Textures de nuages (@)
-            else if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 210 && (map->tiles[j][i].type) < 220) {
+            else if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 290 && (map->tiles[j][i].type) < 300) {
                 //debut de nuage
-                if ((map->tiles[j][i - 1].type) < 210 || (map->tiles[j][i - 1].type)>= 280) {
-                    if ((map->tiles[j][i + 1].type) < 210 || (map->tiles[j][i + 1].type) >= 220) {
+                if ((map->tiles[j][i - 1].type) < 290 || (map->tiles[j][i - 1].type)>= 360) {
+                    if ((map->tiles[j][i + 1].type) < 290 || (map->tiles[j][i + 1].type) >= 300) {
                         map->tiles[j][i].type += 70;//nuage seul
-                    } else if ((map->tiles[j][i + 2].type) < 210 || (map->tiles[j][i + 2].type) >= 220) {
+                    } else if ((map->tiles[j][i + 2].type) < 290 || (map->tiles[j][i + 2].type) >= 300) {
                         map->tiles[j][i].type += 10;//nuage double
                         map->tiles[j][i + 1].type += 40;
                     } else {
@@ -180,9 +190,9 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                 }
                     //Fin de nuage
                 else {
-                    if ((map->tiles[j][i + 1].type) < 210 || (map->tiles[j][i + 1].type) > 220) {
+                    if ((map->tiles[j][i + 1].type) < 290 || (map->tiles[j][i + 1].type) > 300) {
                         map->tiles[j][i].type += 40;
-                    } else if ((map->tiles[j][i + 2].type) < 210 || (map->tiles[j][i + 2].type) > 220) {
+                    } else if ((map->tiles[j][i + 2].type) < 290 || (map->tiles[j][i + 2].type) > 300) {
                         if (rand()%2==0){
                             map->tiles[j][i].type += 50;
                             map->tiles[j][i+1].type += 60;
@@ -192,41 +202,44 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                 }
             }
             //Textures de murs (|)
-            else if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 370 && (map->tiles[j][i].type) < 380){
-                if ((map->tiles[j + 1][i].type) >= 370 && (map->tiles[j + 1][i].type)< 410) {//teste si c'est un mid
-                    if ((map->tiles[j - 1][i].type) < 370 || (map->tiles[j - 1][i].type)>= 410) {//teste si c'est un top
+            else if (i > 0 && j > 0 && (map->tiles[j][i].type) >= 450 && (map->tiles[j][i].type) < 460){
+                if ((map->tiles[j + 1][i].type) >= 450 && (map->tiles[j + 1][i].type)< 490) {//teste si c'est un mid
+                    if ((map->tiles[j - 1][i].type) < 450 || (map->tiles[j - 1][i].type)>= 490) {//teste si c'est un top
                         map->tiles[j][i].type += 10;
                     }
                     else {
-                        map->tiles[j][i].type = map->tiles[j-1][i].type%10 + 390;
+                        map->tiles[j][i].type = map->tiles[j-1][i].type%10 + 470;
                     }
                 }
                 else {
-                    map->tiles[j][i].type = map->tiles[j-1][i].type%10 + 400;
+                    map->tiles[j][i].type = map->tiles[j-1][i].type%10 + 480;
                 }
 
             }
         }
     }
     //Textures dependantes
-#define not_bottom(i,j) ( \
-((map->tiles[j - 1][i].type) >= 10 && map->tiles[j - 1][i].type <= 29)||                       \
-((map->tiles[j - 1][i].type) >= 50 && map->tiles[j - 1][i].type <= 79)||                       \
-((map->tiles[j - 1][i].type) >= 90 && map->tiles[j - 1][i].type <= 119)||                      \
-((map->tiles[j - 1][i].type) >= 130 && map->tiles[j - 1][i].type <= 159)||                     \
-((map->tiles[j - 1][i].type) >= 170 && map->tiles[j - 1][i].type <= 199))
+#define not_bottom(i, j) ( \
+    (map->tiles[(j) - 1][i].type >= 10 && map->tiles[(j) - 1][i].type <= 29) || \
+    (map->tiles[(j) - 1][i].type >= 50 && map->tiles[(j) - 1][i].type <= 79) || \
+    (map->tiles[(j) - 1][i].type >= 90 && map->tiles[(j) - 1][i].type <= 119) || \
+    (map->tiles[(j) - 1][i].type >= 130 && map->tiles[(j) - 1][i].type <= 159) || \
+    (map->tiles[(j) - 1][i].type >= 170 && map->tiles[(j) - 1][i].type <= 199) || \
+    (map->tiles[(j) - 1][i].type >= 210 && map->tiles[(j) - 1][i].type <= 239) || \
+    (map->tiles[(j) - 1][i].type >= 250 && map->tiles[(j) - 1][i].type <= 279) \
+)
 
     for (int i = 0; i < map->width; i++) {
         for (int j = 0; j < map->height; j++) {
             //textures descendantes
             if (j > 0 && (map->tiles[j][i].type) >= 10 && map->tiles[j][i].type < 20 &&
-                (map->tiles[j - 1][i].type) >= 10) {
+                map->tiles[j - 1][i].type >= 10 && map->tiles[j - 1][i].type < 290) {
                 if (not_bottom(i, j)) {
                     map->tiles[j][i].type = map->tiles[j - 1][i].type + 10;
                 } else {
                     map->tiles[j][i].type = 40;
                 }
-            } else if ((map->tiles[j + 1][i].type) >= 210 && (map->tiles[j + 1][i].type) < 280 &&
+            } else if ((map->tiles[j + 1][i].type) >= 290 && (map->tiles[j + 1][i].type) < 360 &&
                        (map->tiles[j][i].type < 10)) {
                 map->tiles[j][i].type += (map->tiles[j + 1][i].type / 10 + 8) * 10;//partie transparente du nuage
             }
