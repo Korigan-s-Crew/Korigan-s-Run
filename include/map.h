@@ -9,14 +9,15 @@
 typedef struct Character Character;
 typedef struct Collision Collision;
 struct Collision {
-	SDL_bool up;
-	SDL_bool down;
-	SDL_bool left;
-	SDL_bool right;
-	SDL_bool traversableUp;
-	SDL_bool traversableDown;
-	SDL_bool traversableLeft;
-	SDL_bool traversableRight;
+    SDL_bool up;
+    SDL_bool down;
+    SDL_bool left;
+    SDL_bool right;
+    SDL_bool traversableUp;
+    SDL_bool traversableDown;
+    SDL_bool traversableLeft;
+    SDL_bool traversableRight;
+    SDL_bool WallJumpable;
 };
 
 typedef struct Point Point;

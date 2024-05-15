@@ -36,15 +36,29 @@ struct Character {
     SDL_bool on_ground;
     SDL_bool wall_right;
     SDL_bool wall_left;
+    SDL_bool wall_jump_right;
+    SDL_bool wall_jump_left;
     SDL_bool right;
     SDL_bool left;
     SDL_bool up;
     SDL_bool down;
+    SDL_bool on_portal;
     SDL_bool next_map;
     Dash *dash;
     Slide *slide;
     SDL_Texture *images[100];
+    SDL_Keycode key_suggestion;
+    SDL_Texture *text_suggestion;
+    double timer;
 };
+typedef struct Mouse Mouse;
+struct Mouse {
+    int x;
+    int y;
+    SDL_bool on_boutton;
+    int num_boutton;
+};
+
 struct Camera {
     int x;
     int y;
@@ -53,7 +67,9 @@ struct Camera {
     int fps;
     int avg_fps;
     SDL_bool show_fps;
+    SDL_bool show_timer;
     int pattern_generated_history[100];
+
 };
 typedef struct Camera Camera;
 
@@ -67,6 +83,9 @@ struct Texture {
     RdmTexture *collision[100];
     RdmTexture *transparent[100];
     SDL_Texture *main_character[100];
+    SDL_Texture *key_suggestion[100];
+    SDL_Texture *bouttons[100];
+    SDL_Texture *timer[11];
     TTF_Font *font;
 };
 typedef struct Texture Texture;
@@ -85,8 +104,10 @@ void draw_character(SDL_Renderer *renderer, Character *character, Texture *textu
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
+void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
-void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
+void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
+void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, int tile_width, int tile_height, Camera *camera, Mouse *mouse);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
 #endif
