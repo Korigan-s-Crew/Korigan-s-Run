@@ -94,18 +94,18 @@ void apply_ghostly_effect(const char* input_file, const char* output_file_prefix
     free(prev_frame);
     stbi_image_free(image_data);
 }
+/*
+int main(int argc, char** argv) {
+    if (argc != 4) {
+        printf("Usage: %s <input_file> <output_file_prefix> <num_frames>\n", argv[0]);
+        return 1;
+    }
 
-//int main(int argc, char** argv) {
-//    if (argc != 4) {
-//        printf("Usage: %s <input_file> <output_file_prefix> <num_frames>\n", argv[0]);
-//        return 1;
-//    }
-//
-//    const char* input_file = argv[1];
-//    const char* output_file_prefix = argv[2];
-//    int num_frames = atoi(argv[3]);
-//
-//    apply_ghostly_effect(input_file, output_file_prefix, num_frames, 1);
-//
-//    return 0;
-//}
+    const char* input_file = argv[1];
+    const char* output_file_prefix = argv[2];
+    int num_frames = atoi(argv[3]);
+
+    apply_ghostly_effect(input_file, output_file_prefix, num_frames, 1);
+
+    return 0;
+}*/

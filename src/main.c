@@ -7,6 +7,8 @@
 #include "../include/map.h"
 #include "../include/movement.h"
 #include "../include/procedural_generation.h"
+#include "../include/dash_effect.h"
+#include "../include/animation.h"
 
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
@@ -79,6 +81,7 @@ int main(void) {
     srand(time(NULL));  // srand(8675612346585);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
+    init_character_animations_buffer();
     // Affiche la première image
     //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     draw_homepage(renderer, bleu, texture, &camera, mouse);
@@ -731,6 +734,29 @@ Texture *create_texture(SDL_Renderer *renderer) {
         addcat(imagePath, "Textures/korigan", imageNames[i]);
         texture->main_character[i] = loadImage(imagePath, renderer);
     }
+    // Initialisation du tableau de textures du personnage à NULL pour éviter les problèmes de mémoire
+    for (int i = 0; i < 100; i++)
+        texture->trail_frames[i] = NULL;
+    // Liste des noms des images du personnage
+    char *trailNames[] = {
+            "dash/dash_000.png",
+            "dash/dash_001.png",
+            "dash/dash_002.png",
+            "dash/dash_003.png",
+            "dash/dash_004.png",
+            "dash/dash_005.png",
+            "dash/dash_006.png",
+            "dash/dash_007.png",
+            "dash/dash_008.png",
+            "dash/dash_009.png",
+            "END"};
+    // Chargement des textures du personnage
+    for (int i = 0; strcmp(trailNames[i], "END"); i++) {
+        char imagePath[100];
+        addcat(imagePath, "Textures/korigan", trailNames[i]);
+        texture->trail_frames[i] = loadImage(imagePath, renderer);
+        printf("%s\n", imagePath);
+    }
     // Liste des noms des images de suggestion de touche
     char *key_images[] = {
             "q.png",
@@ -789,7 +815,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         SDL_Texture *num_texture = SDL_CreateTextureFromSurface(renderer, surface);
         texture->timer[i] = num_texture;
         SDL_FreeSurface(surface);
-        }
+    }
     TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
     SDL_Color color = {192, 190, 193, 255};
     SDL_Surface *surface = TTF_RenderText_Solid(texture->font, ".", color);
@@ -820,6 +846,9 @@ void free_texture(Texture *texture) {
         }
         if (NULL != texture->main_character[i]) {
             SDL_DestroyTexture(texture->main_character[i]);
+        }
+        if (NULL != texture->trail_frames[i]) {
+            SDL_DestroyTexture(texture->trail_frames[i]);
         }
         if (NULL != texture->key_suggestion[i]) {
             SDL_DestroyTexture(texture->key_suggestion[i]);
@@ -982,6 +1011,8 @@ void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture
         } else {
             SDL_RenderCopyEx(renderer, texture->main_character[8 + offset], NULL, &dst, 0, NULL, SDL_FLIP_HORIZONTAL);
         }
+    } else if (character->dash->duration > 0) {
+        dash_display(character, texture, renderer, camera, dst);
     } else if (character->right == SDL_TRUE && character->left == SDL_TRUE && character->on_ground == SDL_TRUE) {
         if (character->crouch == SDL_FALSE){
             SDL_RenderCopy(renderer, texture->main_character[0 + offset], NULL, &dst);
@@ -1215,6 +1246,8 @@ void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *
     draw_background(renderer, texture, camera, map);
     move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
+    render_character_animations(renderer, camera);
+    update_character_animations();
     draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera, texture);
     draw_time(renderer, character, camera, texture);
