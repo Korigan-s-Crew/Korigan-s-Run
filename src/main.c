@@ -12,7 +12,7 @@ int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
 
 int main(void) {
-    // start a timer
+    // start a timer //bullshit
     long long start = getCurrentTimeInMicroseconds();
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
