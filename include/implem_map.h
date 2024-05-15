@@ -85,4 +85,6 @@ Pattern pattern_initialisation();
 
 void free_pattern(Pattern pat);
 
+void get_file_dimensions(const char* filename, int* rows, int* cols);
+
 #endif
