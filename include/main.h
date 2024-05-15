@@ -7,7 +7,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 60
@@ -68,7 +67,6 @@ struct Camera {
     SDL_bool show_fps;
     SDL_bool show_timer;
     int pattern_generated_history[100];
-
 };
 typedef struct Camera Camera;
 
@@ -89,6 +87,7 @@ struct Texture {
     RdmTexture *transparent[100];
     SDL_Texture *main_character[100];
     SDL_Texture *key_suggestion[100];
+    SDL_Texture *trail_frames[100];
     SDL_Texture *bouttons[100];
     SDL_Texture *timer[11];
     SDL_Texture *background[11];
@@ -109,6 +108,9 @@ char *addcat(char *result, char *path, char *name);
 void draw_character(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera);
 void draw_character_offset(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst, int offset);
 void draw_character_animation(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, float speed, int nb_frame);
+void draw_dash_trail(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int nb_frame);
+void draw_dash_trail(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera,
+                     int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
