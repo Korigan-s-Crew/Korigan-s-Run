@@ -38,15 +38,32 @@ struct Matrice {
 };
 typedef struct Matrice Matrice;
 
+struct Pattern {
+	// récupération des matrices liées aux patterns
+	Graphe* graphe;
+	Matrice Start;
+	Matrice M1;
+	Matrice M2;
+	Matrice M3;
+	Matrice M4;
+	Matrice M5;
+	Matrice M6;
+	Matrice M7;
+	Matrice M8;
+	Matrice M9;
+	Matrice M0;
+	Matrice End;
+};
+typedef struct Pattern Pattern;
 // Fonctions
 struct Graphe*
 create_graph();
 
 void free_graph(struct Graphe* graphe);
 
-char* parcours_graphe(struct Graphe* graphe);
+char* parcours_graphe(struct Graphe* graphe, int length);
 
-void create_map_txt(char* parcours);
+void create_map_txt(Pattern pat, int length, char* file);
 
 int random_number(int min, int max);
 
@@ -60,8 +77,12 @@ Matrice creerMatrice(int rows, int cols);
 
 void libererMatrice(Matrice matrice);
 
-Matrice concatenerMatrice(Matrice M1, Matrice M2);
+Matrice concatenerMatrices(Matrice M1, Matrice M2);
 
 void afficherMatrice(Matrice mat);
+
+Pattern pattern_initialisation();
+
+void free_pattern(Pattern pat);
 
 #endif

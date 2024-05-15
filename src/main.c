@@ -54,7 +54,11 @@ int main(void) {
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
-    Map *map = create_map("map.txt", tile_width, tile_height);
+	// Initialise le graphe
+	Pattern pat = pattern_initialisation();
+    create_map_txt(pat, 5, "test.txt");
+	Map *map = create_map("test.txt", tile_width, tile_height);
+	// Map *map = create_map("map.txt", tile_width, tile_height);
     int nb_map = 1;
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
@@ -68,10 +72,8 @@ int main(void) {
     int running = 1;
     // Chargement des textures
     Texture *texture = create_texture(renderer);
-	// Initialise le graphe
-	struct Graphe *graphe = create_graph();
 	// Affiche la première image
-    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera, graphe);
+    draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     // printf("main\n");
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
@@ -137,7 +139,7 @@ int main(void) {
                         // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                         collision(character, map);
                         // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
-                        draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera, graphe);
+                        draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                     }
                     break;
                     // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
@@ -247,14 +249,19 @@ int main(void) {
                 character->y = map->tile_start_y * tile_height;
                 character->alive = SDL_TRUE;
             }
-            if (character->next_map == SDL_TRUE && nb_map == 1) {
-				map = change_map(map, "map2.txt", character, &camera, graphe, map->tile_width, map->tile_height);
-				nb_map++;
-            }
-            if (character->next_map == SDL_TRUE && nb_map == 2) {
-				map = change_map(map, "map.txt", character, &camera, graphe, map->tile_width, map->tile_height);
-				nb_map--;
-            }
+            if (character->next_map == SDL_TRUE) {
+				create_map_txt(pat, 5, "test.txt");
+				map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+			}
+
+            // if (character->next_map == SDL_TRUE && nb_map == 1) {
+			// 	map = change_map(map, "map2.txt", character, &camera, map->tile_width, map->tile_height);
+			// 	nb_map++;
+            // }
+            // if (character->next_map == SDL_TRUE && nb_map == 2) {
+			// 	map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+			// 	nb_map--;
+            // }
             // Applique la gravité au personnage
             gravity(character);
             // Applique le mouvement au personnage
@@ -266,7 +273,7 @@ int main(void) {
         // C'est la condition qui donne le FPS
         if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
             last_time_fps = getCurrentTimeInMicroseconds();
-            draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera, graphe);
+            draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
             camera.fps++;
         }
     }
@@ -278,7 +285,7 @@ int main(void) {
     free(character->slide);
     free(character);
     free_texture(texture);
-	free_graph(graphe);
+	free_pattern(pat);
 Quit:
     if (NULL != renderer)
         SDL_DestroyRenderer(renderer);
@@ -686,10 +693,10 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
 }
 
 void draw(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height,
-		  Character *character, Camera *camera, Graphe *graphe) {
+		  Character *character, Camera *camera) {
 	// Afficher le arrière plan puis déplacer la camera, affiche la map, le personnage dans la fenêtre et met à jour l'affichage
     setWindowColor(renderer, bleu);
-    move_camera(camera, character, map, graphe);
+    move_camera(camera, character, map);
     draw_map(renderer, texture, map, tile_width, tile_height, camera);
     draw_character(renderer, character, texture, camera);
     draw_fps(renderer, camera, texture);
@@ -712,7 +719,7 @@ void create_camera(Camera *camera, int x, int y, int width, int height) {
     }
 }
 
-void move_camera(Camera *camera, Character *character, Map *map, Graphe *graphe) {
+void move_camera(Camera *camera, Character *character, Map *map) {
     // Déplace la camera par rapport au personnage
     int tile_width = SCREEN_WIDTH / camera->width;
     int tile_height = SCREEN_HEIGHT / camera->height;
@@ -726,7 +733,7 @@ void move_camera(Camera *camera, Character *character, Map *map, Graphe *graphe)
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
         // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
-        Map *pattern = generated_pattern(camera, character, map, graphe);
+        Map *pattern = generated_pattern(camera, character, map);
         // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
         if (map->full == SDL_FALSE) {
             add_right_pattern_to_map(pattern, map);

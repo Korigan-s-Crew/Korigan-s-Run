@@ -64,6 +64,6 @@ SDL_bool change_size_collision(Character *character, Map *map, int width, int he
 Map *create_map(char *path, int tile_width, int tile_height);
 void collision(Character *character, Map *map);
 void add_right_pattern_to_map(Map *pattern, Map *map);
-Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, Graphe *graphe, int tile_width, int tile_height);
+Map *change_map(Map *map, char *map_name, Character *character, Camera *camera, int tile_width, int tile_height);
 
 #endif	// CGAME_MAP_H
