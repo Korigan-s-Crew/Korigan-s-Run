@@ -1,5 +1,5 @@
 TARGET = main
-SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c
+SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c implem_map.c
 OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
 BINARY = bin/$(TARGET)
 
