@@ -190,13 +190,25 @@ Matrice recup_matrice(char* file) {
 		printf("Error opening %s in : recup_matrice\n", file);
 		exit(1);
 	}
+	int rows, cols;
+	get_file_dimensions(file, &rows, &cols);
+	printf("rows : %d, cols: %d \n", rows, cols);
+	// Matrice matrice = creerMatrice(L, C);
+	// char line[C + 2];  // +2 pour le caractère de fin de ligne et le caractère nul de fin de chaîne
 
-	Matrice matrice = creerMatrice(L, C);
-	char line[C + 2];  // +2 pour le caractère de fin de ligne et le caractère nul de fin de chaîne
+	// for (int i = 0; i < rows; i++) {
+	// 	fgets(line, sizeof(line), f);
+	// 	for (int j = 0; j < cols; j++) {
+	// 		matrice.data[i][j] = line[j];
+	// 	}
+	// }
 
-	for (int i = 0; i < L; i++) {
+	Matrice matrice = creerMatrice(rows, cols);
+	char line[cols + 2];  // +2 pour le caractère de fin de ligne et le caractère nul de fin de chaîne
+
+	for (int i = 0; i < rows; i++) {
 		fgets(line, sizeof(line), f);
-		for (int j = 0; j < C; j++) {
+		for (int j = 0; j < cols - 1; j++) {
 			matrice.data[i][j] = line[j];
 		}
 	}
@@ -204,6 +216,33 @@ Matrice recup_matrice(char* file) {
 	fclose(f);
 
 	return matrice;
+}
+
+void get_file_dimensions(const char* filename, int* rows, int* cols) {
+	FILE* fp;
+	char line[1024];  // assume max line length is 1024
+	int max_cols = 0;
+
+	fp = fopen(filename, "r");	// open the file in read mode
+	if (fp == NULL) {
+		perror("Error opening file");
+		*rows = 0;
+		*cols = 0;
+		return;
+	}
+
+	*rows = 0;
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		(*rows)++;	// increment row count
+		int len = strlen(line);
+		if (len > max_cols) {
+			max_cols = len;	 // update max column count
+		}
+	}
+
+	*cols = max_cols;  // set cols to max_cols
+
+	fclose(fp);
 }
 
 // Fonction pour concaténer deux matrices par bloc (horizontalement)
