@@ -2,7 +2,8 @@
 
 // Fonction qui donne un nombre aléatoire entre min et max
 int random_number(int min, int max) {
-	srand(rand());
+	srand(time(0));
+	printf("rand : %d \n", rand());
 	return rand() % (max - min + 1) + min;
 }
 

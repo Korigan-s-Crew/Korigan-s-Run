@@ -79,7 +79,7 @@ int main(void) {
     // DEBUG MAP
     print_map(map);
     // Initialise la seed pour le random
-    srand(time(NULL));  // srand(8675612346585);
+    srand(time(0));  // srand(8675612346585);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     init_character_animations_buffer();
