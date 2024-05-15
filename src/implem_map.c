@@ -107,7 +107,9 @@ void matrice_vers_file(Matrice matrice, char* file) {
 		for (int j = 0; j < matrice.cols; j++) {
 			fprintf(f, "%c", matrice.data[i][j]);
 		}
-		fprintf(f, "\n");
+		if (i < matrice.rows - 1) {
+			fprintf(f, "\n");
+		}
 	}
 
 	fclose(f);
@@ -298,7 +300,6 @@ void free_pattern(Pattern pat) {
 // Fonction pour créer un fichier .txt à partir des fichiers patterns concaténés selon le parcours du graphe
 void create_map_txt(Pattern pat, int length, char* file) {
 	char* parcours = parcours_graphe(pat.graphe, length);
-
 
 	printf("parcours : %s \n", parcours);
 	char* start = "./Patterns/first_pattern.txt";
