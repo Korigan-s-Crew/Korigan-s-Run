@@ -59,8 +59,9 @@ int main(void) {
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
     // Crée la map
-    Map *map = create_map("map.txt", tile_width, tile_height);
-    int nb_map = 1;
+    Pattern pat = pattern_initialisation();
+    create_map_txt(pat, 5, "test.txt");
+    Map *map = create_map("test.txt", tile_width, tile_height);
 
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
@@ -238,7 +239,6 @@ int main(void) {
                                 break;
                             case SDLK_t:
                                 game_playing = 1;
-                                nb_map = 1;
                                 tutorial_step = 1;
                                 character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
@@ -247,12 +247,11 @@ int main(void) {
                                 break;
                             case SDLK_e:
                                 game_playing = 1;
-                                nb_map = 1;
                                 tutorial_step = 0;
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                //map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
 
@@ -262,17 +261,15 @@ int main(void) {
                         if (mouse->on_boutton == SDL_TRUE ) {
                             if (mouse->num_boutton == 0) {
                                 game_playing = 1;
-                                nb_map=1;
                                 tutorial_step=0;
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
                                 game_playing = 1;
-                                nb_map=1;
                                 tutorial_step = 1;
                                 character->key_suggestion=key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
@@ -287,37 +284,6 @@ int main(void) {
                         mouse->y = event.motion.y;
                         break;
                 }
-            }
-            if (getCurrentTimeInMicroseconds() - last_time_sec >= 1000000) {
-                last_time_sec = getCurrentTimeInMicroseconds();
-                // printf("fps: %d\n", camera.fps);
-                camera.avg_fps = camera.fps;
-                camera.fps = 0;
-            }
-            // Si le temps écoulé depuis le dernier appel à SDL_GetTicks est supérieur à 16 ms
-            // C'est la condition qui donne le game tick (60 fois par seconde) cad 16 ms par tick
-            if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
-                last_time = getCurrentTimeInMicroseconds();
-                if (character->alive == SDL_FALSE) {  // ide warning is an error
-                    character->x = map->tile_start_x * tile_width;
-                    character->y = map->tile_start_y * tile_height;
-                    character->alive = SDL_TRUE;
-                }
-                if (character->next_map == SDL_TRUE && nb_map == 1) {
-                    map = change_map(map, "map2.txt", character, &camera, map->tile_width, map->tile_height);
-                    nb_map++;
-                }
-                if (character->next_map == SDL_TRUE && nb_map == 2) {
-                    map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
-                    nb_map--;
-                }
-                // Applique la gravité au personnage
-                gravity(character);
-                // Applique le mouvement au personnage
-                mouvement(map, character);
-                // Affiche la map et le personnage dans la fenêtre
-                // draw(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                // camera.fps++;
             }
             // C'est la condition qui donne le FPS
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
@@ -524,13 +490,9 @@ int main(void) {
                     character->y = map->tile_start_y * tile_height;
                     character->alive = SDL_TRUE;
                 }
-                if (character->next_map == SDL_TRUE && nb_map == 1) {
-                    map = change_map(map, "map2.txt", character, &camera, map->tile_width, map->tile_height);
-                    nb_map++;
-                }
-                if (character->next_map == SDL_TRUE && nb_map == 2) {
-                    map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
-                    nb_map--;
+                if (character->next_map == SDL_TRUE ) {
+                    create_map_txt(pat, 5, "test.txt");
+                    map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                 }
                 // Applique la gravité au personnage
                 gravity(character);
@@ -559,6 +521,7 @@ int main(void) {
     free(character);
     free(mouse);
     free_texture(texture);
+    free_pattern(pat);
 
 Quit:
     if (NULL != renderer)
