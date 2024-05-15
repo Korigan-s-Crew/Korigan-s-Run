@@ -8,6 +8,8 @@
 
 #define MAX_CHARACTERS 50
 
+typedef struct Character Character;
+typedef struct Dash Dash;
 
 // Structure to hold information about a character animation
 typedef struct {
@@ -30,6 +32,7 @@ void init_character_animations_buffer();
 int add_character_animation(Character *character, SDL_Texture *texture[], Camera *camera, SDL_Rect dst, int nb_frame, int duration, double angle, SDL_Point *center, SDL_RendererFlip flip);
 void update_character_animations();
 void render_character_animations(SDL_Renderer *renderer, Camera *camera);
+void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer, Camera *camera, SDL_Rect dst);
 int print_nb_animation(int prev_nb);
 
 

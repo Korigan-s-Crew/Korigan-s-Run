@@ -1,4 +1,5 @@
 #include "../include/animation.h"
+#include "../include/movement.h"
 
 // Buffer to hold character animations
 CharacterAnimation character_animations[MAX_CHARACTERS];
@@ -90,6 +91,30 @@ void render_character_animations(SDL_Renderer *renderer, Camera *camera){
             SDL_RenderCopyEx(renderer, character_animations[i].texture[current_frame], NULL, &newDST,
                              character_animations[i].angle, character_animations[i].center, character_animations[i].flip);
         }
+    }
+}
+
+void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer, Camera *camera, SDL_Rect dst) {
+    // Calculate angle of dash direction vector
+    double angle = atan2(character->dash->direction.y, character->dash->direction.x) * 180 / M_PI;
+
+    if (angle < 0) {
+        angle += 360; // Ensure angle is in the range [0, 360)
+    }
+    printf("direction: %d %d, angle: %f\n", character->dash->direction.x, character->dash->direction.y, angle);
+    // Choose the appropriate frame based on the angle
+
+    // Render the dash sprite at the correct angle
+    if (character->dash->direction.x == 1) {
+        SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, SDL_FLIP_NONE);
+    } else {
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (angle >= 90 && angle <= 270) {
+            flip = SDL_FLIP_VERTICAL; // Flip if angle is between 90 and 270 degrees
+        }
+        SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, angle, NULL, flip);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, flip);
     }
 }
 

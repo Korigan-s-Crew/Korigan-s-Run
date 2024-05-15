@@ -4,8 +4,11 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../include/stb_image_write.h"
 
+#include <math.h>
+
 #include "../include/dash_effect.h"
 #include "../include/animation.h"
+#include "../include/movement.h"
 
 void apply_box_blur(unsigned char* data, int width, int height, int channels, int radius) {
     unsigned char* temp = (unsigned char*)malloc(width * height * channels);
@@ -92,27 +95,17 @@ void apply_ghostly_effect(const char* input_file, const char* output_file_prefix
     stbi_image_free(image_data);
 }
 
-
-void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer, Camera *camera, SDL_Rect dst) {
-    // Calculate angle of dash direction vector
-    double angle = atan2(character->dash->direction.y, character->dash->direction.x) * 180 / M_PI;
-
-    if (angle < 0) {
-        angle += 360; // Ensure angle is in the range [0, 360)
-    }
-    printf("direction: %d %d, angle: %f\n", character->dash->direction.x, character->dash->direction.y, angle);
-    // Choose the appropriate frame based on the angle
-
-    // Render the dash sprite at the correct angle
-    if (character->dash->direction.x == 1) {
-        SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
-        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, SDL_FLIP_NONE);
-    } else {
-        SDL_RendererFlip flip = SDL_FLIP_NONE;
-        if (angle >= 90 && angle <= 270) {
-            flip = SDL_FLIP_VERTICAL; // Flip if angle is between 90 and 270 degrees
-        }
-        SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, angle, NULL, flip);
-        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, flip);
-    }
-}
+//int main(int argc, char** argv) {
+//    if (argc != 4) {
+//        printf("Usage: %s <input_file> <output_file_prefix> <num_frames>\n", argv[0]);
+//        return 1;
+//    }
+//
+//    const char* input_file = argv[1];
+//    const char* output_file_prefix = argv[2];
+//    int num_frames = atoi(argv[3]);
+//
+//    apply_ghostly_effect(input_file, output_file_prefix, num_frames, 1);
+//
+//    return 0;
+//}

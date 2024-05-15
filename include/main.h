@@ -7,8 +7,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-
-
 #ifndef EXAMPLE_2D_H
 #define EXAMPLE_2D_H
 #define MAX_FPS 60
@@ -69,7 +67,6 @@ struct Camera {
     SDL_bool show_fps;
     SDL_bool show_timer;
     int pattern_generated_history[100];
-
 };
 typedef struct Camera Camera;
 
