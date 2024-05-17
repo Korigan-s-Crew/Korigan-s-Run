@@ -2,7 +2,7 @@
 
 // Fonction qui donne un nombre aléatoire entre min et max
 int random_number(int min, int max) {
-	srand(time(0));
+	srand(rand());
 	printf("rand : %d \n", rand());
 	return rand() % (max - min + 1) + min;
 }
@@ -117,32 +117,14 @@ void matrice_vers_file(Matrice matrice, char* file) {
 }
 
 // Fonction pour obtenir un parcours aléatoire dans le graphe
-char* parcours_graphe(struct Graphe* graphe, int length) {
-	int debut = random_number(1, N - 1);
-	int noeud_actuel = debut;
-	char* parcours = malloc((length + 1) * sizeof(char));
-	char buffer[5];
-	if (parcours == NULL) {
-		printf("Erreur d'allocation de mémoire pour le parcours\n");
-		exit(1);
+int parcours_graphe(struct Graphe* graphe, int noeud_actuel) {
+	struct Noeuds* noeud = graphe->noeud[noeud_actuel];
+	if (noeud != NULL) {
+		noeud_actuel = noeud->destination;
+	} else {
+		printf("BUG: Noeud in parcours_graphe is null");
 	}
-	parcours[0] = '\0';
-	for (int i = 0; i < length; i++) {
-		struct Noeuds* noeud = graphe->noeud[noeud_actuel];
-		if (noeud != NULL) {
-			sprintf(buffer, "%d", noeud_actuel);
-			if (parcours == NULL) {
-				printf("Erreur d'allocation de mémoire pour le parcours\n");
-				exit(1);
-			}
-			strcat(parcours, buffer);
-			noeud_actuel = noeud->destination;
-		} else {
-			break;
-		}
-	}
-
-	return parcours;
+	return noeud_actuel;
 }
 
 // Fonction pour créer une nouvelle matrice avec des dimensions spécifiées
@@ -192,23 +174,12 @@ Matrice recup_matrice(char* file) {
 	}
 	int rows, cols;
 	get_file_dimensions(file, &rows, &cols);
-	printf("rows : %d, cols: %d \n", rows, cols);
-	// Matrice matrice = creerMatrice(L, C);
-	// char line[C + 2];  // +2 pour le caractère de fin de ligne et le caractère nul de fin de chaîne
-
-	// for (int i = 0; i < rows; i++) {
-	// 	fgets(line, sizeof(line), f);
-	// 	for (int j = 0; j < cols; j++) {
-	// 		matrice.data[i][j] = line[j];
-	// 	}
-	// }
-
 	Matrice matrice = creerMatrice(rows, cols);
 	char line[cols + 2];  // +2 pour le caractère de fin de ligne et le caractère nul de fin de chaîne
 
 	for (int i = 0; i < rows; i++) {
 		fgets(line, sizeof(line), f);
-		for (int j = 0; j < cols - 1; j++) {
+		for (int j = 0; j < cols; j++) {
 			matrice.data[i][j] = line[j];
 		}
 	}
@@ -240,13 +211,13 @@ void get_file_dimensions(const char* filename, int* rows, int* cols) {
 		}
 	}
 
-	*cols = max_cols;  // set cols to max_cols
+	*cols = max_cols - 1;  // set cols to max_cols
 
 	fclose(fp);
 }
 
 // Fonction pour concaténer deux matrices par bloc (horizontalement)
-Matrice concatenerMatrices(Matrice M1, Matrice M2) {
+Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big) {
 	if (M1.rows != M2.rows) {
 		fprintf(stderr, "Erreur : Les matrices doivent avoir le même nombre de lignes pour être concaténées par bloc\n");
 		exit(EXIT_FAILURE);
@@ -255,7 +226,10 @@ Matrice concatenerMatrices(Matrice M1, Matrice M2) {
 	int rows = M1.rows;
 	int cols1 = M1.cols;
 	int cols2 = M2.cols;
-
+	if (cols1 + cols2 > MAX_TILES) {
+		*pattern2big = 1;
+		return M1;
+	}
 	// Créer une nouvelle matrice pour stocker la concaténation
 	Matrice concat = creerMatrice(rows, cols1 + cols2);
 
@@ -338,55 +312,53 @@ void free_pattern(Pattern pat) {
 }
 
 // Fonction pour créer un fichier .txt à partir des fichiers patterns concaténés selon le parcours du graphe
-void create_map_txt(Pattern pat, int length, char* file) {
-	char* parcours = parcours_graphe(pat.graphe, length);
-
-	printf("parcours : %s \n", parcours);
+void create_map_txt(Pattern pat, char* file) {
 	char* start = "./Patterns/first_pattern.txt";
 	Matrice M = recup_matrice(start);
-
-	for (int i = 0; parcours[i] != '\0'; i++) {
-		if (parcours[i] == '1') {
-			M = concatenerMatrices(M, pat.M1);
-		}
-		if (parcours[i] == '2') {
-			M = concatenerMatrices(M, pat.M2);
-		}
-		if (parcours[i] == '3') {
-			M = concatenerMatrices(M, pat.M3);
-		}
-		if (parcours[i] == '4') {
-			M = concatenerMatrices(M, pat.M4);
-		}
-		if (parcours[i] == '5') {
-			M = concatenerMatrices(M, pat.M5);
-		}
-		if (parcours[i] == '6') {
-			M = concatenerMatrices(M, pat.M6);
-		}
-		if (parcours[i] == '7') {
-			M = concatenerMatrices(M, pat.M7);
-		}
-		if (parcours[i] == '8') {
-			M = concatenerMatrices(M, pat.M8);
-		}
-		if (parcours[i] == '9') {
-			M = concatenerMatrices(M, pat.M9);
-		}
-		if (parcours[i] == '0') {
-			M = concatenerMatrices(M, pat.M0);
+	int noeud_actuel = random_number(1, N - 1);
+	int pattern2big = 0;
+	while (M.cols <= MAX_TILES - pat.End.cols && pattern2big == 0) {
+		noeud_actuel = parcours_graphe(pat.graphe, noeud_actuel);
+		switch (noeud_actuel) {
+		case 0:
+			M = concatenerMatrices(M, pat.M0, &pattern2big);
+			break;
+		case 1:
+			M = concatenerMatrices(M, pat.M1, &pattern2big);
+			break;
+		case 2:
+			M = concatenerMatrices(M, pat.M2, &pattern2big);
+			break;
+		case 3:
+			M = concatenerMatrices(M, pat.M3, &pattern2big);
+			break;
+		case 4:
+			M = concatenerMatrices(M, pat.M4, &pattern2big);
+			break;
+		case 5:
+			M = concatenerMatrices(M, pat.M5, &pattern2big);
+			break;
+		case 6:
+			M = concatenerMatrices(M, pat.M6, &pattern2big);
+			break;
+		case 7:
+			M = concatenerMatrices(M, pat.M7, &pattern2big);
+			break;
+		case 8:
+			M = concatenerMatrices(M, pat.M8, &pattern2big);
+			break;
+		case 9:
+			M = concatenerMatrices(M, pat.M9, &pattern2big);
+			break;
 		}
 	}
-
-	free(parcours);
-	M = concatenerMatrices(M, pat.End);
-	matrice_vers_file(M, file);
+	M = concatenerMatrices(M, pat.End, &pattern2big);
+	matrice_vers_file(M, "test.txt");
 	libererMatrice(M);
 }
 
 // int main(){
-
 //     Pattern pat = pattern_initialisation();
-//     create_map_txt(pat, 5, "test.txt");
+//     create_map_txt(pat, "test.txt");
 //     return 0;
 // }
