@@ -5,12 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "main.h"
 
 #define N 10			// nbre de sommets du graphe
 #define T 5				// nbre de patterns dans la map
-#define MAX_LENGTH 150	// taille max de la ligne d'un pattern
-#define L 14			// nbre de lignes dans un pattern
-#define C 20			// nbre de colonnes dans un pattern
 
 // Structures
 struct Graphe {
@@ -61,9 +59,9 @@ create_graph();
 
 void free_graph(struct Graphe* graphe);
 
-char* parcours_graphe(struct Graphe* graphe, int length);
+int parcours_graphe(struct Graphe* graphe, int noeud_actuel);
 
-void create_map_txt(Pattern pat, int length, char* file);
+void create_map_txt(Pattern pat, char* file);
 
 int random_number(int min, int max);
 
@@ -77,7 +75,7 @@ Matrice creerMatrice(int rows, int cols);
 
 void libererMatrice(Matrice matrice);
 
-Matrice concatenerMatrices(Matrice M1, Matrice M2);
+Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big);
 
 void afficherMatrice(Matrice mat);
 

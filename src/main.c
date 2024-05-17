@@ -58,9 +58,11 @@ int main(void) {
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
-    // Crée la map
+	// Initialise la seed pour le random
+	srand(time(NULL));	// srand(8675612346585);
+	// Crée la map
     Pattern pat = pattern_initialisation();
-    create_map_txt(pat, 5, "test.txt");
+    create_map_txt(pat, "test.txt");
     Map *map = create_map("test.txt", tile_width, tile_height);
 
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
@@ -77,9 +79,7 @@ int main(void) {
     // DEBUG Character
     //print_character(character);
     // DEBUG MAP
-    print_map(map);
-    // Initialise la seed pour le random
-    srand(time(0));  // srand(8675612346585);
+    // print_map(map);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     init_character_animations_buffer();
@@ -158,9 +158,9 @@ int main(void) {
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
 (tutorial_step == 6 && character->x > 4000) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
-(tutorial_step == 9 && character->x > 7900) ||                                                                             \
+(tutorial_step == 9 && character->x > 4900) ||                                                                             \
 (tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
-(tutorial_step == 11 && character->x > 9800) || \
+(tutorial_step == 11 && character->x > 4800) || \
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
@@ -251,7 +251,7 @@ int main(void) {
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-                                //map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
 
@@ -300,9 +300,9 @@ int main(void) {
                     character->key_suggestion = key_for_tuto[tutorial_step + 1];
                     character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                     tutorial_step += 1;
-                    if (key_for_tuto[tutorial_step] == SDLK_F15) {
-                        tutorial_step = 0;
-                    }
+                    // if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                    //     tutorial_step = 0;
+                    // }
                 }
             }
             // Boucle de gestion des événements
@@ -370,9 +370,9 @@ int main(void) {
                             character->key_suggestion = key_for_tuto[tutorial_step + 1];
                             character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                             tutorial_step += 1;
-                            if (key_for_tuto[tutorial_step] == SDLK_F15) {
-                                tutorial_step = 0;
-                            }
+                            // if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                            //     tutorial_step = 0;
+                            // }
                         }
                         if (event.key.keysym.sym == SDLK_e && character->on_portal==SDL_TRUE) {
                             character->next_map=SDL_TRUE;
@@ -491,7 +491,10 @@ int main(void) {
                     character->alive = SDL_TRUE;
                 }
                 if (character->next_map == SDL_TRUE ) {
-                    create_map_txt(pat, 5, "test.txt");
+                    if (tutorial_step != 0) {
+						game_playing = 0;
+					}
+                    create_map_txt(pat, "test.txt");
                     map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                 }
                 // Applique la gravité au personnage
@@ -1304,16 +1307,16 @@ void move_camera(Camera *camera, Character *character, Map *map) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
         // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
-        Map *pattern = generated_pattern(camera, character, map);
-        // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
-        if (map->full == SDL_FALSE) {
-            add_right_pattern_to_map(pattern, map);
-            camera->x = character->x - pixel_width + (character->width / 2);
-        } else {
-            // Sinon on force la camera à être à la fin de la map
-            camera->x = map->width * tile_width - (camera->width * tile_width);
-            free(pattern);
-        }
+            // Map *pattern = generated_pattern(camera, character, map);
+            // // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
+            // if (map->full == SDL_FALSE) {
+            //     add_right_pattern_to_map(pattern, map);
+            //     camera->x = character->x - pixel_width + (character->width / 2);
+            // } else {
+            //     // Sinon on force la camera à être à la fin de la map
+            //     camera->x = map->width * tile_width - (camera->width * tile_width);
+            //     free(pattern);
+            // }
         // camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
     // Sinon la camera est centré en x par rapport au personnage
