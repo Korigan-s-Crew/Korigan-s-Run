@@ -3,7 +3,7 @@
 // Fonction qui donne un nombre aléatoire entre min et max
 int random_number(int min, int max) {
 	srand(rand());
-	printf("rand : %d \n", rand());
+	// printf("rand : %d \n", rand());
 	return rand() % (max - min + 1) + min;
 }
 
@@ -65,7 +65,7 @@ struct Graphe* create_graph() {
 		{29, 27, 1},
 		{29, 25, 1},  // sommet 9
 		{30, 34, 1},
-		{30, 37, 1},  // sommet 0
+		{30, 31, 1},  // sommet 0
 		{31, 32, 1},
 		{31, 39, 1},  // sommet 1
 		{32, 34, 1},
@@ -82,7 +82,7 @@ struct Graphe* create_graph() {
 		{37, 33, 1},  // sommet 7
 		{38, 31, 1},
 		{38, 30, 1},  // sommet 8
-		{39, 37, 1},
+		{39, 36, 1},
 		{39, 35, 1},  // sommet 9
 	};
 	int n = 60;
@@ -93,7 +93,7 @@ struct Graphe* create_graph() {
 			added += 1;
 		}
 	}
-	n += added; // added = 30
+	n += added;	 // added = 30
 	struct Graphe* graphe = (struct Graphe*)malloc(sizeof(struct Graphe));
 	if (graphe == NULL) {
 		printf("Erreur d'allocation de mémoire pour le graphe\n");
@@ -167,10 +167,22 @@ void matrice_vers_file(Matrice matrice, char* file) {
 int parcours_graphe(struct Graphe* graphe, int noeud_actuel) {
 	// printf("noeud_actuel %d \n", noeud_actuel);
 	struct Noeuds* noeud = graphe->noeud[noeud_actuel];
+	struct Noeuds* noeud_cpy = graphe->noeud[noeud_actuel];
 	if (noeud != NULL) {
+		int n = 0;
+		while (noeud_cpy->suivant != NULL) {
+			n++;
+			noeud_cpy = noeud_cpy->suivant;
+		}
+		int r = random_number(0, n);
+		// printf("random number in parcours graphe : %d \n and n : %d", r, n);
+		for (int i = 0; i < r; i++) {
+			noeud = noeud->suivant;
+		}
 		noeud_actuel = noeud->destination;
 	} else {
 		printf("BUG: Noeud in parcours_graphe is null");
+		exit(1);
 	}
 	return noeud_actuel;
 }
@@ -265,7 +277,7 @@ void get_file_dimensions(const char* filename, int* rows, int* cols) {
 }
 
 // Fonction pour concaténer deux matrices par bloc (horizontalement)
-Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big) {
+Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big, int last_pattern, int last_pattern_cols) {
 	if (M1.rows != M2.rows) {
 		fprintf(stderr, "Erreur : Les matrices doivent avoir le même nombre de lignes pour être concaténées par bloc\n");
 		exit(EXIT_FAILURE);
@@ -274,9 +286,17 @@ Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big) {
 	int rows = M1.rows;
 	int cols1 = M1.cols;
 	int cols2 = M2.cols;
-	if (cols1 + cols2 > MAX_TILES) {
-		*pattern2big = 1;
-		return M1;
+	if (last_pattern != 1) {
+		if (cols1 + cols2 > MAX_TILES - last_pattern_cols) {
+			*pattern2big = 1;
+			return M1;
+		}
+	} else {
+		if (cols1 + cols2 > MAX_TILES) {
+			printf("Error: Can't concatenant last_patterns shouldn't be possible");
+			*pattern2big = 1;
+			return M1;
+		}
 	}
 	// Créer une nouvelle matrice pour stocker la concaténation
 	Matrice concat = creerMatrice(rows, cols1 + cols2);
@@ -357,7 +377,10 @@ Pattern pattern_initialisation() {
 	pat.end_low = recup_matrice(end_low);
 	pat.end_mid = recup_matrice(end_mid);
 	pat.end_high = recup_matrice(end_high);
-
+	if (pat.end_low.cols != pat.end_mid.cols || pat.end_mid.cols != pat.end_high.cols) {
+		printf("Error: last patterns in the txt file should be the same width\nexiting... \n");
+		exit(1);
+	}
 	return pat;
 }
 
@@ -396,14 +419,16 @@ void create_map_txt(Pattern pat, char* file) {
 	int pattern2big = 0;
 	while (M.cols <= MAX_TILES - pat.end_low.cols && pattern2big == 0) {
 		noeud_actuel = parcours_graphe(pat.graphe, noeud_actuel);
-		M = concatenerMatrices(M, pat.Mat[noeud_actuel], &pattern2big);
+		M = concatenerMatrices(M, pat.Mat[noeud_actuel], &pattern2big, 0, pat.end_low.cols);
 	}
 	if (noeud_actuel >= 10 && noeud_actuel < 20) {
-		M = concatenerMatrices(M, pat.end_low, &pattern2big);
+		M = concatenerMatrices(M, pat.end_low, &pattern2big, 1, pat.end_low.cols);
 	} else if (noeud_actuel >= 20 && noeud_actuel < 30) {
-		M = concatenerMatrices(M, pat.end_mid, &pattern2big);
+		M = concatenerMatrices(M, pat.end_mid, &pattern2big, 1, pat.end_low.cols);
 	} else if (noeud_actuel >= 30 && noeud_actuel < 40) {
-		M = concatenerMatrices(M, pat.end_high, &pattern2big);
+		M = concatenerMatrices(M, pat.end_high, &pattern2big, 1, pat.end_low.cols);
+	} else {
+		printf("Erreur: Last patterns didn't get concatenate");
 	}
 	matrice_vers_file(M, "test.txt");
 	libererMatrice(M);

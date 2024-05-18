@@ -191,7 +191,7 @@ int main(void) {
                             if (SCREEN_HEIGHT < 100) {
                                 SCREEN_HEIGHT = 100;
                             }
-                            printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                            // printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
                             // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
                             // Car ça permet d'avoir une physique constante
                             // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
@@ -326,7 +326,7 @@ int main(void) {
                             if (SCREEN_HEIGHT < 100) {
                                 SCREEN_HEIGHT = 100;
                             }
-                            printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                            // printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
                             // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
                             // Car ça permet d'avoir une physique constante
                             // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
@@ -635,7 +635,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_d.png",
             "Textures/Terrain/nuage_di.png",
             "Textures/Terrain/nuage_de.png",
-            "Textures/Terrain/nuage_seul.png",
+            "Textures/Terrain/nuage/nuage.png",
             "Textures/Terrain/nuage_top",
             "Textures/Terrain/nuage_gt.png",
             "Textures/Terrain/nuage_get.png",
@@ -643,7 +643,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dt.png",
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
-            "Textures/Terrain/nuage_seult.png",
+            "Textures/Terrain/nuage/nuage.png",
             "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
@@ -721,7 +721,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         char imagePath[100];
         addcat(imagePath, "Textures/korigan", trailNames[i]);
         texture->trail_frames[i] = loadImage(imagePath, renderer);
-        printf("%s\n", imagePath);
+        // printf("%s\n", imagePath);
     }
     // Liste des noms des images de suggestion de touche
     char *key_images[] = {
@@ -897,7 +897,7 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                 SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->collision[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
                 }
             } else if (map->tiles[i][j].type <= -20) {
                 // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
@@ -906,8 +906,8 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                 SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->transparent[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
+					fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
+				}
             }
         }
     }

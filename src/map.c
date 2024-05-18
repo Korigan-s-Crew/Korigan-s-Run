@@ -496,21 +496,21 @@ SDL_bool expand_down(Character *character, Map *map, int width, int height) {
 
 SDL_bool change_size_collision(Character *character, Map *map, int width, int height) {
 	if (expand_up(character, map, width, height)) {
-		printf("expand up\n");
+		// printf("expand up\n");
 		if (expand_right(character, map, width, height)) {
 			character->y = (character->y - (height - character->height));
-			printf("expand right\n");
+			// printf("expand right\n");
 			return SDL_TRUE;
 		} else if (expand_left(character, map, width, height)) {
 			character->y = character->y - (height - character->height);
 			character->x = character->x - (width - character->width);
-			printf("expand left\n");
+			// printf("expand left\n");
 			return SDL_TRUE;
 		}
 	} else if (expand_down(character, map, width, height)) {
-		printf("expand down\n");
+		// printf("expand down\n");
 		if (expand_right(character, map, width, height)) {
-			printf("expand right\n");
+			// printf("expand right\n");
 			return SDL_TRUE;
 		} else if (expand_left(character, map, width, height)) {
 			printf("expand left\n");

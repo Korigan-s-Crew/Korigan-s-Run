@@ -67,7 +67,7 @@ Matrice creerMatrice(int rows, int cols);
 
 void libererMatrice(Matrice matrice);
 
-Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big);
+Matrice concatenerMatrices(Matrice M1, Matrice M2, int* pattern2big, int last_pattern, int last_pattern_cols);
 
 void afficherMatrice(Matrice mat);
 
