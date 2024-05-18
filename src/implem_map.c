@@ -419,6 +419,7 @@ void create_map_txt(Pattern pat, char* file) {
 	int pattern2big = 0;
 	while (M.cols <= MAX_TILES - pat.end_low.cols && pattern2big == 0) {
 		noeud_actuel = parcours_graphe(pat.graphe, noeud_actuel);
+		// printf("pattern concat : %d", noeud_actuel);
 		M = concatenerMatrices(M, pat.Mat[noeud_actuel], &pattern2big, 0, pat.end_low.cols);
 	}
 	if (noeud_actuel >= 10 && noeud_actuel < 20) {
