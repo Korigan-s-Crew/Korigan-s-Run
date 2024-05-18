@@ -7,7 +7,7 @@
 #include <time.h>
 #include "main.h"
 
-#define N 10			// nbre de sommets du graphe
+#define N 40			// nbre de sommets du graphe
 #define T 5				// nbre de patterns dans la map
 
 // Structures
@@ -39,18 +39,10 @@ typedef struct Matrice Matrice;
 struct Pattern {
 	// récupération des matrices liées aux patterns
 	Graphe* graphe;
-	Matrice Start;
-	Matrice M1;
-	Matrice M2;
-	Matrice M3;
-	Matrice M4;
-	Matrice M5;
-	Matrice M6;
-	Matrice M7;
-	Matrice M8;
-	Matrice M9;
-	Matrice M0;
-	Matrice End;
+	Matrice Mat[40];
+	Matrice end_low;
+	Matrice end_mid;
+	Matrice end_high;
 };
 typedef struct Pattern Pattern;
 // Fonctions
@@ -84,5 +76,7 @@ Pattern pattern_initialisation();
 void free_pattern(Pattern pat);
 
 void get_file_dimensions(const char* filename, int* rows, int* cols);
+
+char* concatStr(char* str1, char* str2, char* buffer, int bufferSize);
 
 #endif

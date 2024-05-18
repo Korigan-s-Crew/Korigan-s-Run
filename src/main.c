@@ -757,7 +757,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
     // Chargement des textures de bouttons
     for (int i = 0; strcmp(background_images[i], "END"); i++) {
         char imagePath[100];
-        printf("i : %d\n", i);
+        // printf("i : %d\n", i);
         addcat(imagePath, "Textures/fond", background_images[i]);
         texture->background[i] = loadImage(imagePath, renderer);
     }
