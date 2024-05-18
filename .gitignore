@@ -3,3 +3,4 @@ test
 *.json
 *.o
 .idea
+test.txt
