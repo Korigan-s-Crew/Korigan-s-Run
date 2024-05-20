@@ -46,8 +46,8 @@ void read_audio_file(char* filepath) {
 }
 
 void play_music(){
-    music_path = "./Music/Transforyou.mp3";
-    if MUSIC == 1 {
+    char* music_path = "./Music/Transforyou.mp3";
+    if (MUSIC == 1) {
         read_audio_file(music_path);
     }
 }
