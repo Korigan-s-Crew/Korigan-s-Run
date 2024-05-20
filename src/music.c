@@ -4,12 +4,6 @@
 // Fonction pour lire un fichier audio
 void read_audio_file(char* filepath) {
 
-    // Initialisation de SDL
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("Failed to initialize SDL: %s\n", SDL_GetError());
-        exit(-1);
-    }
-
     // Ouverture du périphérique audio avec : 
     // une fréquence d'échantillonnage de 44100 Hz, 
     // un format audio par défaut de 16 bits, 
@@ -48,9 +42,12 @@ void read_audio_file(char* filepath) {
 // Fonction pour jouer la musique
 void play_music(){
     char* music_path = "../Music/Transforyou.mp3";
-    if (Music == 1) {
+    if (Music == true) {
         read_audio_file(music_path);
     }
+    if (Music == false) {
+        Mix_HaltMusic();
+        }
 }
 
 // int main() {
