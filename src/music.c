@@ -34,7 +34,7 @@ void read_audio_file(char* music_path) {
     }
 
     // Libération de la mémoire
-    free_music(music_path);
+    free_music(music);
 }
 
 // Fonction pour jouer la musique
@@ -49,9 +49,9 @@ void play_music(bool play){
 }
 
 // Fonction pour libérer la mémoire allouée à la musique
-void free_music(char* music_path){
+void free_music(Mix_Music* music){
 
-    Mix_FreeMusic(music_path);
+    Mix_FreeMusic(music);
     Mix_HaltMusic();
     Mix_CloseAudio();
     SDL_Quit();
