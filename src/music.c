@@ -45,15 +45,16 @@ void read_audio_file(char* filepath) {
     SDL_Quit();
 }
 
+// Fonction pour jouer la musique
 void play_music(){
-    char* music_path = "./Music/Transforyou.mp3";
+    char* music_path = "../Music/Transforyou.mp3";
     if (MUSIC == 1) {
         read_audio_file(music_path);
     }
 }
 
-int main() {
-    // Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
-    play_music();
-    return 0;
-}
+// int main() {
+//     // Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+//     play_music();
+//     return 0;
+// }
