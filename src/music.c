@@ -26,12 +26,12 @@ void read_audio_file(char* music_path) {
 
     // Lecture du fichier audio
     // Deuxième argument : nombre de répétitions ; -1 pour une lecture infinie
-    Mix_PlayMusic(music, 1);
+    Mix_PlayMusic(music, -1);
 
     // Attente de la fin de la lecture
-    while (Mix_PlayingMusic()) {
-        SDL_Delay(100);
-    }
+    // while (Mix_PlayingMusic()) {
+    //     SDL_Delay(100);
+    // }
 
     // Libération de la mémoire
     free_music(music);
