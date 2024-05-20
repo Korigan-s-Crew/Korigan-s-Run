@@ -1,7 +1,7 @@
 #include "main.h"
 #include <SDL2/SDL_mixer.h>
 
-#define MUSIC 1
+#define Music 1
 
 // Fonction pour lire un fichier audio
 void read_audio_file(char* filepath);
