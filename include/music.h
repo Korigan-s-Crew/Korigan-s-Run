@@ -10,7 +10,9 @@ void read_audio_file(char* filepath);
 
 void play_music();
 
-int main();
+void free_music(music_path);
+
+//int main();
 
 // il faut installer la bibliothèque SDL2_mixer pour compiler ce fichier : 
 // libsdl2-mixer-dev 
