@@ -1,14 +1,10 @@
 #include "main.h"
 #include <SDL2/SDL_mixer.h>
 
-// Variable globale pour activer ou désactiver la musique
-// Music = true pour activer la musique
-// Music = false pour désactiver la musique
-extern bool Music;
 
 void read_audio_file(char* filepath);
 
-void play_music();
+void play_music(bool play);
 
 void free_music(music_path);
 

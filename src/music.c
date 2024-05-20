@@ -9,7 +9,7 @@ void read_audio_file(char* music_path) {
     // un format audio par défaut de 16 bits, 
     // 2 canaux pour le stéréo et 
     // un buffer (tampon audio) de 2048 octets
-    
+
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         printf("Failed to open audio: %s\n", Mix_GetError());
         exit(-1);
@@ -38,12 +38,12 @@ void read_audio_file(char* music_path) {
 }
 
 // Fonction pour jouer la musique
-void play_music(){
+void play_music(bool play){
     char* music_path = "../Music/Transforyou.mp3";
-    if (Music == true) {
+    if (play == true) {
         read_audio_file(music_path);
     }
-    if (Music == false) {
+    if (play == false) {
         Mix_HaltMusic();
         }
 }
