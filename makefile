@@ -19,6 +19,9 @@ CFLAGS += $(shell pkg-config --cflags SDL2_image)
 LDFLAGS += $(shell pkg-config --libs SDL2_image)
 CFLAGS += $(shell pkg-config --cflags SDL2_ttf)
 LDFLAGS += $(shell pkg-config --libs SDL2_ttf)
+CFLAGS += $(shell pkg-config --cflags SDL2_mixer)
+LDFLAGS += $(shell pkg-config --libs SDL2_mixer)
+LDFLAGS += -lSDL2_mixer
 
 # Source directories
 VPATH = src:.
@@ -44,3 +47,12 @@ run: $(BINARY)
 valgrind: $(BINARY)
 	valgrind --verbose a--leak-check=full --show-leak-kinds=all --track-origins=yes ./$(BINARY)
 
+test.o : test.c
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+test: test.o music.o
+	$(CC) $(CFLAGS) -o test test.o music.o
+	./test
+
+music.o : music.c
+	$(CC) $(CFLAGS) -c $< -o $@
