@@ -1,5 +1,4 @@
 #include "../include/music.h"
-// #include </System/Volumes/Data/opt/homebrew/include/SDL2/SDL_mixer.h>
 
 // Fonction pour lire un fichier audio
 Mix_Music* read_audio_file(char* music_path) {

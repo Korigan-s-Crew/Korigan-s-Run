@@ -2,11 +2,11 @@
 #include <SDL2/SDL_mixer.h>
 
 
-void read_audio_file(char* filepath);
+Mix_music* read_audio_file(char* filepath);
 
-void play_music(bool play);
+void play_music(bool play, Mix_music* music);
 
-void free_music(music_path);
+void free_music(Mix_music* music);
 
 //int main();
 
