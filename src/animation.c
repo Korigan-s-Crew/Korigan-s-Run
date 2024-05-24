@@ -107,14 +107,14 @@ void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer
     // Render the dash sprite at the correct angle
     if (character->dash->direction.x == 1) {
         SDL_RenderCopy(renderer, texture->trail_frames[0], NULL, &dst);
-        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, SDL_FLIP_NONE);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 500, angle, NULL, SDL_FLIP_NONE);
     } else {
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         if (angle >= 90 && angle <= 270) {
             flip = SDL_FLIP_VERTICAL; // Flip if angle is between 90 and 270 degrees
         }
         SDL_RenderCopyEx(renderer, texture->trail_frames[0], NULL, &dst, angle, NULL, flip);
-        add_character_animation(character, texture->trail_frames, camera, dst, 10, 1000, angle, NULL, flip);
+        add_character_animation(character, texture->trail_frames, camera, dst, 10, 500, angle, NULL, flip);
     }
 }
 
