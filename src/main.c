@@ -267,6 +267,7 @@ int main(void) {
                     case SDL_MOUSEBUTTONDOWN:
                         if (mouse->on_boutton == SDL_TRUE ) {
                             if (mouse->num_boutton == 0) {
+                                create_map_txt(pat, "test.txt");
                                 game_playing = 1;
                                 tutorial_step=0;
                                 character->num_map=1;
