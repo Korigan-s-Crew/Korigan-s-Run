@@ -414,6 +414,7 @@ int main(void) {
                                 case SDLK_ESCAPE:
                                     printf("escape\n");
                                     game_playing = 0;
+                                    menu=1;
                                     break;
                                 case SDLK_p:
                                     character->speed += 0.5;
@@ -704,6 +705,8 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/wall_bot",
             "Textures/Terrain/gate/gate.png",
             "Textures/Terrain/gate/gate_top.png",
+            "Textures/Terrain/sol_seul.png",
+            "Textures/Terrain/roof",
             "END"};
 
     // Charge les textures des images de la map (collisables)
@@ -1370,8 +1373,13 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     int c;
     draw_time(renderer, character, camera, texture);
     if (best_time == character->timer){
+        printf("RECOOOOOORD DU MOOOONDE\n");
         double t=getCurrentTimeInMicroseconds();
-        c = ((int)(t))/100000 % 2;
+        c = (((int)(t))/100000) % 6;
+        if (c < 3){
+            c=0;
+        } else {c =1;}
+        printf("%d", c);
     } else {c=0;}
     int seconds = (int) best_time;
     int minutes = seconds / 60;
@@ -1381,7 +1389,7 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     sprintf(best_score_text, "best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
     TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
 
-    SDL_Color color = {192-20*c, 190-20*c, 193-20*c, 255};
+    SDL_Color color = {192+40*c, 190+40*c, 193+40*c, 255};
     // Créer la surface à partir du texte
     SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
     SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);
