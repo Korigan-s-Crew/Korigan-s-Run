@@ -33,7 +33,7 @@ typedef struct Slide Slide;
 
 Dash *init_dash();
 
-void action_dash(Character *character, Controls *controls);
+void action_dash(Character *character, Controls *controls, Map *map);
 
 void handle_dash(Character *character, Map *map);
 

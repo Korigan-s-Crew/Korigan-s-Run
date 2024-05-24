@@ -379,7 +379,6 @@ int main(void) {
                             character->original_height = tile_height * 1.5;
                             // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                             collision(character, map);
-                            character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                         }
@@ -423,7 +422,7 @@ int main(void) {
                                     character->speed -= 0.5;
                                     break;
                                 case SDLK_LSHIFT:
-                                    action_dash(character, controls);
+                                    action_dash(character, controls, map);
                                     break;
                                 case SDLK_KP_5:
                                     character->dash->on_air = SDL_TRUE;
@@ -537,7 +536,9 @@ int main(void) {
             // C'est la condition qui donne le FPS
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
-                character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                if(game_playing == 1){
+                    character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                }
                 draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                 camera.fps++;
             }
@@ -1362,8 +1363,12 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     } else {
         mouse->on_boutton = SDL_FALSE;
     }
+    int c;
     draw_time(renderer, character, camera, texture);
-
+    if (best_time == character->timer){
+        double t=getCurrentTimeInMicroseconds();
+        c = ((int)(t))/100000 % 2;
+    } else {c=0;}
     int seconds = (int) best_time;
     int minutes = seconds / 60;
     seconds = seconds % 60;
@@ -1371,7 +1376,8 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     char best_score_text[30];
     sprintf(best_score_text, "best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
     TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
-    SDL_Color color = {192, 190, 193, 255};
+
+    SDL_Color color = {192-20*c, 190-20*c, 193-20*c, 255};
     // Créer la surface à partir du texte
     SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
     SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);

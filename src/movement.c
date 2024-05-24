@@ -199,15 +199,18 @@ Dash *init_dash() {
     return dash;
 }
 
-void action_dash(Character *character, Controls *controls) {
+void action_dash(Character *character, Controls *controls, Map *map) {
     // Handle dash key pressed
     Dash *dash = character->dash;
     if (!in_action(character)) {
         if (dash->cooldown == 0 && character->crouch == SDL_FALSE) {
             if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
+                if (change_size_collision(character, map, character->width, character->height/2)){
+                    dash->duration = 25;
+                    dash->cooldown = 26;
+                    character->height=character->height/2;
+                }
 
-                dash->duration = 25;
-                dash->cooldown = 26;
                 if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                     dash->direction.x = 1;
                 } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
@@ -259,6 +262,11 @@ void handle_dash(Character *character, Map *map) {
 
         character->dash->cooldown -= 1;
     } else {
+        if (change_size_collision(character, map, character->original_width, character->original_height)){
+            character->height = character->original_height;
+        } else {
+            go_crouch(character, map);
+        }
         if (character->dash->cooldown > 0) { // if the dash in on cooldown
             if (!(character->dy == 0 && (character->wall_left || character->wall_right)) || character->on_ground) {
                 character->dash->cooldown -= 1;// cooldown don't refresh if you stick to a wall
