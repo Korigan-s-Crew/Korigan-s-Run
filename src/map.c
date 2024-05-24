@@ -173,6 +173,7 @@ Map *create_map(char *path, int tile_width, int tile_height) {
 					if ((map->tiles[j][i - 1].type) < 290 || (map->tiles[j][i - 1].type) >= 360) {
 						if ((map->tiles[j][i + 1].type) < 290 || (map->tiles[j][i + 1].type) >= 300) {
 							map->tiles[j][i].type += 70;  // nuage seul
+                            map->tiles[j-1][i].type = map->tiles[j][i].type + 80;
 						} else if ((map->tiles[j][i + 2].type) < 290 || (map->tiles[j][i + 2].type) >= 300) {
 							map->tiles[j][i].type += 10;  // nuage double
 							map->tiles[j][i + 1].type += 40;

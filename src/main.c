@@ -157,11 +157,11 @@ int main(void) {
 
 #define next_step_tuto() ( \
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
-(tutorial_step == 6 && character->x > 4000) ||                                                                           \
+(tutorial_step == 6 && character->x > 3367) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
-(tutorial_step == 9 && character->x > 4900) ||                                                                             \
+(tutorial_step == 9 && character->x > 4752) ||                                                                             \
 (tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
-(tutorial_step == 11 && character->x > 4800) || \
+(tutorial_step == 11 && character->x > 6869) || \
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
@@ -684,7 +684,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_d.png",
             "Textures/Terrain/nuage_di.png",
             "Textures/Terrain/nuage_de.png",
-            "Textures/Terrain/nuage/nuage.png",
+            "Textures/Terrain/nuage_seul_bas.png",
             "Textures/Terrain/nuage_top",
             "Textures/Terrain/nuage_gt.png",
             "Textures/Terrain/nuage_get.png",
@@ -692,7 +692,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dt.png",
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
-            "Textures/Terrain/nuage/nuage.png",
+            "Textures/Terrain/nuage_seul_haut.png",
             "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
