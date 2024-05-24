@@ -232,7 +232,7 @@ void action_dash(Character *character, Controls *controls) {
                 }
             }
         }
-        printf("dash duration: %d %d %d \n", dash->duration, dash->direction.x, dash->direction.y);
+        // printf("dash duration: %d %d %d \n", dash->duration, dash->direction.x, dash->direction.y);
     }
 }
 

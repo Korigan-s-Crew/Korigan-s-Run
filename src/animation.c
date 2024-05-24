@@ -101,7 +101,7 @@ void dash_display(Character *character, Texture *texture, SDL_Renderer *renderer
     if (angle < 0) {
         angle += 360; // Ensure angle is in the range [0, 360)
     }
-    //printf("direction: %d %d, angle: %f\n", character->dash->direction.x, character->dash->direction.y, angle);
+    // printf("direction: %d %d, angle: %f\n", character->dash->direction.x, character->dash->direction.y, angle);
     // Choose the appropriate frame based on the angle
 
     // Render the dash sprite at the correct angle

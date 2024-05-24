@@ -58,9 +58,11 @@ int main(void) {
     create_camera(&camera, 0, 0, camera_width, camera_height);
     int tile_width = SCREEN_WIDTH / camera_width;
     int tile_height = SCREEN_HEIGHT / camera_height;
-    // Crée la map
+	// Initialise la seed pour le random
+	srand(time(NULL));	// srand(8675612346585);
+	// Crée la map
     Pattern pat = pattern_initialisation();
-    create_map_txt(pat, 5, "test.txt");
+    create_map_txt(pat, "test.txt");
     Map *map = create_map("test.txt", tile_width, tile_height);
 
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
@@ -77,9 +79,7 @@ int main(void) {
     // DEBUG Character
     //print_character(character);
     // DEBUG MAP
-    print_map(map);
-    // Initialise la seed pour le random
-    srand(time(0));  // srand(8675612346585);
+    // print_map(map);
     // Chargement des textures
     Texture *texture = create_texture(renderer);
     init_character_animations_buffer();
@@ -159,9 +159,9 @@ int main(void) {
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
 (tutorial_step == 6 && character->x > 4000) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
-(tutorial_step == 9 && character->x > 7900) ||                                                                             \
+(tutorial_step == 9 && character->x > 4900) ||                                                                             \
 (tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
-(tutorial_step == 11 && character->x > 9800) || \
+(tutorial_step == 11 && character->x > 4800) || \
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
@@ -192,7 +192,7 @@ int main(void) {
                             if (SCREEN_HEIGHT < 100) {
                                 SCREEN_HEIGHT = 100;
                             }
-                            printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                            // printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
                             // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
                             // Car ça permet d'avoir une physique constante
                             // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
@@ -258,7 +258,7 @@ int main(void) {
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-                                //map = change_map(map, "map.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
 
@@ -320,9 +320,9 @@ int main(void) {
                     character->key_suggestion = key_for_tuto[tutorial_step + 1];
                     character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                     tutorial_step += 1;
-                    if (key_for_tuto[tutorial_step] == SDLK_F15) {
-                        tutorial_step = 0;
-                    }
+                    // if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                    //     tutorial_step = 0;
+                    // }
                 }
             }
             // Boucle de gestion des événements
@@ -346,7 +346,7 @@ int main(void) {
                             if (SCREEN_HEIGHT < 100) {
                                 SCREEN_HEIGHT = 100;
                             }
-                            printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
+                            // printf("SCREEN_WIDTH: %d, SCREEN_HEIGHT: %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
                             // Modification de la taille de la camera pour que la taille des tuiles soit environ de 100x100
                             // Car ça permet d'avoir une physique constante
                             // Problème de gestion de la gravité qui ne dépend pas de la taille des tuiles (Compliqué à gérer)
@@ -390,9 +390,9 @@ int main(void) {
                             character->key_suggestion = key_for_tuto[tutorial_step + 1];
                             character->text_suggestion = text_for_tuto_texture[tutorial_step + 1];
                             tutorial_step += 1;
-                            if (key_for_tuto[tutorial_step] == SDLK_F15) {
-                                tutorial_step = 0;
-                            }
+                            // if (key_for_tuto[tutorial_step] == SDLK_F15) {
+                            //     tutorial_step = 0;
+                            // }
                         }
                         if (event.key.keysym.sym == SDLK_e && character->on_portal==SDL_TRUE) {
                             character->next_map=SDL_TRUE;
@@ -684,7 +684,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_d.png",
             "Textures/Terrain/nuage_di.png",
             "Textures/Terrain/nuage_de.png",
-            "Textures/Terrain/nuage_seul.png",
+            "Textures/Terrain/nuage/nuage.png",
             "Textures/Terrain/nuage_top",
             "Textures/Terrain/nuage_gt.png",
             "Textures/Terrain/nuage_get.png",
@@ -692,7 +692,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dt.png",
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
-            "Textures/Terrain/nuage_seult.png",
+            "Textures/Terrain/nuage/nuage.png",
             "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
@@ -770,7 +770,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
         char imagePath[100];
         addcat(imagePath, "Textures/korigan", trailNames[i]);
         texture->trail_frames[i] = loadImage(imagePath, renderer);
-        printf("%s\n", imagePath);
+        // printf("%s\n", imagePath);
     }
     // Liste des noms des images de suggestion de touche
     char *key_images[] = {
@@ -808,7 +808,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
     // Chargement des textures de bouttons
     for (int i = 0; strcmp(background_images[i], "END"); i++) {
         char imagePath[100];
-        printf("i : %d\n", i);
+        // printf("i : %d\n", i);
         addcat(imagePath, "Textures/fond", background_images[i]);
         texture->background[i] = loadImage(imagePath, renderer);
     }
@@ -948,7 +948,7 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                 SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->collision[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
+                    fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
                 }
             } else if (map->tiles[i][j].type <= -20) {
                 // Si la case contient un nombre négatif on affiche la texture correspondante (transparente)
@@ -957,8 +957,8 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
                 SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->transparent[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
-                    fprintf(stderr, "Erreur SDL_RenderCopy : %s \n", SDL_GetError());
-                }
+					fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
+				}
             }
         }
     }
@@ -1415,16 +1415,16 @@ void move_camera(Camera *camera, Character *character, Map *map) {
         // On ajoute une map à droite
         // Map *pattern = create_map("pattern.txt");
         // On appelle generated_pattern qui sera la fonction qui donne le prochain pattern à mettre à droite
-        Map *pattern = generated_pattern(camera, character, map);
-        // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
-        if (map->full == SDL_FALSE) {
-            add_right_pattern_to_map(pattern, map);
-            camera->x = character->x - pixel_width + (character->width / 2);
-        } else {
-            // Sinon on force la camera à être à la fin de la map
-            camera->x = map->width * tile_width - (camera->width * tile_width);
-            free(pattern);
-        }
+            // Map *pattern = generated_pattern(camera, character, map);
+            // // Si la map n'est pas pleine alors on ajoute le pattern à droite de la map
+            // if (map->full == SDL_FALSE) {
+            //     add_right_pattern_to_map(pattern, map);
+            //     camera->x = character->x - pixel_width + (character->width / 2);
+            // } else {
+            //     // Sinon on force la camera à être à la fin de la map
+            //     camera->x = map->width * tile_width - (camera->width * tile_width);
+            //     free(pattern);
+            // }
         // camera->x = map->width * tile_width - SCREEN_WIDTH;
     }
     // Sinon la camera est centré en x par rapport au personnage
