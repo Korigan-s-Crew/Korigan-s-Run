@@ -510,6 +510,10 @@ int main(void) {
                     character->alive = SDL_TRUE;
                 }
                 if (character->next_map == SDL_TRUE ) {
+                    if (tutorial_step != 0){
+                        game_playing=0;
+                        menu=1;
+                    }
                     if (character->num_map < NUMBER_MAPS){
                         create_map_txt(pat, "test.txt");
                         character->num_map+=1;

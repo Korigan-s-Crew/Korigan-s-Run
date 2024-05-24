@@ -256,17 +256,16 @@ void handle_dash(Character *character, Map *map) {
             } else if (character->dx < 0) {
                 character->dx = max(-(map->tile_width / 1.5) * character->speed, character->dx);
             }
-
+            if (change_size_collision(character, map, character->original_width, character->original_height)){
+                character->height = character->original_height;
+            } else {
+                go_crouch(character, map);
+            }
             character->dy = 0;
         }
 
         character->dash->cooldown -= 1;
     } else {
-        if (change_size_collision(character, map, character->original_width, character->original_height)){
-            character->height = character->original_height;
-        } else {
-            go_crouch(character, map);
-        }
         if (character->dash->cooldown > 0) { // if the dash in on cooldown
             if (!(character->dy == 0 && (character->wall_left || character->wall_right)) || character->on_ground) {
                 character->dash->cooldown -= 1;// cooldown don't refresh if you stick to a wall
