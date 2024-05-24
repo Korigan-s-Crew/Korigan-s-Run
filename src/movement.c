@@ -194,8 +194,8 @@ Dash *init_dash() {
     dash->cooldown = 0;
     dash->direction.x = 0;
     dash->direction.y = 0;
-    dash->on_air = SDL_FALSE;
-    dash->go_up = SDL_FALSE;
+    dash->on_air = SDL_TRUE;
+    dash->go_up = SDL_TRUE;
     return dash;
 }
 
@@ -207,7 +207,7 @@ void action_dash(Character *character, Controls *controls, Map *map) {
             if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
                 if (change_size_collision(character, map, character->width, character->height/2)){
                     dash->duration = 25;
-                    dash->cooldown = 26;
+                    dash->cooldown = 200;
                     character->height=character->height/2;
                 }
 

@@ -515,10 +515,9 @@ int main(void) {
                 }
                 if (character->next_map == SDL_TRUE ) {
                     if (tutorial_step != 0){
-                        game_playing=0;
                         menu=1;
-                    }
-                    if (character->num_map < NUMBER_MAPS){
+                        game_playing=0;
+                    } else if (character->num_map < NUMBER_MAPS){
                         create_map_txt(pat, "test.txt");
                         character->num_map+=1;
                         map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
@@ -1384,13 +1383,12 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     int c;
     draw_time(renderer, character, camera, texture);
     if (best_time == character->timer){
-        printf("RECOOOOOORD DU MOOOONDE\n");
+        printf("New record !\n");
         double t=getCurrentTimeInMicroseconds();
         c = (((int)(t))/100000) % 6;
         if (c < 3){
             c=0;
         } else {c =1;}
-        printf("%d", c);
     } else {c=0;}
     int seconds = (int) best_time;
     int minutes = seconds / 60;
