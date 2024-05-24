@@ -13,6 +13,7 @@
 #define MAX_TILES 200
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
+#define NUMBER_MAPS 3
 
 typedef struct Slide Slide;
 typedef struct Dash Dash;
@@ -48,6 +49,7 @@ struct Character {
     SDL_Keycode key_suggestion;
     SDL_Texture *text_suggestion;
     double timer;
+    int num_map;
 };
 typedef struct Mouse Mouse;
 struct Mouse {
@@ -95,6 +97,8 @@ struct Texture {
 };
 typedef struct Texture Texture;
 long long getCurrentTimeInMicroseconds();
+double load_settings(char *settings_path);
+void save_time(char *settings_path, double time);
 RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer);
 Texture *create_texture(SDL_Renderer *renderer);
 void free_texture(Texture *texture);
@@ -117,6 +121,7 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map);
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse);
+void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse, Character *character, double best_time);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
 #endif
