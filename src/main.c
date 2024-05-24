@@ -87,6 +87,7 @@ int main(void) {
     //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
     draw_homepage(renderer, bleu, texture, &camera, mouse);
     // printf("main\n");
+    double best_time= load_settings("settings.txt");
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
     long long last_time_fps = 0;
@@ -230,7 +231,7 @@ int main(void) {
                             if (menu==1){
                                 draw_homepage(renderer, bleu, texture, &camera, mouse);
                             } else {
-                                draw_endpage(renderer, bleu, texture, &camera, mouse);
+                                draw_endpage(renderer, bleu, texture, &camera, mouse, character, best_time);
                             }
                         }
                         break;
@@ -244,6 +245,7 @@ int main(void) {
                             case SDLK_t:
                                 game_playing = 1;
                                 tutorial_step = 1;
+                                character->num_map=1;
                                 character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                 map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
@@ -252,6 +254,7 @@ int main(void) {
                             case SDLK_e:
                                 game_playing = 1;
                                 tutorial_step = 0;
+                                character->num_map=1;
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
@@ -266,6 +269,7 @@ int main(void) {
                             if (mouse->num_boutton == 0) {
                                 game_playing = 1;
                                 tutorial_step=0;
+                                character->num_map=1;
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
@@ -276,6 +280,7 @@ int main(void) {
                                 if (menu == 1){
                                     game_playing = 1;
                                     tutorial_step = 1;
+                                    character->num_map=1;
                                     character->key_suggestion=key_for_tuto[tutorial_step];
                                     character->text_suggestion = text_for_tuto_texture[tutorial_step];
                                     map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
@@ -302,7 +307,7 @@ int main(void) {
                 if (menu == 1){
                     draw_homepage(renderer, bleu, texture, &camera, mouse);
                 } else {
-                    draw_endpage(renderer, bleu, texture, &camera, mouse);
+                    draw_endpage(renderer, bleu, texture, &camera, mouse, character, best_time);
                 }
 
                 camera.fps++;
@@ -506,8 +511,20 @@ int main(void) {
                     character->alive = SDL_TRUE;
                 }
                 if (character->next_map == SDL_TRUE ) {
-                    create_map_txt(pat, 5, "test.txt");
-                    map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+                    if (character->num_map < NUMBER_MAPS){
+                        create_map_txt(pat, 5, "test.txt");
+                        character->num_map+=1;
+                        map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+                    } else {
+                        game_playing = 0;
+                        menu = 2;
+                        if (character->timer < best_time){
+                            save_time("settings.txt", character->timer);
+                            best_time=character->timer;
+                        }
+
+                    }
+
                 }
                 // Applique la gravité au personnage
                 gravity(character);
@@ -553,6 +570,26 @@ long long getCurrentTimeInMicroseconds() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (long long)tv.tv_sec * 1000000 + tv.tv_usec;
+}
+
+double load_settings(char *settings_path){
+    FILE *file = fopen(settings_path, "r");
+    double time;
+    if (file != NULL) {
+        fscanf(file, "%lf", &time);
+        fclose(file);
+    } else {
+        time = 0; // Default value if file doesn't exist
+    }
+    return time;
+}
+
+void save_time(char *settings_path, double time) {
+    FILE *file = fopen(settings_path, "w");
+    if (file != NULL) {
+        fprintf(file, "%lf\n", time);
+        fclose(file);
+    }
 }
 
 RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
@@ -962,6 +999,7 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     character->key_suggestion=SDLK_F15;
     character->text_suggestion = NULL;
     character->timer = 543.21;
+    character->num_map=1;
     return character;
 }
 
@@ -1290,7 +1328,7 @@ void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Cam
     SDL_RenderPresent(renderer);
 }
 
-void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse){
+void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse, Character *character, double best_time){
     SDL_Color green= {0,122, 129, 36};
     setWindowColor(renderer,green);
     SDL_Rect dst_n1 = {0, (camera->height +1)*100-1024, 2048, 1024};
@@ -1324,6 +1362,25 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     } else {
         mouse->on_boutton = SDL_FALSE;
     }
+    draw_time(renderer, character, camera, texture);
+
+    int seconds = (int) best_time;
+    int minutes = seconds / 60;
+    seconds = seconds % 60;
+    int centiseconds = ((int) (best_time* 100))%100;
+    char best_score_text[30];
+    sprintf(best_score_text, "best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
+    TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+    SDL_Color color = {192, 190, 193, 255};
+    // Créer la surface à partir du texte
+    SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
+    SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    SDL_Rect dst_best_score = {(camera->width * 100 / 2) - 440, camera->height * 100 / 5, 1000, 250};
+    SDL_QueryTexture(best_score_texture, NULL, NULL, &dst_best_score.w, &dst_best_score.h);
+    dst_best_score.w = dst_best_score.w *2;
+    dst_best_score.h = dst_best_score.h *2;
+    SDL_RenderCopy(renderer, best_score_texture, NULL, &dst_best_score);
     SDL_RenderPresent(renderer);
 }
 
