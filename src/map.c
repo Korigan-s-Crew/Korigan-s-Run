@@ -245,6 +245,11 @@ Map *create_map(char *path, int tile_width, int tile_height) {
                 }
             } else if(j > 0 && map->tiles[j][i].type<10 && map->tiles[j][i].type>= 0 && map->tiles[j - 1][i].type >= 10 && map->tiles[j - 1][i].type < 290) {
                 map->tiles[j][i].type += 520;
+                if (map->tiles[j - 1][i].type >=50 && map->tiles[j - 1][i].type <90){
+                    map->tiles[j][i].type += 10;
+                } else if (map->tiles[j - 1][i].type >=90 && map->tiles[j - 1][i].type <120){
+                    map->tiles[j][i].type += 20;
+                }
 			} else if ((map->tiles[j + 1][i].type) >= 290 && (map->tiles[j + 1][i].type) < 360 &&
 					   (map->tiles[j][i].type < 10) && map->tiles[j][i].type != -50) {
 				map->tiles[j][i].type += (map->tiles[j + 1][i].type / 10 + 8) * 10;	 // partie transparente du nuage

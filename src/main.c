@@ -709,6 +709,8 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/gate/gate_top.png",
             "Textures/Terrain/sol_seul.png",
             "Textures/Terrain/roof",
+            "Textures/Terrain/roof_gauche.png",
+            "Textures/Terrain/roof_droite.png",
             "END"};
 
     // Charge les textures des images de la map (collisables)
