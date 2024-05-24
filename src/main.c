@@ -617,7 +617,8 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         dir = opendir(dir_path);
         if (!dir) {
             printf("empty dir on %s\n", dir_path);
-            return Rdmtexture;
+			Rdmtexture->Data[0] = loadImage("Textures/no_texture.jpg", renderer);
+			return Rdmtexture;
         }
         int i = 0;
         while ((entry = readdir(dir)) != NULL) {
@@ -897,8 +898,12 @@ SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer) {
     tmp = IMG_Load(path);
     if (NULL == tmp) {
         fprintf(stderr, "Erreur IMG_Load : %s\n", SDL_GetError());
-        return NULL;
-    }
+		tmp = IMG_Load("Textures/no_texture.jpg");
+        if (NULL == tmp) {
+			fprintf(stderr, "Erreur IMG_Load even no texture can't be loaded: %s\n", SDL_GetError());
+			return NULL;
+		}
+	}
     // Crée une texture à partir de la surface temporaire
     texture = SDL_CreateTextureFromSurface(renderer, tmp);
     // Libère la surface temporaire
