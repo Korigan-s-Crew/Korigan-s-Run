@@ -117,6 +117,7 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map);
 void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse);
+void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse);
 void create_camera(Camera *camera, int x, int y, int width, int height);
 void move_camera(Camera *camera, Character *character, Map *map);
 #endif

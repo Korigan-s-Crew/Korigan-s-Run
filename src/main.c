@@ -166,7 +166,7 @@ int main(void) {
     int running = 1;
     int game_playing=0;
     double timer_start;
-
+    int menu=1;
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
     while (running==1){
         if (game_playing == 0) {
@@ -227,7 +227,11 @@ int main(void) {
 
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                            draw_homepage(renderer, bleu, texture, &camera, mouse);
+                            if (menu==1){
+                                draw_homepage(renderer, bleu, texture, &camera, mouse);
+                            } else {
+                                draw_endpage(renderer, bleu, texture, &camera, mouse);
+                            }
                         }
                         break;
                         // Si l'événement est de type SDL_KEYDOWN (appui sur une touche)
@@ -269,13 +273,19 @@ int main(void) {
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
-                                game_playing = 1;
-                                tutorial_step = 1;
-                                character->key_suggestion=key_for_tuto[tutorial_step];
-                                character->text_suggestion = text_for_tuto_texture[tutorial_step];
-                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
-                                camera.show_timer = SDL_FALSE;
-                                break;
+                                if (menu == 1){
+                                    game_playing = 1;
+                                    tutorial_step = 1;
+                                    character->key_suggestion=key_for_tuto[tutorial_step];
+                                    character->text_suggestion = text_for_tuto_texture[tutorial_step];
+                                    map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                    camera.show_timer = SDL_FALSE;
+                                    break;
+                                } else {
+                                    game_playing = 0;
+                                    menu=1;
+                                    break;
+                                }
                             }
                         }
                     case SDL_MOUSEMOTION:
@@ -289,7 +299,12 @@ int main(void) {
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
                 //draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
-                draw_homepage(renderer, bleu, texture, &camera, mouse);
+                if (menu == 1){
+                    draw_homepage(renderer, bleu, texture, &camera, mouse);
+                } else {
+                    draw_endpage(renderer, bleu, texture, &camera, mouse);
+                }
+
                 camera.fps++;
             }
         }
@@ -738,6 +753,8 @@ Texture *create_texture(SDL_Renderer *renderer) {
     char *bouttons_images[] = {
             "start.png",
             "tutoriel.png",
+            "restart.png",
+            "menu.png",
             "END"};
     // Chargement des textures de bouttons
     for (int i = 0; strcmp(bouttons_images[i], "END"); i++) {
@@ -1266,6 +1283,43 @@ void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Cam
         // Dessiner un rectangle blanc légèrement transparent sur le bouton "Tutorial" si la souris est dessus
         SDL_SetRenderDrawColor(renderer, 150, 150, 150, 100); // Blanc semi-transparent
         SDL_Rect highlightRect = dst_bouton_tutorial; // Créer un rectangle de highlight sur le bouton "Tutorial"
+        SDL_RenderFillRect(renderer, &highlightRect);
+    } else {
+        mouse->on_boutton = SDL_FALSE;
+    }
+    SDL_RenderPresent(renderer);
+}
+
+void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Camera *camera, Mouse *mouse){
+    SDL_Color green= {0,122, 129, 36};
+    setWindowColor(renderer,green);
+    SDL_Rect dst_n1 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[1], NULL, &dst_n1);
+    SDL_Rect dst_n2 = {0, (camera->height +1)*100-1024, 2048, 1024};
+    SDL_RenderCopy(renderer, texture->background[0], NULL, &dst_n2);
+    SDL_Rect dst_bouton_restart = {(camera->width * 100 / 2) - 500, camera->height * 200 / 5, 1000, 250};
+    SDL_Rect dst_bouton_menu = {(camera->width * 100 / 2) - 500, camera->height * 300 / 4, 1000, 250};
+    SDL_RenderCopy(renderer, texture->bouttons[2], NULL, &dst_bouton_restart);
+    SDL_RenderCopy(renderer, texture->bouttons[3], NULL, &dst_bouton_menu);
+    draw_fps(renderer, camera, texture);
+
+    if (mouse->x >= dst_bouton_restart.x && mouse->x < dst_bouton_restart.x + dst_bouton_restart.w &&
+        mouse->y >= dst_bouton_restart.y && mouse->y < dst_bouton_restart.y + dst_bouton_restart.h) {
+        mouse->on_boutton = SDL_TRUE;
+        mouse->num_boutton = 0;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        // Dessiner un rectangle blanc légèrement transparent sur le bouton "Tutorial" si la souris est dessus
+        SDL_SetRenderDrawColor(renderer, 150, 150, 150, 100); // Blanc semi-transparent
+        SDL_Rect highlightRect = dst_bouton_restart; // Créer un rectangle de highlight sur le bouton "Tutorial"
+        SDL_RenderFillRect(renderer, &highlightRect);
+    } else if (mouse->x >= dst_bouton_menu.x && mouse->x < dst_bouton_menu.x + dst_bouton_menu.w &&
+               mouse->y >= dst_bouton_menu.y && mouse->y < dst_bouton_menu.y + dst_bouton_menu.h) {
+        mouse->on_boutton = SDL_TRUE;
+        mouse->num_boutton = 1;
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        // Dessiner un rectangle blanc légèrement transparent sur le bouton "Tutorial" si la souris est dessus
+        SDL_SetRenderDrawColor(renderer, 150, 150, 150, 100); // Blanc semi-transparent
+        SDL_Rect highlightRect = dst_bouton_menu; // Créer un rectangle de highlight sur le bouton "Tutorial"
         SDL_RenderFillRect(renderer, &highlightRect);
     } else {
         mouse->on_boutton = SDL_FALSE;
