@@ -604,7 +604,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
     for (int i = 0; i < 10; i++) {
         Rdmtexture->Data[i] = NULL;
     }
-    Rdmtexture->size = 0;
+    Rdmtexture->size = 1;
     // Cas ou le path pointe sur un png
     if (strstr(dir_path, ".png") != NULL && strstr(dir_path, ".png") == dir_path + strlen(dir_path) - 4) {
         Rdmtexture->Data[0] = loadImage(dir_path, renderer);
@@ -634,7 +634,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         }
         closedir(dir);
     }
-    return Rdmtexture;
+	return Rdmtexture;
 }
 
 Texture *create_texture(SDL_Renderer *renderer) {
@@ -952,8 +952,9 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
             if (map->tiles[i][j].type >= 10) {
                 // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
                 int num_texture = k / 10;
+				// printf("(texture->collision[num_texture]->size) : %d num_texture : %d\n", texture->collision[num_texture]->size, num_texture);
                 int num_image = (k % 10) % (texture->collision[num_texture]->size);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
+				SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->collision[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
