@@ -258,7 +258,8 @@ int main(void) {
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "test.txt");
+								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
 
@@ -274,7 +275,8 @@ int main(void) {
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "test.txt");
+								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
