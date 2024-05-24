@@ -512,7 +512,7 @@ int main(void) {
                 }
                 if (character->next_map == SDL_TRUE ) {
                     if (character->num_map < NUMBER_MAPS){
-                        create_map_txt(pat, 5, "test.txt");
+                        create_map_txt(pat, "test.txt");
                         character->num_map+=1;
                         map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                     } else {
