@@ -1,5 +1,5 @@
 #include "main.h"
-#include <SDL2/SDL_mixer.h>
+//#include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 
 

@@ -9,6 +9,7 @@
 #include "../include/procedural_generation.h"
 #include "../include/dash_effect.h"
 #include "../include/animation.h"
+#include "../include/music.h"
 
 int SCREEN_WIDTH = 1300;
 int SCREEN_HEIGHT = 700;
@@ -153,6 +154,8 @@ int main(void) {
             text_for_tuto_texture[i] = NULL;
         }
     }
+    // Initialisation de la musique
+    Mix_Music* music = read_audio_file("../Music/Transforyou.mp3");
 
 #define next_step_tuto() ( \
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
@@ -254,7 +257,12 @@ int main(void) {
                                 map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
-
+                            case SDLK_k:
+                                play_music(true, music);
+                                break;
+                            case SDLK_m:
+                                play_music(false, music);
+                                break;
                         }
                         break;
                     case SDL_MOUSEBUTTONDOWN:
@@ -525,6 +533,7 @@ int main(void) {
     free(mouse);
     free_texture(texture);
     free_pattern(pat);
+    free_music(music);
 
 Quit:
     if (NULL != renderer)
