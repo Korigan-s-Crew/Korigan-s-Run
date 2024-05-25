@@ -451,6 +451,12 @@ int main(void) {
                                     break;
                                 case SDLK_l:
                                     printf("x : %d, y: %d\n", character->x, character->y);
+                                case SDLK_k:
+                                    play_music(true, music);
+                                    break;
+                                case SDLK_m:
+                                    play_music(false, music);
+                                    break;
                             }
                         }
                         break;
