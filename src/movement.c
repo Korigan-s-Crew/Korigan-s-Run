@@ -135,7 +135,7 @@ void action_slide(Character *character, Map *map) {
                     printf("can't slide here\n");
                 }
             }
-            printf("slide duration: %d %d %d \n", slide->duration, slide->go_right, slide->go_left);
+            // printf("slide duration: %d %d %d \n", slide->duration, slide->go_right, slide->go_left);
 
             character->just_landed = SDL_FALSE;
         }
