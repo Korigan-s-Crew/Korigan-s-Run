@@ -171,6 +171,7 @@ int main(void) {
     int game_playing=0;
     double timer_start;
     int menu=1;
+    play_music(true, music);
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
     while (running==1){
         if (game_playing == 0) {
@@ -265,10 +266,11 @@ int main(void) {
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             case SDLK_k:
-                                play_music(true, music);
-                                break;
-                            case SDLK_m:
-                                play_music(false, music);
+                                if(is_music_playing() == 0){
+                                    play_music(true, music);
+                                } else {
+                                    play_music(false, music);
+                                }
                                 break;
                         }
                         break;
@@ -472,10 +474,11 @@ int main(void) {
                                 case SDLK_l:
                                     printf("x : %d, y: %d\n", character->x, character->y);
                                 case SDLK_k:
-                                    play_music(true, music);
-                                    break;
-                                case SDLK_m:
-                                    play_music(false, music);
+                                    if(is_music_playing() == 0){
+                                        play_music(true, music);
+                                    } else {
+                                        play_music(false, music);
+                                    }
                                     break;
                             }
                         }

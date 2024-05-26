@@ -7,6 +7,8 @@ Mix_Music* read_audio_file(char* filepath);
 
 void play_music(bool play, Mix_Music* music);
 
+bool is_music_playing();
+
 void free_music(Mix_Music* music);
 
 //int main();

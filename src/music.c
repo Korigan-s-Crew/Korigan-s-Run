@@ -35,6 +35,10 @@ void play_music(bool play, Mix_Music* music){
         }
 }
 
+bool is_music_playing(){
+    return Mix_PlayingMusic();
+}
+
 // Fonction pour libérer la mémoire allouée à la musique
 void free_music(Mix_Music* music){
 
