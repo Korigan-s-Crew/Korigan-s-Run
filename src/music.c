@@ -12,7 +12,6 @@ Mix_Music* read_audio_file(char* music_path) {
         printf("Failed to open audio: %s\n", Mix_GetError());
         exit(-1);
     }
-
     // Chargement du fichier audio
     Mix_Music *music = Mix_LoadMUS(music_path);
 
@@ -26,13 +25,24 @@ Mix_Music* read_audio_file(char* music_path) {
 }
 
 // Fonction pour jouer la musique
-void play_music(bool play, Mix_Music* music){
-    if (play == true) {
-        Mix_PlayMusic(music, -1);
-    }
-    if (play == false) {
-        Mix_HaltMusic();
-        }
+void play_music(Mix_Music* music){
+	if (Mix_PlayingMusic() == 0) {
+		// Play the music
+		Mix_PlayMusic(music, -1);
+	}
+	// If music is being played
+	else {
+		// If the music is paused
+		if (Mix_PausedMusic() == 1) {
+			// Resume the music
+			Mix_ResumeMusic();
+		}
+		// If the music is playing
+		else {
+			// Pause the music
+			Mix_PauseMusic();
+		}
+	}
 }
 
 bool is_music_playing(){
@@ -45,7 +55,6 @@ void free_music(Mix_Music* music){
     Mix_HaltMusic();
     Mix_FreeMusic(music);
     Mix_CloseAudio();
-    SDL_Quit();
 }
 
 // int main() {

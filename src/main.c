@@ -171,7 +171,7 @@ int main(void) {
     int game_playing=0;
     double timer_start;
     int menu=1;
-    play_music(true, music);
+    play_music(music);
     printf("init done in %lld\n", getCurrentTimeInMicroseconds() - start);
     while (running==1){
         if (game_playing == 0) {
@@ -266,13 +266,9 @@ int main(void) {
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             case SDLK_k:
-                                if(is_music_playing() == 0){
-                                    play_music(true, music);
-                                } else {
-                                    play_music(false, music);
-                                }
+								play_music(music);
                                 break;
-                        }
+						}
                         break;
                     case SDL_MOUSEBUTTONDOWN:
                         if (mouse->on_boutton == SDL_TRUE ) {
@@ -474,12 +470,8 @@ int main(void) {
                                 case SDLK_l:
                                     printf("x : %d, y: %d\n", character->x, character->y);
                                 case SDLK_k:
-                                    if(is_music_playing() == 0){
-                                        play_music(true, music);
-                                    } else {
-                                        play_music(false, music);
-                                    }
-                                    break;
+									play_music(music);
+									break;
                             }
                         }
                         break;
@@ -580,8 +572,9 @@ Quit:
         SDL_DestroyWindow(window);
     IMG_Quit();
     TTF_Quit();
-    SDL_Quit();
-    return statut;
+	Mix_Quit();
+	SDL_Quit();
+	return statut;
 }
 
 long long getCurrentTimeInMicroseconds() {

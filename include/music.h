@@ -1,11 +1,10 @@
-#include "main.h"
-//#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 
 
 Mix_Music* read_audio_file(char* filepath);
 
-void play_music(bool play, Mix_Music* music);
+void play_music(Mix_Music* music);
 
 bool is_music_playing();
 

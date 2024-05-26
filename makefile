@@ -1,7 +1,9 @@
 TARGET = main
-#SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c dash_effect.c animation.c implem_map.c music.c
-SRCS = $(wildcard src/*.c)
+SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c dash_effect.c animation.c implem_map.c music.c
+SRCS_test = test.c music.c init.c
+#SRCS = $(wildcard src/*.c)
 OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
+OBJS_test = $(patsubst %.c, obj/%.o, $(SRCS_test))
 BINARY = bin/$(TARGET)
 
 # Compilation
@@ -48,6 +50,8 @@ valgrind: $(BINARY)
 	valgrind --verbose a--leak-check=full --show-leak-kinds=all --track-origins=yes ./$(BINARY)
  
 
-#test: test.o music.o
-#	$(CC) $(CFLAGS) -lSDL2_mixer -o test test.o music.o
-#	./test
+test: $(OBJS_test)
+	$(CC) $^ $(LDFLAGS) -o $@
+
+run_test: test
+	./test
