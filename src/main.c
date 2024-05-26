@@ -156,7 +156,7 @@ int main(void) {
         }
     }
     // Initialisation de la musique
-    Mix_Music* music = read_audio_file("../Music/Transforyou.mp3");
+    Mix_Music* music = read_audio_file("Music/Transforyou.mp3");
 
 #define next_step_tuto() ( \
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
