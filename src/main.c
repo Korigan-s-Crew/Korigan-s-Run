@@ -269,6 +269,22 @@ int main(void) {
                             case SDLK_k:
 								play_music(music);
                                 break;
+                            case SDLK_F11:
+                                // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
+                                if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
+                                    SDL_SetWindowFullscreen(window, 0);
+                                } else {
+                                    // Récupère la taille de l'écran
+                                    SCREEN_WIDTH = screen_size.w;
+                                    SCREEN_HEIGHT = screen_size.h;
+                                    // Met à jour la taille de la fenêtre
+                                    SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_HEIGHT);
+                                    // Met la fenêtre en plein écran
+                                    // On fait ça parce que le fullscreen ne met pas à jour la taille de la fenêtre
+                                    // mais trigger l'event SDL_WINDOWEVENT_RESIZED
+                                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                                }
+                                break;
 						}
                         break;
                     case SDL_MOUSEBUTTONDOWN:
@@ -828,6 +844,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "blured_foreground.png",
             "blured_midground.png",
             "background.png",
+            "homescreen.png",
             "END"};
     // Chargement des textures de bouttons
     for (int i = 0; strcmp(background_images[i], "END"); i++) {
@@ -1327,8 +1344,10 @@ void draw_homepage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Cam
     SDL_RenderCopy(renderer, texture->background[1], NULL, &dst_n1);
     SDL_Rect dst_n2 = {0, (camera->height +1)*100-1024, 2048, 1024};
     SDL_RenderCopy(renderer, texture->background[0], NULL, &dst_n2);
-    SDL_Rect dst_bouton_start = {(camera->width * 100 / 2) - 500, camera->height * 100 / 5, 1000, 250};
-    SDL_Rect dst_bouton_tutorial = {(camera->width * 100 / 2) - 500, camera->height * 200 / 3, 1000, 250};
+    SDL_Rect dst_fond={0,0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    SDL_RenderCopy(renderer, texture->background[3], NULL, &dst_fond);
+    SDL_Rect dst_bouton_start = {(SCREEN_WIDTH / 2) - 400,  SCREEN_HEIGHT*2 / 5, 800, 200};
+    SDL_Rect dst_bouton_tutorial = {(SCREEN_WIDTH / 2) - 400, camera->height * 210 / 3, 800, 200};
     SDL_RenderCopy(renderer, texture->bouttons[0], NULL, &dst_bouton_start);
     SDL_RenderCopy(renderer, texture->bouttons[1], NULL, &dst_bouton_tutorial);
     draw_fps(renderer, camera, texture);
@@ -1364,8 +1383,8 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     SDL_RenderCopy(renderer, texture->background[1], NULL, &dst_n1);
     SDL_Rect dst_n2 = {0, (camera->height +1)*100-1024, 2048, 1024};
     SDL_RenderCopy(renderer, texture->background[0], NULL, &dst_n2);
-    SDL_Rect dst_bouton_restart = {(camera->width * 100 / 2) - 500, camera->height * 200 / 5, 1000, 250};
-    SDL_Rect dst_bouton_menu = {(camera->width * 100 / 2) - 500, camera->height * 300 / 4, 1000, 250};
+    SDL_Rect dst_bouton_restart = {(SCREEN_WIDTH / 2) - 500, camera->height * 200 / 5, 1000, 250};
+    SDL_Rect dst_bouton_menu = {(SCREEN_WIDTH / 2) - 500, camera->height * 300 / 4, 1000, 250};
     SDL_RenderCopy(renderer, texture->bouttons[2], NULL, &dst_bouton_restart);
     SDL_RenderCopy(renderer, texture->bouttons[3], NULL, &dst_bouton_menu);
     draw_fps(renderer, camera, texture);
@@ -1394,7 +1413,7 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     int c;
     draw_time(renderer, character, camera, texture);
     if (best_time == character->timer){
-        printf("New record !\n");
+        //printf("New record !\n");
         double t=getCurrentTimeInMicroseconds();
         c = (((int)(t))/100000) % 6;
         if (c < 3){
