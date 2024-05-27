@@ -160,11 +160,11 @@ int main(void) {
 
 #define next_step_tuto() ( \
 (tutorial_step == 5 && (character->wall_jump_right==SDL_TRUE || character->wall_jump_left==SDL_TRUE)) ||                   \
-(tutorial_step == 6 && character->x > 4000) ||                                                                           \
+(tutorial_step == 6 && character->x > 3367) ||                                                                           \
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
-(tutorial_step == 9 && character->x > 4900) ||                                                                             \
+(tutorial_step == 9 && character->x > 4752) ||                                                                             \
 (tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
-(tutorial_step == 11 && character->x > 4800) || \
+(tutorial_step == 11 && character->x > 6869) || \
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
@@ -262,7 +262,8 @@ int main(void) {
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "test.txt");
+								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             case SDLK_k:
@@ -273,13 +274,15 @@ int main(void) {
                     case SDL_MOUSEBUTTONDOWN:
                         if (mouse->on_boutton == SDL_TRUE ) {
                             if (mouse->num_boutton == 0) {
+                                create_map_txt(pat, "test.txt");
                                 game_playing = 1;
                                 tutorial_step=0;
                                 character->num_map=1;
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
-                                map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "test.txt");
+								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
@@ -385,7 +388,6 @@ int main(void) {
                             character->original_height = tile_height * 1.5;
                             // Appel la fonction collision pour mettre à jour les collisions (pour mettre à jour la gravité)
                             collision(character, map);
-                            character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
                             // Affiche la map et le personnage dans la fenêtre avec la nouvelle taille
                             draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                         }
@@ -421,6 +423,7 @@ int main(void) {
                                 case SDLK_ESCAPE:
                                     printf("escape\n");
                                     game_playing = 0;
+                                    menu=1;
                                     break;
                                 case SDLK_p:
                                     character->speed += 0.5;
@@ -429,7 +432,7 @@ int main(void) {
                                     character->speed -= 0.5;
                                     break;
                                 case SDLK_LSHIFT:
-                                    action_dash(character, controls);
+                                    action_dash(character, controls, map);
                                     break;
                                 case SDLK_KP_5:
                                     character->dash->on_air = SDL_TRUE;
@@ -520,7 +523,10 @@ int main(void) {
                     character->alive = SDL_TRUE;
                 }
                 if (character->next_map == SDL_TRUE ) {
-                    if (character->num_map < NUMBER_MAPS){
+                    if (tutorial_step != 0){
+                        menu=1;
+                        game_playing=0;
+                    } else if (character->num_map < NUMBER_MAPS){
                         create_map_txt(pat, "test.txt");
                         character->num_map+=1;
                         map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
@@ -546,7 +552,9 @@ int main(void) {
             // C'est la condition qui donne le FPS
             if (getCurrentTimeInMicroseconds() - last_time_fps >= 1000000 / MAX_FPS) {
                 last_time_fps = getCurrentTimeInMicroseconds();
-                character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                if(game_playing == 1){
+                    character->timer = ((double)getCurrentTimeInMicroseconds() - timer_start)/1000000.0;
+                }
                 draw_ingame(renderer, bleu, texture, map, tile_width, tile_height, character, &camera);
                 camera.fps++;
             }
@@ -609,7 +617,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
     for (int i = 0; i < 10; i++) {
         Rdmtexture->Data[i] = NULL;
     }
-    Rdmtexture->size = 0;
+    Rdmtexture->size = 1;
     // Cas ou le path pointe sur un png
     if (strstr(dir_path, ".png") != NULL && strstr(dir_path, ".png") == dir_path + strlen(dir_path) - 4) {
         Rdmtexture->Data[0] = loadImage(dir_path, renderer);
@@ -622,7 +630,8 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         dir = opendir(dir_path);
         if (!dir) {
             printf("empty dir on %s\n", dir_path);
-            return Rdmtexture;
+			Rdmtexture->Data[0] = loadImage("Textures/no_texture.jpg", renderer);
+			return Rdmtexture;
         }
         int i = 0;
         while ((entry = readdir(dir)) != NULL) {
@@ -639,7 +648,7 @@ RdmTexture *load_from_dir(char *dir_path, SDL_Renderer *renderer) {
         }
         closedir(dir);
     }
-    return Rdmtexture;
+	return Rdmtexture;
 }
 
 Texture *create_texture(SDL_Renderer *renderer) {
@@ -695,7 +704,7 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_d.png",
             "Textures/Terrain/nuage_di.png",
             "Textures/Terrain/nuage_de.png",
-            "Textures/Terrain/nuage/nuage.png",
+            "Textures/Terrain/nuage_seul_bas.png",
             "Textures/Terrain/nuage_top",
             "Textures/Terrain/nuage_gt.png",
             "Textures/Terrain/nuage_get.png",
@@ -703,13 +712,17 @@ Texture *create_texture(SDL_Renderer *renderer) {
             "Textures/Terrain/nuage_dt.png",
             "Textures/Terrain/nuage_dit.png",
             "Textures/Terrain/nuage_det.png",
-            "Textures/Terrain/nuage/nuage.png",
+            "Textures/Terrain/nuage_seul_haut.png",
             "Textures/Terrain/wall_1",
             "Textures/Terrain/wall_top",
             "Textures/Terrain/wall_mid",
             "Textures/Terrain/wall_bot",
             "Textures/Terrain/gate/gate.png",
             "Textures/Terrain/gate/gate_top.png",
+            "Textures/Terrain/sol_seul.png",
+            "Textures/Terrain/roof",
+            "Textures/Terrain/roof_gauche.png",
+            "Textures/Terrain/roof_droite.png",
             "END"};
 
     // Charge les textures des images de la map (collisables)
@@ -900,8 +913,12 @@ SDL_Texture *loadImage(const char path[], SDL_Renderer *renderer) {
     tmp = IMG_Load(path);
     if (NULL == tmp) {
         fprintf(stderr, "Erreur IMG_Load : %s\n", SDL_GetError());
-        return NULL;
-    }
+		tmp = IMG_Load("Textures/no_texture.jpg");
+        if (NULL == tmp) {
+			fprintf(stderr, "Erreur IMG_Load even no texture can't be loaded: %s\n", SDL_GetError());
+			return NULL;
+		}
+	}
     // Crée une texture à partir de la surface temporaire
     texture = SDL_CreateTextureFromSurface(renderer, tmp);
     // Libère la surface temporaire
@@ -955,8 +972,9 @@ void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width
             if (map->tiles[i][j].type >= 10) {
                 // Si la case contient un nombre positif on affiche la texture correspondante (collisonable)
                 int num_texture = k / 10;
+				// printf("(texture->collision[num_texture]->size) : %d num_texture : %d\n", texture->collision[num_texture]->size, num_texture);
                 int num_image = (k % 10) % (texture->collision[num_texture]->size);
-                SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
+				SDL_Rect dst = {j * tile_width - camera->x, i * tile_height - camera->y, tile_width, tile_height};
                 if (SDL_RenderCopy(renderer, texture->collision[num_texture]->Data[num_image], NULL,
                                    &dst) < 0) {
                     fprintf(stderr, "Erreur SDL_RenderCopy : %s num_texture : %d num_image : %d \n", SDL_GetError(), num_texture, num_image);
@@ -1373,8 +1391,16 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     } else {
         mouse->on_boutton = SDL_FALSE;
     }
+    int c;
     draw_time(renderer, character, camera, texture);
-
+    if (best_time == character->timer){
+        printf("New record !\n");
+        double t=getCurrentTimeInMicroseconds();
+        c = (((int)(t))/100000) % 6;
+        if (c < 3){
+            c=0;
+        } else {c =1;}
+    } else {c=0;}
     int seconds = (int) best_time;
     int minutes = seconds / 60;
     seconds = seconds % 60;
@@ -1382,7 +1408,8 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     char best_score_text[30];
     sprintf(best_score_text, "best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
     TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
-    SDL_Color color = {192, 190, 193, 255};
+
+    SDL_Color color = {192+40*c, 190+40*c, 193+40*c, 255};
     // Créer la surface à partir du texte
     SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
     SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);

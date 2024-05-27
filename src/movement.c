@@ -194,20 +194,23 @@ Dash *init_dash() {
     dash->cooldown = 0;
     dash->direction.x = 0;
     dash->direction.y = 0;
-    dash->on_air = SDL_FALSE;
-    dash->go_up = SDL_FALSE;
+    dash->on_air = SDL_TRUE;
+    dash->go_up = SDL_TRUE;
     return dash;
 }
 
-void action_dash(Character *character, Controls *controls) {
+void action_dash(Character *character, Controls *controls, Map *map) {
     // Handle dash key pressed
     Dash *dash = character->dash;
     if (!in_action(character)) {
-        if (dash->cooldown == 0 && character->crouch == SDL_FALSE) {
+        if (dash->cooldown == 0 && character->crouch == SDL_FALSE && (character->dx != 0 || character->dy != 0) ) {
             if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
+                if (change_size_collision(character, map, character->width, character->height/2)){
+                    dash->duration = 25;
+                    dash->cooldown = 200;
+                    character->height=character->height/2;
+                }
 
-                dash->duration = 25;
-                dash->cooldown = 26;
                 if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                     dash->direction.x = 1;
                 } else if (character->left == SDL_TRUE && character->right == SDL_FALSE) {
@@ -253,7 +256,11 @@ void handle_dash(Character *character, Map *map) {
             } else if (character->dx < 0) {
                 character->dx = max(-(map->tile_width / 1.5) * character->speed, character->dx);
             }
-
+            if (change_size_collision(character, map, character->original_width, character->original_height)){
+                character->height = character->original_height;
+            } else {
+                go_crouch(character, map);
+            }
             character->dy = 0;
         }
 
