@@ -164,7 +164,7 @@ int main(void) {
 (tutorial_step == 7 && character->dash->go_up == SDL_TRUE) ||                                                            \
 (tutorial_step == 9 && character->x > 4752) ||                                                                             \
 (tutorial_step == 10 && character->slide->duration > 0) ||                                                                 \
-(tutorial_step == 11 && character->x > 6869) || \
+(tutorial_step == 11 && character->x > 7190) || \
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
