@@ -243,7 +243,7 @@ int main(void) {
                     case SDL_KEYDOWN:
                         switch (event.key.keysym.sym) {
                             case SDLK_ESCAPE:
-                                printf("escape\n");
+                                printf("escape main\n");
                                 running = 0;
                                 break;
                             case SDLK_t:

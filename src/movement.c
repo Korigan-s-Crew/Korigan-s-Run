@@ -207,7 +207,7 @@ void action_dash(Character *character, Controls *controls, Map *map) {
             if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
                 if (change_size_collision(character, map, character->width, character->height/2)){
                     dash->duration = 25;
-                    dash->cooldown = 200;
+                    dash->cooldown = 300;
                     character->height=character->height/2;
                 }
 
