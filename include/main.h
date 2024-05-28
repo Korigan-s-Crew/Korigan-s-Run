@@ -14,7 +14,7 @@
 #define MAX_TILES 200
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
-#define NUMBER_MAPS 3
+#define NUMBER_MAPS 1
 
 typedef struct Slide Slide;
 typedef struct Dash Dash;
@@ -51,6 +51,7 @@ struct Character {
     SDL_Texture *text_suggestion;
     double timer;
     int num_map;
+    SDL_Texture *best_time[4];
 };
 typedef struct Mouse Mouse;
 struct Mouse {
@@ -118,6 +119,7 @@ void draw_dash_trail(SDL_Renderer *renderer, Character *character, Texture *text
                      int nb_frame);
 void draw_character_animationEx(SDL_Renderer *renderer, Character *character, Texture *texture, SDL_Rect *dst, Camera *camera, int index, int SDL_angle, float speed, int nb_frame);
 void draw_indication(SDL_Renderer *renderer, Character *character, Texture *texture, Camera *camera, SDL_Rect dst_key);
+void load_best_time(SDL_Renderer *renderer, Texture *texture, Character *character, double best_time);
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture);
 void draw_ingame(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Map *map, int tile_width, int tile_height, Character *character, Camera *camera);
 void draw_background(SDL_Renderer *renderer, Texture *texture, Camera *camera, Map *map);

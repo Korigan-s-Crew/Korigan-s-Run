@@ -89,6 +89,7 @@ int main(void) {
     draw_homepage(renderer, bleu, texture, &camera, mouse);
     // printf("main\n");
     double best_time= load_settings("settings.txt");
+    load_best_time(renderer, texture, character, best_time);
     //  Initialise la variable qui contient le dernier temps
     long long last_time = 0;
     long long last_time_fps = 0;
@@ -552,6 +553,7 @@ int main(void) {
                         if (character->timer < best_time){
                             save_time("settings.txt", character->timer);
                             best_time=character->timer;
+                            load_best_time(renderer, texture, character, best_time);
                         }
 
                     }
@@ -1280,6 +1282,40 @@ void draw_time(SDL_Renderer *renderer, Character *character, Camera *camera, Tex
     }
 }
 
+void load_best_time(SDL_Renderer *renderer, Texture *texture, Character *character, double best_time){
+    int seconds = (int) best_time;
+    int minutes = seconds / 60;
+    seconds = seconds % 60;
+    int centiseconds = ((int) (best_time* 100))%100;
+    char best_score_text[30];
+    sprintf(best_score_text, "Best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
+    TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
+
+    SDL_Color r = {232, 50, 24, 255};
+    SDL_Color b = {0, 105, 167, 255};
+    SDL_Color g = {90, 196, 57, 255};
+    SDL_Color color = {192, 190, 193, 255};
+    // Créer la surface à partir du texte
+    SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
+    SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    // Créer la surface à partir du texte
+    SDL_Surface *surfacer = TTF_RenderText_Solid(texture->font, best_score_text, r);
+    SDL_Texture *best_score_texturer = SDL_CreateTextureFromSurface(renderer, surfacer);
+    SDL_Surface *surfaceg = TTF_RenderText_Solid(texture->font, best_score_text, g);
+    SDL_Texture *best_score_textureg = SDL_CreateTextureFromSurface(renderer, surfaceg);
+    SDL_Surface *surfaceb = TTF_RenderText_Solid(texture->font, best_score_text, b);
+    SDL_Texture *best_score_textureb = SDL_CreateTextureFromSurface(renderer, surfaceb);
+    SDL_FreeSurface(surfacer);
+    SDL_FreeSurface(surfaceg);
+    SDL_FreeSurface(surfaceb);
+    character->best_time[0]=best_score_texture;
+    character->best_time[1]=best_score_texturer;
+    character->best_time[2]=best_score_textureg;
+    character->best_time[3]=best_score_textureb;
+}
+
 void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
     if (camera->show_fps == SDL_TRUE) {
         // Affiche le nombre d'images par seconde dans la fenêtre
@@ -1300,6 +1336,7 @@ void draw_fps(SDL_Renderer *renderer, Camera *camera, Texture *texture) {
         SDL_RenderCopy(renderer, texture, NULL, &dst);
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
+
     }
 }
 
@@ -1415,29 +1452,14 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     if (best_time == character->timer){
         //printf("New record !\n");
         double t=getCurrentTimeInMicroseconds();
-        c = (((int)(t))/100000) % 6;
-        if (c < 3){
-            c=0;
-        } else {c =1;}
+        c = (((int)(t))/100000) % 3 +3;
     } else {c=0;}
-    int seconds = (int) best_time;
-    int minutes = seconds / 60;
-    seconds = seconds % 60;
-    int centiseconds = ((int) (best_time* 100))%100;
-    char best_score_text[30];
-    sprintf(best_score_text, "best time : %02d:%02d:%02d", minutes, seconds, centiseconds);
-    TTF_SetFontStyle(texture->font, TTF_STYLE_NORMAL);
-
-    SDL_Color color = {192+40*c, 190+40*c, 193+40*c, 255};
-    // Créer la surface à partir du texte
-    SDL_Surface *surface = TTF_RenderText_Solid(texture->font, best_score_text, color);
-    SDL_Texture *best_score_texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+    printf("c : %d\n", c);
     SDL_Rect dst_best_score = {(camera->width * 100 / 2) - 440, camera->height * 100 / 5, 1000, 250};
-    SDL_QueryTexture(best_score_texture, NULL, NULL, &dst_best_score.w, &dst_best_score.h);
+    SDL_QueryTexture(character->best_time[c], NULL, NULL, &dst_best_score.w, &dst_best_score.h);
     dst_best_score.w = dst_best_score.w *2;
     dst_best_score.h = dst_best_score.h *2;
-    SDL_RenderCopy(renderer, best_score_texture, NULL, &dst_best_score);
+    SDL_RenderCopy(renderer, character->best_time[c], NULL, &dst_best_score);
     SDL_RenderPresent(renderer);
 }
 
