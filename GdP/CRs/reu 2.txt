@@ -1,0 +1,17 @@
+Point sur linear par aristide:
+gestion des bugs et features
+c'est colld 'utiliser linear pour track
+
+
+GP a faire , RSI, 
+
+Tour de table sur le taff
+BAptiste :
+
+fait : moteur de jeu fonctionel, avec des mouvements
+
+aristide explique ce qu'il a fait en mouvement, avec une inertie un dash un slide
+
+a faire par gauthier, reflexion sur les paterns de map
+annimation manquantes pour ke perso
+ 
