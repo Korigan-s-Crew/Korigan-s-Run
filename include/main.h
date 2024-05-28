@@ -14,7 +14,7 @@
 #define MAX_TILES 200
 #define max(a, b) (a > b ? a : b)
 #define min(a, b) (a < b ? a : b)
-#define NUMBER_MAPS 1
+#define NUMBER_MAPS 3
 
 typedef struct Slide Slide;
 typedef struct Dash Dash;
