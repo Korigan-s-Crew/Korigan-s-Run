@@ -1452,7 +1452,7 @@ void draw_endpage(SDL_Renderer *renderer, SDL_Color bleu, Texture *texture, Came
     if (best_time == character->timer){
         //printf("New record !\n");
         double t=getCurrentTimeInMicroseconds();
-        c = (((int)(t))/100000) % 3 +3;
+        c = abs(((int)(t))/100000) % 3 +1;
     } else {c=0;}
     printf("c : %d\n", c);
     SDL_Rect dst_best_score = {(camera->width * 100 / 2) - 440, camera->height * 100 / 5, 1000, 250};
