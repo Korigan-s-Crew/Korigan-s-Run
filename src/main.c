@@ -13,6 +13,7 @@
 
 extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
+extern int DASH_COOLDOWN;
 
 int main(void) {
     // start a timer //bullshit
@@ -488,7 +489,9 @@ int main(void) {
                                     switchLayout(controls);
                                     break;
                                 case SDLK_l:
-                                    printf("x : %d, y: %d\n", character->x, character->y);
+                                    if (DASH_COOLDOWN == 300){
+                                        DASH_COOLDOWN = 26;
+                                    } else {DASH_COOLDOWN = 300;}
                                 case SDLK_k:
 									play_music(music);
 									break;
