@@ -156,28 +156,29 @@ void test_create_map_txt() {
     printf("test_create_map_txt passed\n");
 }
 
+void test_music_and_SDL() {
+	SDL_Window *window = NULL;
+	SDL_Renderer *renderer = NULL;
+	init(&window, &renderer, 100, 100);
+	Mix_Music *music = read_audio_file("Music/Transforyou.mp3");
+	play_music(music);
+	free_music(music);
+	if (NULL != renderer)
+		SDL_DestroyRenderer(renderer);
+	if (NULL != window)
+		SDL_DestroyWindow(window);
+	IMG_Quit();
+	Mix_Quit();
+	SDL_Quit();
+	printf("test_music passed \n");
+}
 
 int main() {
 	
-	// SDL_Window *window = NULL;
-	// SDL_Renderer *renderer = NULL;
-	// init(&window, &renderer, 100, 100);
-	// Mix_Music *music = read_audio_file("Music/Transforyou.mp3");
-    // play_music(music);
-    // char c;
-	// scanf(" %c", &c);
-	// free_music(music);
-	// if (NULL != renderer)
-	// 	SDL_DestroyRenderer(renderer);
-	// if (NULL != window)
-	// 	SDL_DestroyWindow(window);
-	// IMG_Quit();
-	// Mix_Quit();
-	// SDL_Quit();
-
-	// Tests sur les fonctions de implem_map.c 
+	// Tests sur les fonctions de implem_map.c
+	test_music_and_SDL();
 	test_random_number();
-    test_normalize_line();
+	test_normalize_line();
     test_create_free_graph();
     test_matrice_vers_file_recup_matrice();
     test_parcours_graphe();
