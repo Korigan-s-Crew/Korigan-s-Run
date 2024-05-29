@@ -117,9 +117,10 @@ void test_concatenerMatrices() {
     assert(concat.data[1][2] == 'g');
     assert(concat.data[1][3] == 'h');
 
+	libererMatrice(M2);
     libererMatrice(concat);
 
-    printf("test_concatenerMatrices passed\n");
+	printf("test_concatenerMatrices passed\n");
 }
 
 // Test pour concatStr
