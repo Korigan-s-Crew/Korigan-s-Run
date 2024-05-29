@@ -78,7 +78,7 @@ SDL_bool in_action(Character *character) {
 
 
 void go_crouch(Character *character, Map *map) {
-    if (change_size_collision(character, map, character->original_width, character->original_width)) {
+    if  (character->wall_jump_left == SDL_FALSE && character->wall_jump_right == SDL_FALSE && change_size_collision(character, map, character->original_width, character->original_width)) {
         character->crouch = SDL_TRUE;
         character->height = character->original_width;
         character->width = character->original_width;
@@ -150,8 +150,9 @@ void handle_slide(Character *character, Map *map) {
             character->dx = -(map->tile_width / 1.2) * character->speed;
         } else {
             slide_cancel(character, map);
+            return;
         }
-        if (character->up && character->slide->duration < 20) {
+        if (character->up && 0 <  character->slide->duration &&character->slide->duration < 20) {
             slide_cancel(character, map);
             move_character_up(character, map, map->tile_width, map->tile_height, 25);
         }
@@ -355,6 +356,9 @@ void slow_down(Character *character) {
 }
 
 void move_character_up(Character *character, Map *map, int tile_width, int tile_height, int bonus) {
+    if (bonus != 0){
+        printf("bonus: %d\n", bonus);
+    }
     if (character->on_ground == SDL_TRUE) {// classic jump
         if (character->slide->duration < 20 && change_size_collision(character, map, character->original_width, character->original_height)) {
             character->dy = -(tile_height * 2) - bonus;
