@@ -115,7 +115,7 @@ void action_slide(Character *character, Map *map) {
         if (character->just_landed && character->on_ground && character->down) {
             character->just_landed = SDL_FALSE;
             character->crouch = SDL_FALSE;
-            printf("right: %d left: %d\n", character->right, character->left);
+            //printf("right: %d left: %d\n", character->right, character->left);
             if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                 if (change_size_collision(character, map, character->original_height, character->original_width)) {
                     character->height = character->original_width;
@@ -169,11 +169,11 @@ void slide_cancel(Character *character, Map *map) {
     // cancel slide
     character->slide->duration = 0;
     if (change_size_collision(character, map, character->original_width, character->original_height)) {
-        printf("cancel slide\n");
+        //printf("cancel slide\n");
         character->height = character->original_height;
         character->width = character->original_width;
     } else {
-        printf("can't cancel slide\n");
+        //printf("can't cancel slide\n");
         go_crouch(character, map);
     }
     character->slide->go_right = SDL_FALSE;
