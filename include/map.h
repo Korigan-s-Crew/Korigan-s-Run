@@ -5,6 +5,8 @@
 #include "main.h"
 #include "movement.h"
 #include "implem_map.h"
+#include "init.h"
+#include "draw.h"
 
 typedef struct Character Character;
 typedef struct Collision Collision;

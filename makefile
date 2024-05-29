@@ -1,5 +1,5 @@
 TARGET = main
-SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c dash_effect.c animation.c implem_map.c music.c
+SRCS = main.c init.c controls.c movement.c procedural_generation.c map.c dash_effect.c animation.c implem_map.c music.c draw.c global.c
 SRCS_test = test.c music.c init.c implem_map.c
 #SRCS = $(wildcard src/*.c)
 OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
