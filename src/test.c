@@ -51,7 +51,7 @@ void test_matrice_vers_file_recup_matrice() {
     
     matrice_vers_file(mat, "../test_matrix.txt");
     
-    Matrice mat_recup = recup_matrice("test_matrix.txt");
+    Matrice mat_recup = recup_matrice("./Patterns/test_matrix.txt");
     for (int i = 0; i < mat.rows; i++) {
         for (int j = 0; j < mat.cols; j++) {
             assert(mat.data[i][j] == mat_recup.data[i][j]);
@@ -147,9 +147,9 @@ void test_pattern_initialisation_free_pattern() {
 // Test pour create_map_txt
 void test_create_map_txt() {
     Pattern pat = pattern_initialisation();
-    create_map_txt(pat, "map.txt");
+    create_map_txt(pat, "./Patterns/map.txt");
 
-    FILE *file = fopen("map.txt", "r");
+    FILE *file = fopen("./Patterns/map.txt", "r");
     assert(file != NULL);
     fclose(file);
 
@@ -177,7 +177,7 @@ void test_music_and_SDL() {
 
 void test_create_and_change_map() {
 	// Create a sample map, character, and camera
-	Map *map = create_map("map.txt", 32, 32);
+	Map *map = create_map("./Patterns/map.txt", 32, 32);
 	Character character;
 	character.x = 10;
 	character.y = 20;
@@ -186,7 +186,7 @@ void test_create_and_change_map() {
 	camera.y = 0;
 
 	// Call the change_map function
-	Map *new_map = change_map(map, "map2.txt", &character, &camera, 32, 32);
+	Map *new_map = change_map(map, "./Patterns/map2.txt", &character, &camera, 32, 32);
 
 	// Assert that the character has been moved to the start of the new map
 	assert(character.x == new_map->tile_start_x * 32);

@@ -64,8 +64,8 @@ int main(void) {
 	srand(time(NULL));	// srand(8675612346585);
 	// Crée la map
     Pattern pat = pattern_initialisation();
-    create_map_txt(pat, "test.txt");
-    Map *map = create_map("test.txt", tile_width, tile_height);
+    create_map_txt(pat, "./Patterns/test.txt");
+    Map *map = create_map("./Patterns/test.txt", tile_width, tile_height);
 
     // printf("tile_width: %d, tile_height: %d\n", tile_width, tile_height);
     Character *character = create_character(map->tile_start_x * tile_width, map->tile_start_y * tile_height,
@@ -254,7 +254,7 @@ int main(void) {
                                 character->num_map=1;
                                 character->key_suggestion = key_for_tuto[tutorial_step];
                                 character->text_suggestion = text_for_tuto_texture[tutorial_step];
-                                map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                map = change_map(map, "./Patterns/map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
                                 camera.show_timer = SDL_FALSE;
                                 break;
                             case SDLK_e:
@@ -264,8 +264,8 @@ int main(void) {
                                 character->key_suggestion = SDLK_F15;
                                 character->text_suggestion = NULL;
                                 camera.show_timer = SDL_TRUE;
-								create_map_txt(pat, "test.txt");
-								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "./Patterns/test.txt");
+								map = change_map(map, "./Patterns/test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             case SDLK_k:
@@ -292,15 +292,15 @@ int main(void) {
                     case SDL_MOUSEBUTTONDOWN:
                         if (mouse->on_boutton == SDL_TRUE ) {
                             if (mouse->num_boutton == 0) {
-                                create_map_txt(pat, "test.txt");
+                                create_map_txt(pat, "./Patterns/test.txt");
                                 game_playing = 1;
                                 tutorial_step=0;
                                 character->num_map=1;
                                 character->text_suggestion = NULL;
                                 character->key_suggestion=SDLK_F15;
                                 camera.show_timer = SDL_TRUE;
-								create_map_txt(pat, "test.txt");
-								map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+								create_map_txt(pat, "./Patterns/test.txt");
+								map = change_map(map, "./Patterns/test.txt", character, &camera, map->tile_width, map->tile_height);
                                 timer_start = (double)getCurrentTimeInMicroseconds() ;
                                 break;
                             } else if (mouse->num_boutton == 1) {
@@ -310,7 +310,7 @@ int main(void) {
                                     character->num_map=1;
                                     character->key_suggestion=key_for_tuto[tutorial_step];
                                     character->text_suggestion = text_for_tuto_texture[tutorial_step];
-                                    map = change_map(map, "map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
+                                    map = change_map(map, "./Patterns/map_tuto.txt", character, &camera, map->tile_width, map->tile_height);
                                     camera.show_timer = SDL_FALSE;
                                     break;
                                 } else {
@@ -548,9 +548,9 @@ int main(void) {
                         menu=1;
                         game_playing=0;
                     } else if (character->num_map < NUMBER_MAPS){
-                        create_map_txt(pat, "test.txt");
+                        create_map_txt(pat, "./Patterns/test.txt");
                         character->num_map+=1;
-                        map = change_map(map, "test.txt", character, &camera, map->tile_width, map->tile_height);
+                        map = change_map(map, "./Patterns/test.txt", character, &camera, map->tile_width, map->tile_height);
                     } else {
                         game_playing = 0;
                         menu = 2;

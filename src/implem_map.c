@@ -431,7 +431,7 @@ void create_map_txt(Pattern pat, char* file) {
 	} else {
 		printf("Erreur: Last patterns didn't get concatenate");
 	}
-	matrice_vers_file(M, "test.txt");
+	matrice_vers_file(M, "./Patterns/test.txt");
 	libererMatrice(M);
 }
 

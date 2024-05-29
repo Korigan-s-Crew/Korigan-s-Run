@@ -3,5 +3,5 @@ test
 *.json
 *.o
 .idea
-test.txt
+Patterns/test.txt
 settings.txt
