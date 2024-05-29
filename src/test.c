@@ -2,6 +2,8 @@
 
 #include "../include/test.h"
 #include "../include/implem_map.h"
+#include "../include/init.h"
+#include "../include/map.h"
 
 // Test pour random_number
 void test_random_number() {
@@ -117,9 +119,10 @@ void test_concatenerMatrices() {
     assert(concat.data[1][2] == 'g');
     assert(concat.data[1][3] == 'h');
 
+	libererMatrice(M2);
     libererMatrice(concat);
 
-    printf("test_concatenerMatrices passed\n");
+	printf("test_concatenerMatrices passed\n");
 }
 
 // Test pour concatStr
@@ -155,28 +158,59 @@ void test_create_map_txt() {
     printf("test_create_map_txt passed\n");
 }
 
+void test_music_and_SDL() {
+	SDL_Window *window = NULL;
+	SDL_Renderer *renderer = NULL;
+	init(&window, &renderer, 100, 100);
+	Mix_Music *music = read_audio_file("Music/Transforyou.mp3");
+	play_music(music);
+	free_music(music);
+	if (NULL != renderer)
+		SDL_DestroyRenderer(renderer);
+	if (NULL != window)
+		SDL_DestroyWindow(window);
+	IMG_Quit();
+	Mix_Quit();
+	SDL_Quit();
+	printf("test_music passed \n");
+}
+
+void test_create_and_change_map() {
+	// Create a sample map, character, and camera
+	Map *map = create_map("map.txt", 32, 32);
+	Character character;
+	character.x = 10;
+	character.y = 20;
+	Camera camera;
+	camera.x = 0;
+	camera.y = 0;
+
+	// Call the change_map function
+	Map *new_map = change_map(map, "map2.txt", &character, &camera, 32, 32);
+
+	// Assert that the character has been moved to the start of the new map
+	assert(character.x == new_map->tile_start_x * 32);
+	assert(character.y == new_map->tile_start_y * 32);
+
+	// Assert that the camera has been moved to the character's position
+	assert(camera.x == character.x - 32);
+	assert(camera.y == character.y - 256);
+
+	// Assert that the character's next_map flag is reset
+	assert(character.next_map == SDL_FALSE);
+
+	// Clean up
+	free(new_map);
+	printf("test_create_and_change_map passed \n");
+}
 
 int main() {
 	
-	// SDL_Window *window = NULL;
-	// SDL_Renderer *renderer = NULL;
-	// init(&window, &renderer, 100, 100);
-	// Mix_Music *music = read_audio_file("Music/Transforyou.mp3");
-    // play_music(music);
-    // char c;
-	// scanf(" %c", &c);
-	// free_music(music);
-	// if (NULL != renderer)
-	// 	SDL_DestroyRenderer(renderer);
-	// if (NULL != window)
-	// 	SDL_DestroyWindow(window);
-	// IMG_Quit();
-	// Mix_Quit();
-	// SDL_Quit();
-
-	// Tests sur les fonctions de implem_map.c 
+	// Tests sur les fonctions de implem_map.c
+	test_create_and_change_map();
+	test_music_and_SDL();
 	test_random_number();
-    test_normalize_line();
+	test_normalize_line();
     test_create_free_graph();
     test_matrice_vers_file_recup_matrice();
     test_parcours_graphe();
@@ -185,6 +219,5 @@ int main() {
     test_concatStr();
     test_pattern_initialisation_free_pattern();
     test_create_map_txt();
-
-	return 0;
+    return 0;
 }

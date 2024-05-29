@@ -245,7 +245,7 @@ int main(void) {
                     case SDL_KEYDOWN:
                         switch (event.key.keysym.sym) {
                             case SDLK_ESCAPE:
-                                printf("escape main\n");
+                                // printf("escape main\n");
                                 running = 0;
                                 break;
                             case SDLK_t:
@@ -439,7 +439,7 @@ int main(void) {
                                     character->up = SDL_TRUE;
                                     break;
                                 case SDLK_ESCAPE:
-                                    printf("escape\n");
+                                    // printf("escape\n");
                                     game_playing = 0;
                                     menu=1;
                                     break;
@@ -492,6 +492,7 @@ int main(void) {
                                     if (DASH_COOLDOWN == 300){
                                         DASH_COOLDOWN = 26;
                                     } else {DASH_COOLDOWN = 300;}
+                                    break;
                                 case SDLK_k:
 									play_music(music);
 									break;
