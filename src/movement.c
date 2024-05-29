@@ -3,6 +3,8 @@
 #include "../include/map.h"
 #include "../include/dash_effect.h"
 
+extern int DASH_COOLDOWN;
+
 void mouvement(Map *map, Character *character) {
 //    printf("character x: %d y: %d\n", character->x, character->y);
     // Gère le mouvement du personnage
@@ -208,7 +210,7 @@ void action_dash(Character *character, Controls *controls, Map *map) {
             if (dash->on_air == SDL_TRUE || character->on_ground == SDL_TRUE) {
                 if (change_size_collision(character, map, character->width, character->height/2)){
                     dash->duration = 25;
-                    dash->cooldown = 300;
+                    dash->cooldown = DASH_COOLDOWN;
                     character->height=character->height/2;
                 }
 
