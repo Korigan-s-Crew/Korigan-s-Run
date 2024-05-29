@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "init.h"
 #include "music.h"
+#include "map.h"
 
 int main();
 void test_random_number();
@@ -21,5 +22,6 @@ void test_concatStr();
 void test_pattern_initialisation_free_pattern();
 void test_create_map_txt();
 void test_music_and_SDL();
+void test_change_map();
 
 #endif
