@@ -489,6 +489,8 @@ void reset_character(Character *character,Map *map, int tile_width, int tile_hei
     character->wall_jump_left = SDL_FALSE;
     character->next_map = SDL_FALSE;
     character->on_portal = SDL_FALSE;
+    free(character->dash);
+    free(character->slide);
     character->dash = init_dash();
     character->slide = init_slide();
 }
