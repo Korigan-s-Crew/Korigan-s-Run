@@ -25,6 +25,7 @@ int setWindowColor(SDL_Renderer *renderer, SDL_Color color);
 void draw_map(SDL_Renderer *renderer, Texture *texture, Map *map, int tile_width, int tile_height, Camera *camera);
 void print_map(Map *map);
 Character *create_character(int x, int y, int width, int height, int speed, SDL_Renderer *renderer);
+void reset_character(Character *character,Map *map, int tile_width, int tile_height);
 void print_character(Character *character);
 char *addcat(char *result, char *path, char *name);
 #endif

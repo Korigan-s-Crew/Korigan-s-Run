@@ -468,6 +468,31 @@ Character *create_character(int x, int y, int width, int height, int speed, SDL_
     return character;
 }
 
+void reset_character(Character *character,Map *map, int tile_width, int tile_height){
+    character->x = map->tile_start_x * tile_width;
+    character->y = map->tile_start_y * tile_height;
+    character->width = character->original_width;
+    character->height = character->original_height;
+    character->dx = 0;
+    character->dy = 0;
+    character->up = SDL_FALSE;
+    character->down = SDL_FALSE;
+    character->left = SDL_FALSE;
+    character->right = SDL_FALSE;
+    character->alive = SDL_TRUE;
+    character->just_landed = SDL_FALSE;
+    character->crouch = SDL_FALSE;
+    character->on_ground = SDL_FALSE;
+    character->wall_right = SDL_FALSE;
+    character->wall_left = SDL_FALSE;
+    character->wall_jump_right = SDL_FALSE;
+    character->wall_jump_left = SDL_FALSE;
+    character->next_map = SDL_FALSE;
+    character->on_portal = SDL_FALSE;
+    character->dash = init_dash();
+    character->slide = init_slide();
+}
+
 void print_character(Character *character) {
     // Affiche les informations du personnage dans la console
     printf("x: %d, y: %d, dx: %d, dy: %d \n width: %d, height: %d, speed: %f, up: %d, down: %d, left: %d, right: %d, alive: %d \n on_ground: %d, wall_right: %d, wall_left: %d\n wall_jump_right: %d, wall_jump_left: %d",

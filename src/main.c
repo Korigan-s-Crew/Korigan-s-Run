@@ -421,6 +421,7 @@ int main(void) {
                             // }
                         }
                         if (event.key.keysym.sym == SDLK_e && character->on_portal==SDL_TRUE) {
+                            reset_character(character,map,tile_width,tile_height);
                             character->next_map=SDL_TRUE;
                         }
                         if (event.key.keysym.sym == controls->down) {
@@ -440,6 +441,7 @@ int main(void) {
                                     break;
                                 case SDLK_ESCAPE:
                                     // printf("escape\n");
+                                    reset_character(character,map,tile_width,tile_height);
                                     game_playing = 0;
                                     menu=1;
                                     break;
@@ -541,9 +543,10 @@ int main(void) {
             if (getCurrentTimeInMicroseconds() - last_time >= 1000000 / 60) {
                 last_time = getCurrentTimeInMicroseconds();
                 if (character->alive == SDL_FALSE) {  // ide warning is an error
+
                     character->x = map->tile_start_x * tile_width;
                     character->y = map->tile_start_y * tile_height;
-                    character->alive = SDL_TRUE;
+                    reset_character(character, map, tile_width, tile_height);
                 }
                 if (character->next_map == SDL_TRUE ) {
                     if (tutorial_step != 0){
