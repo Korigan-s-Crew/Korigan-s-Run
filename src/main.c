@@ -485,10 +485,12 @@ int main(void) {
                                     break;
                                 case SDLK_KP_0:
                                     character->alive = SDL_FALSE;
+                                    break;
                                 case SDLK_TAB:
                                     switchLayout(controls);
                                     break;
                                 case SDLK_l:
+                                    printf("Cheat: Dash with 0 cooldown\n");
                                     if (DASH_COOLDOWN == 300){
                                         DASH_COOLDOWN = 26;
                                     } else {DASH_COOLDOWN = 300;}

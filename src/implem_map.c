@@ -403,6 +403,7 @@ void create_map_txt(Pattern pat, char* file) {
 	char* start_high = "./Patterns/first_pattern_high.txt";
 
 	int noeud_actuel = random_number(1, 3);
+	int last_noeud = noeud_actuel;
 	Matrice M;
 	switch (noeud_actuel) {
 	case 1:
@@ -418,16 +419,17 @@ void create_map_txt(Pattern pat, char* file) {
 
 	int pattern2big = 0;
 	while (M.cols <= MAX_TILES - pat.end_low.cols && pattern2big == 0) {
+		last_noeud = noeud_actuel;
 		noeud_actuel = parcours_graphe(pat.graphe, noeud_actuel);
 		// printf("pattern concat : %d", noeud_actuel);
 		M = concatenerMatrices(M, pat.Mat[noeud_actuel], &pattern2big, 0, pat.end_low.cols);
 	}
-	if (noeud_actuel >= 10 && noeud_actuel < 20) {
+	if (last_noeud >= 10 && last_noeud < 20) {
 		M = concatenerMatrices(M, pat.end_low, &pattern2big, 1, pat.end_low.cols);
-	} else if (noeud_actuel >= 20 && noeud_actuel < 30) {
-		M = concatenerMatrices(M, pat.end_mid, &pattern2big, 1, pat.end_low.cols);
-	} else if (noeud_actuel >= 30 && noeud_actuel < 40) {
-		M = concatenerMatrices(M, pat.end_high, &pattern2big, 1, pat.end_low.cols);
+	} else if (last_noeud >= 20 && last_noeud < 30) {
+		M = concatenerMatrices(M, pat.end_mid, &pattern2big, 1, pat.end_mid.cols);
+	} else if (last_noeud >= 30 && last_noeud < 40) {
+		M = concatenerMatrices(M, pat.end_high, &pattern2big, 1, pat.end_high.cols);
 	} else {
 		printf("Erreur: Last patterns didn't get concatenate");
 	}
