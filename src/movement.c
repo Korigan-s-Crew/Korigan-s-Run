@@ -78,7 +78,7 @@ SDL_bool in_action(Character *character) {
 
 
 void go_crouch(Character *character, Map *map) {
-    if (change_size_collision(character, map, character->original_width, character->original_width)) {
+    if  (character->wall_jump_left == SDL_FALSE && character->wall_jump_right == SDL_FALSE && change_size_collision(character, map, character->original_width, character->original_width)) {
         character->crouch = SDL_TRUE;
         character->height = character->original_width;
         character->width = character->original_width;
@@ -115,7 +115,7 @@ void action_slide(Character *character, Map *map) {
         if (character->just_landed && character->on_ground && character->down) {
             character->just_landed = SDL_FALSE;
             character->crouch = SDL_FALSE;
-            printf("right: %d left: %d\n", character->right, character->left);
+            //printf("right: %d left: %d\n", character->right, character->left);
             if (character->right == SDL_TRUE && character->left == SDL_FALSE) {
                 if (change_size_collision(character, map, character->original_height, character->original_width)) {
                     character->height = character->original_width;
@@ -150,8 +150,9 @@ void handle_slide(Character *character, Map *map) {
             character->dx = -(map->tile_width / 1.2) * character->speed;
         } else {
             slide_cancel(character, map);
+            return;
         }
-        if (character->up && character->slide->duration < 20) {
+        if (character->up && 0 <  character->slide->duration &&character->slide->duration < 20) {
             slide_cancel(character, map);
             move_character_up(character, map, map->tile_width, map->tile_height, 25);
         }
@@ -168,11 +169,11 @@ void slide_cancel(Character *character, Map *map) {
     // cancel slide
     character->slide->duration = 0;
     if (change_size_collision(character, map, character->original_width, character->original_height)) {
-        printf("cancel slide\n");
+        //printf("cancel slide\n");
         character->height = character->original_height;
         character->width = character->original_width;
     } else {
-        printf("can't cancel slide\n");
+        //printf("can't cancel slide\n");
         go_crouch(character, map);
     }
     character->slide->go_right = SDL_FALSE;
@@ -355,7 +356,13 @@ void slow_down(Character *character) {
 }
 
 void move_character_up(Character *character, Map *map, int tile_width, int tile_height, int bonus) {
+    if (bonus != 0){
+        printf("bonus: %d\n", bonus);
+    }
     if (character->on_ground == SDL_TRUE) {// classic jump
+        if (character->crouch){
+            cancel_crouch(character, map);
+        }
         if (character->slide->duration < 20 && change_size_collision(character, map, character->original_width, character->original_height)) {
             character->dy = -(tile_height * 2) - bonus;
             character->on_ground = SDL_FALSE;
