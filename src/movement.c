@@ -360,6 +360,9 @@ void move_character_up(Character *character, Map *map, int tile_width, int tile_
         printf("bonus: %d\n", bonus);
     }
     if (character->on_ground == SDL_TRUE) {// classic jump
+        if (character->crouch){
+            cancel_crouch(character, map);
+        }
         if (character->slide->duration < 20 && change_size_collision(character, map, character->original_width, character->original_height)) {
             character->dy = -(tile_height * 2) - bonus;
             character->on_ground = SDL_FALSE;
