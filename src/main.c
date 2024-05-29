@@ -244,7 +244,7 @@ int main(void) {
                     case SDL_KEYDOWN:
                         switch (event.key.keysym.sym) {
                             case SDLK_ESCAPE:
-                                printf("escape main\n");
+                                // printf("escape main\n");
                                 running = 0;
                                 break;
                             case SDLK_t:
@@ -438,7 +438,7 @@ int main(void) {
                                     character->up = SDL_TRUE;
                                     break;
                                 case SDLK_ESCAPE:
-                                    printf("escape\n");
+                                    // printf("escape\n");
                                     game_playing = 0;
                                     menu=1;
                                     break;
@@ -489,6 +489,7 @@ int main(void) {
                                     break;
                                 case SDLK_l:
                                     printf("x : %d, y: %d\n", character->x, character->y);
+                                    break;
                                 case SDLK_k:
 									play_music(music);
 									break;

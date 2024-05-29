@@ -6,9 +6,12 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
+
 #include "init.h"
-#include "music.h"
 #include "map.h"
+#include "movement.h"
+#include "music.h"
+#include "draw.h"
 
 int main();
 void test_random_number();
@@ -22,6 +25,6 @@ void test_concatStr();
 void test_pattern_initialisation_free_pattern();
 void test_create_map_txt();
 void test_music_and_SDL();
-void test_change_map();
+void test_create_and_change_map();
 
 #endif

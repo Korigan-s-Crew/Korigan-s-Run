@@ -2,6 +2,7 @@
 
 #include "../include/test.h"
 #include "../include/implem_map.h"
+#include "../include/init.h"
 #include "../include/map.h"
 
 // Test pour random_number
@@ -174,37 +175,39 @@ void test_music_and_SDL() {
 	printf("test_music passed \n");
 }
 
-// void test_change_map() {
-// 	// Create a sample map, character, and camera
-// 	Map *map = create_map("map.txt", 32, 32);
-// 	Character character;
-// 	character.x = 10;
-// 	character.y = 20;
-// 	Camera camera;
-// 	camera.x = 0;
-// 	camera.y = 0;
+void test_create_and_change_map() {
+	// Create a sample map, character, and camera
+	Map *map = create_map("map.txt", 32, 32);
+	Character character;
+	character.x = 10;
+	character.y = 20;
+	Camera camera;
+	camera.x = 0;
+	camera.y = 0;
 
-// 	// Call the change_map function
-// 	Map *new_map = change_map(map, "map2.txt", &character, &camera, 32, 32);
+	// Call the change_map function
+	Map *new_map = change_map(map, "map2.txt", &character, &camera, 32, 32);
 
-// 	// Assert that the character has been moved to the start of the new map
-// 	assert(character.x == new_map->tile_start_x * 32);
-// 	assert(character.y == new_map->tile_start_y * 32);
+	// Assert that the character has been moved to the start of the new map
+	assert(character.x == new_map->tile_start_x * 32);
+	assert(character.y == new_map->tile_start_y * 32);
 
-// 	// Assert that the camera has been moved to the character's position
-// 	assert(camera.x == character.x);
-// 	assert(camera.y == character.y);
+	// Assert that the camera has been moved to the character's position
+	assert(camera.x == character.x - 32);
+	assert(camera.y == character.y - 256);
 
-// 	// Assert that the character's next_map flag is reset
-// 	assert(character.next_map == SDL_FALSE);
+	// Assert that the character's next_map flag is reset
+	assert(character.next_map == SDL_FALSE);
 
-// 	// Clean up
-// 	free(new_map);
-// }
+	// Clean up
+	free(new_map);
+	printf("test_create_and_change_map passed \n");
+}
 
 int main() {
 	
 	// Tests sur les fonctions de implem_map.c
+	test_create_and_change_map();
 	test_music_and_SDL();
 	test_random_number();
 	test_normalize_line();
@@ -216,6 +219,5 @@ int main() {
     test_concatStr();
     test_pattern_initialisation_free_pattern();
     test_create_map_txt();
-
-	return 0;
+    return 0;
 }

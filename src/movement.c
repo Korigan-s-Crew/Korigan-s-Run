@@ -357,7 +357,7 @@ void slow_down(Character *character) {
 
 void move_character_up(Character *character, Map *map, int tile_width, int tile_height, int bonus) {
     if (bonus != 0){
-        printf("bonus: %d\n", bonus);
+        // printf("bonus: %d\n", bonus);
     }
     if (character->on_ground == SDL_TRUE) {// classic jump
         if (character->crouch){
