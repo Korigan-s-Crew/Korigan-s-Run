@@ -15,6 +15,7 @@ extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
 extern int DASH_COOLDOWN;
 
+
 int main(void) {
     // start a timer //bullshit
     long long start = getCurrentTimeInMicroseconds();
@@ -170,6 +171,7 @@ int main(void) {
 (tutorial_step == 12 && character->on_portal == SDL_TRUE))
     // Boucle principale
     int running = 1;
+    int dev_mode = 0;
     int game_playing=0;
     double timer_start;
     int menu=1;
@@ -270,6 +272,9 @@ int main(void) {
                                 break;
                             case SDLK_k:
 								play_music(music);
+                                break;
+                            case SDLK_m:
+                                if (dev_mode==1) {dev_mode=0;} else {dev_mode=1;}
                                 break;
                             case SDLK_F11:
                                 // Si la fenêtre est en plein écran on la met en mode fenêtré et inversement
@@ -446,10 +451,12 @@ int main(void) {
                                     menu=1;
                                     break;
                                 case SDLK_p:
-                                    character->speed += 0.5;
+                                    if (dev_mode==1) {
+                                        character->speed += 0.5;}
                                     break;
                                 case SDLK_o:
-                                    character->speed -= 0.5;
+                                    if ( dev_mode==1){
+                                        character->speed -= 0.5;}
                                     break;
                                 case SDLK_LSHIFT:
                                     action_dash(character, controls, map);
@@ -492,14 +499,21 @@ int main(void) {
                                     switchLayout(controls);
                                     break;
                                 case SDLK_l:
-                                    printf("Cheat: Dash with 0 cooldown\n");
-                                    if (DASH_COOLDOWN == 300){
-                                        DASH_COOLDOWN = 26;
-                                    } else {DASH_COOLDOWN = 300;}
+                                    if (dev_mode==1){
+                                        printf("Cheat: Dash with 0 cooldown\n");
+                                        if (DASH_COOLDOWN == 300){
+                                            DASH_COOLDOWN = 26;
+                                        } else {DASH_COOLDOWN = 300;}
+                                    }
                                     break;
                                 case SDLK_k:
 									play_music(music);
 									break;
+                                case SDLK_m:
+                                    if (dev_mode==1){
+                                        dev_mode=0;
+                                    } else {dev_mode=1;}
+                                    break;
                             }
                         }
                         break;
