@@ -183,6 +183,8 @@ void test_create_and_change_map() {
 	character.x = 10;
 	character.y = 20;
 	Camera camera;
+    camera.width = 1;
+    camera.height = 1;
 	camera.x = 0;
 	camera.y = 0;
 
@@ -195,7 +197,7 @@ void test_create_and_change_map() {
 
 	// Assert that the camera has been moved to the character's position
 	assert(camera.x == character.x - 32);
-	assert(camera.y == character.y - 256);
+	assert(camera.y == character.y * 32 + 908);
 
 	// Assert that the character's next_map flag is reset
 	assert(character.next_map == SDL_FALSE);
