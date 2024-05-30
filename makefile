@@ -9,6 +9,7 @@ BINARY = bin/$(TARGET)
 # Compilation
 CC = clang
 CFLAGS = -std=gnu11 -Wall -pedantic -O3
+LDFLAGS = -lm
 
 # Debug
 CFLAGS += -g
