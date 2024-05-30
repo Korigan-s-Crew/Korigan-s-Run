@@ -41,19 +41,19 @@ Le but est de finir le plsu vite possible trois maps, en utilisant les different
 | touche |    action    |
 | ------ | ------------ |
 |   e    |    start     |
-|   d    |   tutoriel   |
+|   t    |   tutoriel   |
 | escape |   quitter    |
 
 # déplacement
 ## Descente
 - Sur le sol, descendre permet de s'accroupir.
-- si le personnage tombe, descendre déclenche un slide.
+- si le personnage tombe en se déplaçant, descendre déclenche un slide.
 - sur un nuage, decendre permet de passer à travers.
 
 ## Murs spéciaux
 On peut s'attacher aux murs spéciaux (bleu et orange)
 - maintenir juste la touche de déplacement latéral permet de decendre lentement.
-- mainenir en plus espace permet de rester fixe sur le mur.
+- maintenir en plus espace permet de rester fixe sur le mur.
 - relacher le coté en maintenant espace déclenche un saut latéral dans l'autre sens.
 
 ## slide
