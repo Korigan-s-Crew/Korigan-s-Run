@@ -12,6 +12,7 @@
 #include "movement.h"
 #include "music.h"
 #include "draw.h"
+#include "main.h"
 
 int main();
 void test_random_number();

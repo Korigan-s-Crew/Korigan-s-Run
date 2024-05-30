@@ -5,6 +5,7 @@
 #include "../include/init.h"
 #include "../include/map.h"
 
+
 // Test pour random_number
 void test_random_number() {
     int min = 1, max = 10;
@@ -48,9 +49,9 @@ void test_matrice_vers_file_recup_matrice() {
     mat.data[0][0] = '1'; mat.data[0][1] = '2'; mat.data[0][2] = '3';
     mat.data[1][0] = '4'; mat.data[1][1] = '5'; mat.data[1][2] = '6';
     mat.data[2][0] = '7'; mat.data[2][1] = '8'; mat.data[2][2] = '9';
-    
+
     matrice_vers_file(mat, "../test_matrix.txt");
-    
+
     Matrice mat_recup = recup_matrice("./Patterns/test_matrix.txt");
     for (int i = 0; i < mat.rows; i++) {
         for (int j = 0; j < mat.cols; j++) {
@@ -99,7 +100,7 @@ void test_concatenerMatrices() {
 
     M1.data[0][0] = 'a'; M1.data[0][1] = 'b';
     M1.data[1][0] = 'c'; M1.data[1][1] = 'd';
-    
+
     M2.data[0][0] = 'e'; M2.data[0][1] = 'f';
     M2.data[1][0] = 'g'; M2.data[1][1] = 'h';
 
@@ -204,9 +205,65 @@ void test_create_and_change_map() {
 	printf("test_create_and_change_map passed \n");
 }
 
+void test_slide(){
+
+    Map *map = create_map("maps/test_slide.txt", 32, 32);
+    Character *character = create_character(map->tile_start_x * 32, map->tile_start_y * 32,
+                                           (int)(32 * 0.9), (int)(32 * 1.5), 2, NULL);
+    int pasty = character->y;
+    gravity(character);
+    mouvement(map, character);
+    while(character->y != pasty){
+        pasty = character->y;
+        gravity(character);
+        mouvement(map, character);
+    }
+
+    character->down = SDL_TRUE;
+    action_slide(character, map);
+    assert(character->slide->duration == 0);
+    assert(character->slide->go_left == SDL_FALSE);
+    assert(character->slide->go_right == SDL_FALSE);
+
+    character->just_landed = SDL_TRUE;
+    character->down = SDL_TRUE;
+    action_slide(character, map);
+    assert(character->slide->duration == 0);
+    assert(character->slide->go_left == SDL_FALSE);
+    assert(character->slide->go_right == SDL_FALSE);
+
+    character->right = SDL_TRUE;
+    character->just_landed = SDL_TRUE;
+    action_slide(character, map);
+    assert(character->slide->duration == 50);
+    assert(character->slide->go_left == SDL_FALSE);
+    assert(character->slide->go_right == SDL_TRUE);
+
+//    character.slide->duration = 1;
+//    character.slide->go_left = SDL_TRUE;
+//    action_slide(&character, map);
+//    assert(character.slide->duration == 0);
+//    assert(character.slide->go_left == SDL_FALSE);
+//    assert(character.slide->go_right == SDL_FALSE);
+//
+//    character.slide->duration = 1;
+//    character.slide->go_right = SDL_TRUE;
+//    action_slide(&character, map);
+//    assert(character.slide->duration == 0);
+//    assert(character.slide->go_left == SDL_FALSE);
+//    assert(character.slide->go_right == SDL_FALSE);
+
+    free(character->dash);
+    free(character->slide);
+    free(character);
+    free(map);
+    printf("test_slide passed \n");
+}
+
 int main() {
-	
+
 	// Tests sur les fonctions de implem_map.c
+    test_slide();
 	test_create_and_change_map();
 	test_music_and_SDL();
 	test_random_number();
