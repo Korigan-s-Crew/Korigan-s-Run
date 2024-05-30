@@ -31,6 +31,8 @@ Le but est de finir le plsu vite possible trois maps, en utilisant les different
 | shift  |     dash     |
 |  F11   | mode fenêtre |
 |   m    |   mode dev   |
+|   k    |   lancer/arrêter la musique    |
+|  tab   | passe les contrôles en qwerty |
 ## Mode développeur
 | touche |    action    |
 | ------ | ------------ |
